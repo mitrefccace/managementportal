@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Call Center</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.5 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/bootstrap-theme.css" rel="stylesheet"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="css/font-awesome-4.5.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="css/ionicons-2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="dist/css/AdminLTE.custom.css">
+    <!-- AdminLTE Skins. You can choose any other skin. Make sure you
+          apply the skin class to the body tag so the changes take effect.
+    -->
+    <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- REQUIRED JS SCRIPTS -->
+
+    <!-- jQuery 2.1.4 -->
+    <script src="js/lib/jQuery-2.1.4.min.js"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src='js/lib/bootstrap.js'></script>
+    <script src='js/lib/ui-bootstrap-tpls-0.6.0.js'></script>
+    <!-- AdminLTE App -->
+    <script src="dist/js/app.min.js"></script>
+    <!-- Slimscroll -->
+    <script src="js/lib/jquery.slimscroll.min.js"></script>
+    <!-- FastClick -->
+    <script src="js/lib/fastclick.min.js"></script>
+    <!-- jQuery-UI 1.10.3 -->
+    <script type='text/javascript' src='js/lib/jquery-ui-1.10.3.js'></script>
+    <!-- Angular -->
+    <script src="js/lib/angular.js"></script>
+    <script src="js/lib/angular-route.js"></script> 
+    <!-- socket.io -->
+    <script src='/socket.io/socket.io.js'></script>
+    <!-- Angular Controllers -->
+    <script type='text/javascript' src='public/js/controllers/dashboard.js'></script>
+    <script type='text/javascript' src='public/js/controllers/filters.js'></script>
+    <script type='text/javascript' src='public/js/services/csrservices.js'></script>
+    <script type='text/javascript' src='public/js/core-dashboard.js'></script>
+
+    <!-- Set focus to agent needing assistance -->
+    <!--<script>
+      var oHighlightedRow = document.all("SearchRow" + nHighlightedRow);
+      oHighlightedRow.cells[0].focus();
+    </script>-->
+     <script type="text/javascript">
+            $(document).ready(function () {
+                $("#header").load("header.html");
+                $("#sidebar").load("sidebar.html", function () {
+                    $("#sidebardashboard").addClass("active");
+                });
+                $("#footer").load("footer.html");
+            });
+            /* $('#reset').click(function()
+            {
+                console.log("reset counters");
+            });*/
+            function resetAllCounters() {
+              console.log("reset counters ####");
+              $.ajax({
+               url: '/resetAllCounters',
+               type:'GET',
+              dataType: "json" 
+              })
+            };
+         
+            
+     </script>
+
+  </head>
+  <!--
+  BODY TAG OPTIONS:
+  =================
+  Apply one or more of the following classes to get the
+  desired effect
+  |=========================================================|
+  | SKINS         | skin-blue                               |
+  |               | skin-black                              |
+  |               | skin-purple                             |
+  |               | skin-yellow                             |
+  |               | skin-red                                |
+  |               | skin-green                              |
+  |=========================================================|
+  |LAYOUT OPTIONS | fixed                                   |
+  |               | layout-boxed                            |
+  |               | layout-top-nav                          |
+  |               | sidebar-collapse                        |
+  |               | sidebar-mini                            |
+  |=========================================================|
+  -->
+  <body class="hold-transition skin-purple sidebar-mini" ng-app="acrcsr-dashboard">
+    <div class="wrapper">
+      <header id="header" class="main-header"></header>
+      <aside id="sidebar" class="main-sidebar"></aside>
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper" ng-controller="dashboardController">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+          <h1>CA Dashboard</h1>
+          <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">CA Dashboard</li>
+          </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+
+          <!-- Your Page Content Here -->
+          <div class="row">
+            <div class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-aqua">
+                <div class="inner">
+                  <h3>{{summary.calls | shownum}}</h3>
+                  <p>Calls Waiting</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-ios-telephone"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-green">
+                <div class="inner">
+                  <h3>{{summary.completed | shownum}}</h3>
+                  <p>Calls Handled</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-checkmark"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-yellow">
+                <div class="inner">
+                  <h3>{{summary.avgholdtime | shownum}}</h3>
+                  <p>Average Hold Time (minutes)</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-clock"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              </div>
+            </div><!-- ./col -->
+            <div class="col-lg-3 col-xs-6">
+              <!-- small box -->
+              <div class="small-box bg-red">
+                <div class="inner">
+                  <h3>{{summary.abandoned | shownum}}</h3>
+                  <p>Calls Abandoned</p>
+                </div>
+                <div class="icon">
+                  <i class="ion ion-close-circled"></i>
+                </div>
+                <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+              </div>
+            </div><!-- ./col -->
+          </div><!-- /.row -->
+
+          <!-- Queue Information Box -->
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="box">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Queue Information</h3>
+                  <div class="box-tools pull-right">
+                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                  </div>
+                </div><!-- /.box-header -->
+                <div class="box-body table-responsive no-padding" style="max-height: 250px; overflow-y: scroll">
+                  <table class="table table-hover">
+                    <tr>
+                      <th class="text-center">Queue</th>
+                      <th class="text-center">Logged In</th>
+                      <th class="text-center">Available Agents</th>
+                      <th class="text-center">Current Calls</th>
+                      <th class="text-center">Total Calls</th>
+                      <th class="text-center">Calls Handled</th>
+                      <th class="text-center">Calls Abandoned</th>
+                      <th class="text-center">Talk Time (min)</th>
+                      <th class="text-center">Hold Time (min)</th>
+                      <th class="text-center">Longest Hold Time (min)</th>
+                     
+                    </tr>
+                    <tr ng-repeat="q in Queues">
+                      <td><span class="queue-info">{{q.queue}}</span></td>
+                      <td id="qname" class="text-center"><span class="queue-info">{{q.loggedin}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.available}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.callers}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.calls}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.completed}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.abandoned}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.talktime}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.holdtime}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{q.longestholdtime}}</span></td>
+                     
+                    </tr>
+                  </table>
+                </div><!-- /.box-body -->
+              </div><!-- /.box -->
+            </div><!-- ./col -->
+          </div><!-- ./Queue Information Table -->
+
+          <!-- Call Agent Summary Table -->
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="box">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Call Agent Summary</h3>
+                  <div class="box-tools pull-right">
+                    <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                  </div>
+                </div><!-- /.box-header -->
+                <div id="agentSummary" class="box-body table-responsive no-padding" style="max-height: 250px; overflow-y: scroll">
+                  <table class="table table-hover">
+                    <tr>
+                      <th class="text-center">Call Agent</th>
+                      <th class="text-center">Registered Ext.</th>
+                      <th class="text-center">Calls Completed</th>
+                      <th class="text-center">Average Call Time (min)</th>
+                      <th class="text-center">Talk Time (min)</th>
+                      <th class="text-center">Calls Abandoned</th>
+          <!-- Placeholders for a future function -->
+                      <!-- <th class="text-center">Hang-Ups</th> -->
+                      <!-- <th class="text-center">Ring No Answer</th> -->
+                      <th class="text-center">Status</th>
+                    </tr>
+                    <tr ng-repeat="a in Agents" highlight-on-change="{{a.help}}" ng-click="a.help='no'">
+                      <td><span class="queue-info">{{a.name}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{a.agent}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{a.callstaken}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{a.avgtalktime}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{a.talktime}}</span></td>
+                      <td class="text-center"><span class="queue-info">{{a.callsabandoned}}</span></td>
+          <!-- Placeholders for a future function -->
+                      <!-- <td class="text-center"></td> -->
+                      <!-- <td class="text-center"></td> -->
+                      <td class="text-center"><span class="queue-info">{{a.status}}</span></td>
+                    </tr>
+                  </table>
+                </div><!-- /.box-body -->
+              </div><!-- /.box -->
+            </div>
+          </div><!-- ./Call Agent Summary Table -->
+          <div class="row">
+           <div class="col-md-12" style="text-align: center">
+            <button id="reset" type="button" class="btn bg-navy btn-flat margin" onclick="resetAllCounters()" >Reset All Counters</button>
+          </div>
+          </div>
+        </section><!-- /.content -->
+      </div><!-- /.content-wrapper -->
+      <footer id="footer" class="main-footer"></footer>
+    </div><!-- ./wrapper -->
+
+  </body>
+</html>

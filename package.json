@@ -1,0 +1,31 @@
+{
+  "name": "managementportal",
+  "description": "Management Dashboard foro ACE Product Family",
+  "version": "1.0.0-Beta",
+  "main": "server-db.js", 
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "TBD"
+  },
+  "scripts": {
+    "test": "echo \"Error \" && exit 1",
+    "start": "node server-db.js"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "asterisk-manager": "^0.1.15",
+    "method-override": "^2.3.6",
+    "body-parser": "^1.15.2", 
+    "debug": "^2.2.0",
+    "morgan": "^1.7.0",
+    "express": "^4.14.0",
+    "log4js": "^0.6.38",
+    "nconf": "^0.8.4",
+    "request": "^2.34.0",
+    "socket.io": "^1.4.8",
+    "socket.io-client": "^1.4.8",
+    "json2csv": "^3.6.3"   
+  }
+}

@@ -1,0 +1,95 @@
+{
+"debuglevel": "all",
+"http": {
+	"port": 9080,
+	"port-dashboard" : 9081,
+	"port-user" : 9082
+},
+"zendesk": {
+    "ticket": "yes",
+	"apiurl-o": "https://user.zendesk.com/api/v2",
+	"apiurl": "http://52.71.44.245:9090/api/v2",
+	"userid": "user@email.com",
+	"token": "aaabbbcccdddeeefffggghhhiiijjjkkklllmmmn",
+	"proxy" : {
+		"host" : "proxy.company.org",
+		"port" : 80,
+		"tunnel" : "true"
+		}
+},
+"asterisk": {
+    "sip": {
+		"host" : "<Hostname>",
+		"realm" : "<Hostname>",
+		"host-o" : "<ip address>",
+		"realm-o" : "<ip address>",
+		"stun" : "[]",
+		"stun-o" : "[{url:'stun:stun4.l.google.com:19302'}]",
+		"wsport" : 8088,
+		"outboundurl_host": "",
+		"outboundurl_port": "",
+		"disable_3gpp_early_ims": false,
+		"disable_debug_message": false,
+		"cache_media_stream": true,
+		"disable_call_button_options": false,
+		"disable_video": false,
+		"enable_rtcweb_breaker": false,
+		"channel": "SIP"
+	},
+	"ami" : {
+		"id" : "user",
+		"passwd" : "password",
+		"port" : 5038
+	},
+	"ari" : {
+	    "id" : "user",
+		"passwd" : "password"
+	}
+},
+"extensions": {
+	    "startnumber" : "4001",
+		"endnumber" : "4010",
+		"secret" : "password"
+},
+"queues": {
+	"complaint" : {
+	    "number" : "575791"
+	},
+	"information" : {
+	    "number" : "575781"
+	}
+},
+"opentok": {
+	"apiKey" : "45538952",
+	"apiSecret" : "xxxyyyzzz111222333xxxyyyzzz111222333xxxy"
+	},
+"opentok-o": {
+	"apiKey" : "45505662",
+	"apiSecret" : "hhhiiijjjkkkhhhiiijjjkkkhhhiiijjjkkkhhhi"
+	},
+"vrscheck": {
+		"verify" : "yes",
+        "url" : "http://<hostname>",
+        "url-b" : "http://<hostname>",
+        "url-o" : "http:/<hostname>",
+        "port-b" : 9092,
+        "port" : 8082
+},
+"agentservice": {
+		"verify" : "yes",
+        "url-o" : "http://<hostname>",    
+        "url" : "http://<hostname>",
+        "port-b" : 9092,
+        "port" : 8083
+},
+"scriptservice": {
+        "verify" : "yes",
+        "url-o" : "http://<hostname>",    
+        "url" : "http://<hostname>",
+        "port-b" : 9092,
+        "port" : 8083
+},
+"acr-cdr": {
+  	"url" : "http://<ACR-CDR hostname>"
+}
+}
