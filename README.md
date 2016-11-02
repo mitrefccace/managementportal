@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+# ACE Direct Version
 # managementportal
 
 ### This repository started with the p4s2 baseline.
