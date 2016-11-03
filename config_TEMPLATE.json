@@ -1,0 +1,97 @@
+{
+"debuglevel": "debug",
+"environment": "AD",
+"http": {
+	"port": 8080,
+	"port-dashboard" : 8081,
+	"port-user" : 8082
+},
+"asterisk": {
+    "sip": {
+		"host" : "asteriskhost",
+		"realm" : "asteriskhost",
+		"stun" : "[]",
+		"wsport" : 443,
+		"outboundurl_host": "",
+		"outboundurl_port": "",
+		"disable_3gpp_early_ims": false,
+		"disable_debug_message": false,
+		"cache_media_stream": true,
+		"disable_call_button_options": false,
+		"disable_video": false,
+		"enable_rtcweb_breaker": false,
+		"channel": "SIP",
+		"websocket": "wss://asteriskhost:443/ws"
+	},
+	"ami" : {
+		"id" : "user",
+		"passwd" : "password",
+		"port" : 5038
+	}
+},
+"asteriskAD": {
+    "sip": {
+                "host" : "asteriskhost",
+                "realm" : "asteriskhost",
+                "stun" : "[]",
+                "wsport" : 8088,
+                "outboundurl_host": "",
+                "outboundurl_port": "",
+                "disable_3gpp_early_ims": false,
+                "disable_debug_message": false,
+                "cache_media_stream": true,
+                "disable_call_button_options": false,
+                "disable_video": false,
+                "enable_rtcweb_breaker": false,
+                "channel": "SIP",
+                "websocket": "ws://asteriskhost:8088/ws"
+        },
+        "ami" : {
+                "id" : "user",
+                "passwd" : "password",
+                "port" : 5038
+        },
+        "ari" : {
+            "id" : "user",
+                "passwd" : "password"
+        }
+},
+
+"queues": {
+	"complaint" : {
+	    "number" : "6003",
+		"identity" : "6001",
+		"secret" : "6001"
+	},
+	"information" : {
+	    "number" : "1101",
+		"identity" : "6002",
+		"secret" : "6002"
+	}
+},
+"acr-cdr": {  
+        "url" : "http://localhost:8086/getallcdrrecs"
+        },
+"dashboard": {
+	   "queuesACL" : "InboundQueue",
+	   "queuesAD"  : "GeneralQuestionsQueue,ComplaintsQueue",
+	   "pollInterval" : 8000
+},
+"vrscheck": {
+        "url" : "http://host"
+},
+"aceconnectlite":{
+	"url" : "http://host:8004"
+},
+"acedirect":{
+	"url" : "http://host:8005"
+},
+"zendesk":{
+	"url" : "https://user.zendesk.com:443"
+},
+"agentservice": {
+       "verify" : "yes",
+       "url" : "http://host:8085"
+}
+			
+}

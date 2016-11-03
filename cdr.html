@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Call Center</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <!-- Bootstrap 3.3.5 -->
+        <link href="css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="css/bootstrap-theme.css" rel="stylesheet"/>        
+        <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/daterangepicker.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="css/font-awesome-4.5.0/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="css/ionicons-2.0.1/css/ionicons.min.css">
+        <!-- Theme style -->
+        <link rel="stylesheet" href="dist/css/AdminLTE.custom.css">
+        <!-- AdminLTE Skins. You can choose any other skin. Make sure you
+              apply the skin class to the body tag so the changes take effect.
+        -->
+        <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <!-- REQUIRED JS SCRIPTS -->
+
+        <!-- jQuery 2.1.4 -->
+        <script src="js/lib/jQuery-2.1.4.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src='js/lib/bootstrap.js'></script>
+        <script src='js/lib/ui-bootstrap-tpls-0.6.0.js'></script>
+        <!-- AdminLTE App -->
+        <script src="dist/js/app.min.js"></script>
+        <!-- Slimscroll -->
+        <script src="js/lib/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="js/lib/fastclick.min.js"></script>
+        <!-- jQuery-UI 1.10.3 -->
+        <script type='text/javascript' src='js/lib/jquery-ui-1.10.3.js'></script>
+        <!-- Angular -->
+        <script src="js/lib/angular.js"></script>
+        <script src="js/lib/angular-route.js"></script> 
+        <!-- socket.io -->
+        <script src='/socket.io/socket.io.js'></script>
+        <!-- Angular Controllers -->
+        <script type='text/javascript' src='public/js/controllers/dashboard.js'></script>
+        <script type='text/javascript' src='public/js/controllers/filters.js'></script>
+        <script type='text/javascript' src='public/js/services/csrservices.js'></script>
+        <script type='text/javascript' src='public/js/core-dashboard.js'></script>
+        <script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
+        <script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/lib/moment.min.js"></script>
+        <script type="text/javascript" src="js/lib/daterangepicker.js"></script>    
+
+        <script type="text/javascript">
+
+
+			var socket = io.connect('http://' + window.location.host);
+			var ENV = "";
+			socket.on('environment', function (data) {
+				ENV = data;
+				if (ENV === "AD") {
+					$('#headername').html("ACE Direct");
+				} else if (ENV === "ACL") {
+					$('#headername').html("ACE Connect Lite");
+				}
+			});
+
+			$(document).ready(function () {
+				$("#header").load("header.html", function () {
+					if (ENV === "AD") {
+						$('#headername').html("ACE Direct");
+					} else if (ENV === "ACL") {
+						$('#headername').html("ACE Connect Lite");
+					}
+				});
+				$("#sidebar").load("sidebar.html", function () {
+					$("#sidebarcdr").addClass("active");
+				});
+				$("#footer").load("footer.html");
+
+				var cdrDataSrc = '/cdrinfo';
+				var params = '?';
+				//cdrDataSrc = 'getallcdrrecs.txt';
+
+				var datatable = $('#cdrtable').DataTable({
+					"ajax": cdrDataSrc,
+					//"url": cdrDataSrc,
+					"type": "GET",
+					"columns": [
+						{"data": "calldate",
+							"render": function (value) {
+								return moment(value).local().format('YYYY/MM/DD hh:mm:ss a');
+								;
+							}
+						},
+						{"data": "clid"},
+						{"data": "src"},
+						{"data": "dst"},
+						{"data": "dcontext"},
+						{"data": "channel"},
+						{"data": "dstchannel"},
+						{"data": "lastapp"},
+						{"data": "lastdata"},
+						{"data": "duration"},
+						{"data": "billsec"},
+						{"data": "disposition"},
+						{"data": "amaflags"},
+						{"data": "accountcode"},
+						{"data": "userfield"},
+						{"data": "uniqueid"},
+						{"data": "linkedid"},
+						{"data": "sequence"},
+						{"data": "peeraccount"}
+					]
+				});
+
+				var toggle = true;
+				toggleTable();
+				$('#toggle').on('click', function (e) {
+					e.preventDefault();
+					toggleTable();
+				});
+				function toggleTable() {
+					toggle = !toggle;
+					if (toggle) {
+						$('#toggle').html('<i class="fa fa-toggle-on"></i>');
+					} else {
+						$('#toggle').html('<i class="fa fa-toggle-off"></i>');
+					}
+					datatable.column(1).visible(toggle);
+					datatable.column(6).visible(toggle);
+					datatable.column(11).visible(toggle);
+					datatable.column(12).visible(toggle);
+					datatable.column(13).visible(toggle);
+					datatable.column(14).visible(toggle);
+					datatable.column(15).visible(toggle);
+					datatable.column(16).visible(toggle);
+					datatable.column(17).visible(toggle);
+					datatable.column(18).visible(toggle);
+				}
+
+				$('#cdrdownloadbtn').click(function () {
+					params += '&format=csv';
+					console.log(cdrDataSrc + params);
+					window.open(cdrDataSrc + params);
+				});
+
+				var start = moment("2016-01-01");
+				var end = moment();
+
+				function cb(start, end) {
+					$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+				}
+
+				$('#reportrange').daterangepicker({
+					startDate: start,
+					endDate: end,
+					ranges: {
+						'Today': [moment(), moment()],
+						'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+						'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+						'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+						'This Month': [moment().startOf('month'), moment().endOf('month')],
+						'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+						'All Time': [start, end]
+					}
+				}, cb);
+
+				cb(start, end);
+
+				$('#reportrange').on('apply.daterangepicker', function (evt, picker) {
+					var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
+					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add('days', 1).format();
+					params = '?start=' + startdate + '&end=' + enddate
+					console.log(params);
+					datatable.ajax.url(cdrDataSrc + params).load();
+				});
+
+			});
+
+
+        </script>
+
+    </head>
+    <body class="hold-transition skin-purple sidebar-mini">
+        <div class="wrapper">         
+			<!-- Main Header -->
+			<header id="header" class="main-header"></header>
+            <aside id="sidebar" class="main-sidebar"></aside>
+            <!-- Content Wrapper. Contains page content -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>CDR Dashboard</h1>       
+
+                    <div id="reportrange" class="dropdown-menu-left" >
+                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                        <span></span> <b class="caret"></b>
+                    </div>
+
+                    <ol class="breadcrumb">
+                        <li><a href="./dashboard.html"><i class="fa fa-dashboard"></i> Home</a></li>
+                        <li class="active">CDR Dashboard</li>
+                    </ol>
+                </section>
+
+                <!-- Main content -->
+                <section class="content">
+                    <!-- CDR Table -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="box">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Call Detail Records</h3>
+
+                                    <div class="box-tools pull-right">
+                                        <button class="btn btn-box-tool" id="toggle"><i class="fa fa-toggle-off"></i></button>     
+                                        <button class="btn btn-box-tool" id="cdrdownloadbtn"><i class="fa fa-download"></i></button>                   
+                                    </div>
+
+                                </div><!-- /.box-header -->
+                                <div id="cdrtablediv" class="box-body table-responsive" style="overflow-x: scroll" >
+                                    <table id="cdrtable" class="table table-bordered table-hover" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-center">Call Date</th>
+                                                <th class="text-center">Caller ID Text</th>
+                                                <th class="text-center">Source</th>
+                                                <th class="text-center">Destination</th>
+                                                <th class="text-center">Destination Context</th>
+                                                <th class="text-center">Channel</th>
+                                                <th class="text-center">Destination Channel</th>
+                                                <th class="text-center">Last Application</th>
+                                                <th class="text-center">Last Data</th>
+                                                <th class="text-center">Duration Seconds</th>
+                                                <th class="text-center">Billable Seconds</th>
+                                                <th class="text-center">Disposition</th>
+                                                <th class="text-center">AMA Flags</th>
+                                                <th class="text-center">Account Code</th>
+                                                <th class="text-center">User Field</th>
+                                                <th class="text-center">Unique ID</th>
+                                                <th class="text-center">Linked ID</th>
+                                                <th class="text-center">Sequence</th>
+                                                <th class="text-center">Peer Account</th>
+                                            </tr>
+                                        </thead>
+										<!-- Footer titles -->
+                                        <!--tfoot>
+                                            <tr>
+                                                <th class="text-center">Call Date</th>
+                                                <th class="text-center">Caller ID Text</th>
+                                                <th class="text-center">Source</th>
+                                                <th class="text-center">Destination</th>
+                                                <th class="text-center">Destination Context</th>
+                                                <th class="text-center">Channel</th>
+                                                <th class="text-center">Destination Channel</th>
+                                                <th class="text-center">Last Application</th>
+                                                <th class="text-center">Last Data</th>
+                                                <th class="text-center">Duration Seconds</th>
+                                                <th class="text-center">Billable Seconds</th>
+                                                <th class="text-center">Disposition</th>
+                                                <th class="text-center">AMA Flags</th>
+                                                <th class="text-center">Account Code</th>
+                                                <th class="text-center">User Field</th>
+                                                <th class="text-center">Unique ID</th>
+                                                <th class="text-center">Linked ID</th>
+                                                <th class="text-center">Sequence</th>
+                                                <th class="text-center">Peer Account</th>
+                                            </tr>
+                                        </tfoot-->
+                                    </table>
+                                </div><!-- /.box-body -->
+                            </div><!-- /.box -->
+                        </div>
+                    </div><!-- ./CDR Table -->
+                    <div id="csv"></div>
+                </section><!-- /.content -->
+            </div><!-- /.content-wrapper -->
+			<footer id="footer" class="main-footer"></footer>
+        </div><!-- ./wrapper -->
+    </body>
+</html>

@@ -1,0 +1,66 @@
+/* Modal with answer buttons */
+.fa-spin-custom, .glyphicon-spin {
+    -webkit-animation: spin 1000ms infinite linear;
+    animation: spin 1000ms infinite linear;
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+.btn-xlarge {
+    padding: 18px 28px;
+    font-size: 22px; //change this to your desired size
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+}
+.glyphicon {
+    font-size: 50px;
+}
+
+
+/* Modal with flashing text */
+.flash-alert { 
+    min-height: 400px;
+    -webkit-animation: flash 2s infinite linear;
+    animation: flash 2s infinite linear
+}
+
+@-webkit-keyframes flash {
+    0% {
+        -webkit-background-color: red;
+        background-color: red;
+    }
+    100% {
+        -moz-background-color: white;
+        background-color: white;
+    }
+}
+
+@keyframes flash {
+    0% {
+        -webkit-background-color: red;
+        background-color: red;
+    }
+    100% {
+        -webkit-background-color: white;
+        background-color: white;
+    }
+}
