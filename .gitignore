@@ -4,5 +4,8 @@
 /server-db.out
 /server-user.out
 /server.out
-node_modules/
-/nbproject/private/
+node_modules
+nbproject
+/public/bower_components
+.bowerrc
+config_.json_MIKE
