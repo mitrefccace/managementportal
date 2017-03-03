@@ -1,0 +1,83 @@
+{
+	"debuglevel": "ERROR",
+	"environment": "AD",
+	"http": {
+		"port-dashboard": 1000
+	},
+	"https": {
+		"adport": 1000,
+		"port-dashboard": 1000,
+		"port-user": 1000,
+		"certificate": "path_to_cert",
+		"private_key": "path_to_key"
+	},
+	"asterisk": {
+		"sip": {
+			"host": "host",
+			"realm": "realm",
+			"stun": "[]",
+			"wsport": 1000,
+			"channel": "SIP",
+			"websocket": "wss://host:1000/ws"
+		},
+		"ami": {
+			"id": "user",
+			"passwd": "password",
+			"port": 10000
+		}
+	},
+	"asteriskAD": {
+		"sip": {
+			"host": "host",
+			"realm": "realm",
+			"stun": "[]",
+			"wsport": 1000,
+			"channel": "SIP",
+			"websocket": "wss://host:1000/ws"
+		},
+		"ami": {
+			"id": "user",
+			"passwd": "password",
+			"port": 1000
+		}
+	},
+	"acr-cdr": {
+		"url": "https://host:1000/path_to_cdr"
+	},
+	"dashboard": {
+		"queuesACL": "QueueName",
+		"queuesAD": "QueueName,QueueName",
+		"pollInterval": 8000
+	},
+	"vrscheck": {
+		"url": "https://host:1000"
+	},
+	"aceconnectlite": {
+		"url": "https://host:1000"
+	},
+	"acedirect": {
+		"url": "https://host:1000"
+	},
+	"zendesk": {
+		"url": "https://host:1000"
+	},
+	"agentservice": {
+		"url": "https://host",
+		"port": 1000
+	},
+	"jsonwebtoken": {
+		"encoding": "encoding",
+		"secretkey": "somekey",
+		"timeout": 15000,
+		"handshake": true
+	},
+	"session": {
+		"secretKey": "somekey",
+		"resave": true,
+		"saveUninitialized": true,
+        "secure": true,
+        "httpOnly": true,
+        "rolling" : true,
+		"maxAge": 3600000
+	}
+}
