@@ -79,5 +79,9 @@
         "httpOnly": true,
         "rolling" : true,
 		"maxAge": 3600000
-	}
+	},
+	"redis": {
+        "host": "host",
+        "port": 1000
+	}    
 }
