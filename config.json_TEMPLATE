@@ -83,5 +83,9 @@
 	"redis": {
         "host": "host",
         "port": 1000
+	},
+	"iam": {
+        "host": "host",
+        "port": 1000
 	}    
 }
