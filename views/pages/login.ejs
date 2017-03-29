@@ -49,7 +49,7 @@
 						success: function (data) {
 							//alert(JSON.stringify(data));
 							if (data.message === "success") {																
-								window.location.replace("/dashboard");								
+								window.location.replace("mgmt/dashboard");								
 							} else {
 								$('#message').text(data.message);
 							}

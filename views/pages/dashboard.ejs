@@ -236,7 +236,7 @@
 				success: function (data) {
 					//alert(JSON.stringify(data));
 					if (data.message === "success") {
-						socket = io.connect('https://' + window.location.host, {
+						socket = io.connect('https://' + window.location.host +'/mgmt', {
 							query: 'token=' + data.token,
 							forceNew: true
 						});		
