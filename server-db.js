@@ -55,7 +55,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({'extended': 'true'})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({type: 'application/vnd.api+json'})); // parse application/vnd.api+json as json
-app.use(csrf({ cookie: true }));
+app.use(csrf({ cookie: false }));
 
 log4js.loadAppender('file');
 var logname = 'server-db';
@@ -826,8 +826,9 @@ function resetAllCounters() {
 app.use(function (err, req, res, next) {
   if (err.code !== 'EBADCSRFTOKEN') return next(err)
   // handle CSRF token errors here
-  res.status(403)
-  res.send('form tampered with')
+  //res.status(403)
+  //res.send('form tampered with')
+  res.status(200).json({"message": "Form has been tampered"});
 })
 
 /**
@@ -842,7 +843,7 @@ app.get('/', function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.redirect('/dashboard');
 	} else {
-		res.render('pages/login', { csrfToken: req.csrfToken() });//req.csrfToken()
+		res.render('pages/login', { csrfToken: req.csrfToken() });
 	}
 });
 
