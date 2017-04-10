@@ -55,12 +55,8 @@
 							}
 						},
 						error: function (xhr, status, error) {
-							console.log('Error'+ xhr + status + error);
-							if(status.message){
-								$('#message').text(status.message);
-							}else{
-								$('#message').text('An Error Occured.');
-							}
+							console.log('Error');
+							$('#message').text('An Error Occured.');
 						}
 					});
 				});
