@@ -40,7 +40,7 @@
 					$.ajax({
 						url: './login',
 						data: {
-						//	_csrf: "< %= csrfToken % >",
+							_csrf: "<%= csrfToken %>",
 							username: username,
 							password: password
 						},

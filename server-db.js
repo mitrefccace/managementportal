@@ -15,7 +15,7 @@ var cookieParser = require('cookie-parser'); // the session is stored in a cooki
 var session = require('express-session');
 var https = require('https');
 var shell = require('shelljs');
-//var csrf = require('csurf')
+var csrf = require('csurf')
 
 var port = null; // set the port
 var cfile = null; // Config file
@@ -55,7 +55,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({'extended': 'true'})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({type: 'application/vnd.api+json'})); // parse application/vnd.api+json as json
-//app.use(csrf({ cookie: false }));
+app.use(csrf({ cookie: true }));
 
 log4js.loadAppender('file');
 var logname = 'server-db';
@@ -822,14 +822,14 @@ function resetAllCounters() {
 		logger.log(Asterisk_queuenames[i]);
 	}
 }
-/*
+
 app.use(function (err, req, res, next) {
   if (err.code !== 'EBADCSRFTOKEN') return next(err)
   // handle CSRF token errors here
   res.status(403)
   res.send('form tampered with')
 })
-*/
+
 /**
  * Handles a GET request for / Checks if user has
  * a valid session, if so display dashboard else 
@@ -842,7 +842,7 @@ app.get('/', function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.redirect('/dashboard');
 	} else {
-		res.render('pages/login');//, { csrfToken: req.csrfToken() });
+		res.render('pages/login', { csrfToken: req.csrfToken() });//req.csrfToken()
 	}
 });
 
@@ -857,7 +857,7 @@ app.get('/dashboard', function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.render('pages/dashboard');
 	} else {
-		res.redirect('/');
+		res.redirect('./');
 	}
 });
 
@@ -909,7 +909,7 @@ app.post('/login', function (req, res) {
  */
 app.get('/logout', function (req, res) {
 	req.session.destroy(function (err) {
-		res.redirect('/')
+		res.redirect(req.get('referer'));
 	});
 });
 
@@ -930,8 +930,8 @@ app.get('/token', function (req, res) {
 
 		res.status(200).json({message: "success", token: token});
 	} else {
-		req.session.destroy(function (err) {
-			res.redirect('/')
+		req.session.destroy(function (err) {			
+			res.redirect(req.get('referer'));
 		});
 	}
 })

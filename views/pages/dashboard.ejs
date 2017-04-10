@@ -200,8 +200,6 @@
 
 		<!-- jQuery -->
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js"></script>
-		<!-- socket.io-client -->
-		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 		<!-- Bootstrap 3.3.5 -->
 		<script type="text/javascript" src="./bower_components/bootstrap/dist/js/bootstrap.js"></script>
 		<!-- AdminLTE App -->
@@ -215,7 +213,7 @@
 		<!-- Angular Bootstrap -->
 		<script type="text/javascript" src="./bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 		<!-- socket.io -->
-		<script type="text/javascript" src='/socket.io/socket.io.js'></script>
+		<script type="text/javascript" src='./socket.io/socket.io.js'></script>
 
 
 
@@ -236,7 +234,8 @@
 				success: function (data) {
 					//alert(JSON.stringify(data));
 					if (data.message === "success") {
-						socket = io.connect('https://' + window.location.host +'/mgmt', {
+						socket = io.connect('https://' + window.location.host, {
+							path: '/ManagementPortal/socket.io',
 							query: 'token=' + data.token,
 							forceNew: true
 						});		
