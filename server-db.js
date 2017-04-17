@@ -15,7 +15,8 @@ var cookieParser = require('cookie-parser'); // the session is stored in a cooki
 var session = require('express-session');
 var https = require('https');
 var shell = require('shelljs');
-var csrf = require('csurf')
+var csrf = require('csurf');
+var openamAgent = require('openam-agent');
 
 var port = null; // set the port
 var cfile = null; // Config file
@@ -29,33 +30,36 @@ var app = express(); // create our app w/ express
 
 cfile = 'config.json';
 nconf.argv().env();
-nconf.file({file: cfile});
+nconf.file({ file: cfile });
 
 var credentials = {
 	key: fs.readFileSync(decodeBase64(nconf.get('https:private_key'))),
 	cert: fs.readFileSync(decodeBase64(nconf.get('https:certificate')))
 };
 
+var agent = new openamAgent.PolicyAgent({serverUrl : decodeBase64(nconf.get('openam:serverUrl')) });
+var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
 
 app.use(cookieParser()); // must use cookieParser before expressSession
 app.use(session({
 	secret: decodeBase64(nconf.get('session:secretKey')),
 	resave: decodeBase64(nconf.get('session:resave')),
-	rolling : decodeBase64(nconf.get('session:rolling')),
+	rolling: decodeBase64(nconf.get('session:rolling')),
 	saveUninitialized: decodeBase64(nconf.get('session:saveUninitialized')),
 	cookie: {
 		maxAge: parseFloat(decodeBase64(nconf.get('session:maxAge'))),
-		httpOnly : decodeBase64(nconf.get('session:httpOnly')),
-		secure : decodeBase64(nconf.get('session:secure'))
+		httpOnly: decodeBase64(nconf.get('session:httpOnly')),
+		secure: decodeBase64(nconf.get('session:secure'))
 	}
 }));
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
-app.use(bodyParser.urlencoded({'extended': 'true'})); // parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ 'extended': 'true' })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
-app.use(bodyParser.json({type: 'application/vnd.api+json'})); // parse application/vnd.api+json as json
+app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(csrf({ cookie: false }));
+
 
 log4js.loadAppender('file');
 var logname = 'server-db';
@@ -90,7 +94,7 @@ nconf.defaults({// if the port is not defined in the cocnfig.json file, default 
 console.log('Config file: ' + cfile);
 logger.info('Config file: ' + cfile);
 
-var fqdn = shell.exec('hostname -f', {silent:true}).stdout; //Shell command for hostname
+var fqdn = shell.exec('hostname -f', { silent: true }).stdout; //Shell command for hostname
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
@@ -101,7 +105,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var httpsServer = https.createServer(credentials, app);
 
-var io = require('socket.io')(httpsServer, {cookie: false});
+var io = require('socket.io')(httpsServer, { cookie: false });
 io.set('origins', fqdnUrl);
 httpsServer.listen(port);
 console.log("https web server listening on " + port);
@@ -166,9 +170,9 @@ io.sockets.on('connection', function (socket) {
 
 		if (message === 'webuser') {
 			var qobj = new Object();
-			qobj.queues =  decodeBase64(nconf.get('dashboard:queuesAD'));
+			qobj.queues = decodeBase64(nconf.get('dashboard:queuesAD'));
 			if (decodeBase64(nconf.get('environment')) === "ACL") {
-				qobj.queues =  decodeBase64(nconf.get('dashboard:queuesACL'));
+				qobj.queues = decodeBase64(nconf.get('dashboard:queuesACL'));
 			}
 			socket.emit('queueconf', qobj);
 			logger.debug('Message is webuser type');
@@ -193,11 +197,11 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('Received AMI request: ' + message);
 
 		if (message === 'agent') {
-			socket.emit('agent-resp', {'agents': Agents});
+			socket.emit('agent-resp', { 'agents': Agents });
 
 			logger.debug('Sending agent resp');
 		} else if (message === 'queue') {
-			socket.emit('queue-resp', {'queues': Queues});
+			socket.emit('queue-resp', { 'queues': Queues });
 
 			logger.debug('Sending queue resp');
 		}
@@ -268,7 +272,7 @@ io.sockets.on('connection', function (socket) {
 			json: true
 		}, function (err, res, cdrdata) {
 			if (err) {
-				io.to(socket.id).emit('cdrtable-error', {"message": "Error Accessing Data Records"});
+				io.to(socket.id).emit('cdrtable-error', { "message": "Error Accessing Data Records" });
 			} else if (format === 'csv') {
 				//csv field values
 				var csvFields = ['calldate', 'clid', 'src',
@@ -279,7 +283,7 @@ io.sockets.on('connection', function (socket) {
 					'uniqueid', 'linkedid', 'sequence',
 					'peeraccount'];
 				// Converts JSON object to a CSV file.
-				var csv = json2csv({'data': cdrdata.data, 'fields': csvFields});
+				var csv = json2csv({ 'data': cdrdata.data, 'fields': csvFields });
 				//returns CSV of Call Data Records
 				io.to(socket.id).emit('cdrtable-csv', csv);
 			} else {
@@ -339,10 +343,10 @@ function checkConnection(hosts, callback) {
 		// tests if each address is online
 		tcpp.probe(hostname, port, function (err, isAlive) {
 			if (err) {
-				callback({error: "An Error Occurred"});
+				callback({ error: "An Error Occurred" });
 			} else {
 				// push results to result arrary
-				results.push({"name": name, "host": host, "status": isAlive});
+				results.push({ "name": name, "host": host, "status": isAlive });
 				if (results.length === requests) {
 					//Sort Request by name
 					results.sort(function (a, b) {
@@ -357,7 +361,7 @@ function checkConnection(hosts, callback) {
 						return 0;
 					});
 					// Callback with results of resource status probes  
-					callback({resources: results, timestamp: new Date().getTime()});
+					callback({ resources: results, timestamp: new Date().getTime() });
 				}
 			}
 		});
@@ -571,152 +575,152 @@ function handle_manager_event(evt) {
 
 	switch (evt.event) {
 		case 'FullyBooted':
-		{
-			break;
-		}
-		case 'Agents': // response event in a series to the agents AMI action containing information about a defined agent.
-		{
-			a = findAgent(evt.agent); // find agent by extension e.g. JSSIP/60001
-			var agentInt = parseInt(evt.agent);
-			if (!a) {
-				if (AgentMap.has(agentInt)) {
-					logger.debug("Agents: New Agent");
-					evt.name = AgentMap.get(agentInt).name;
-					evt.talktime = 0;
-					evt.avgtalktime = 0;
-					evt.callstaken = 0;
-					evt.queue = '--';
-					evt.status = "Logged Out";
-					evt.callMap = new Map();
-					for (var i = 0; i < Asterisk_queuenames.length; i++) {
-						evt.callMap.set(Asterisk_queuenames[i], 0); // set the total call to 0
-					}
-					//evt.callsabandoned = 0; -- this information is not available for agent
-					Agents.push(evt);
-
-				} else {
-					logger.debug("AMI event Agent not in AgentMap");
-				}
-			} else {
-				logger.debug("Existing agent");  // status always set to AGENT_LOGGEDOFF. Do not use this field
-
+			{
+				break;
 			}
-			break;
-		}
+		case 'Agents': // response event in a series to the agents AMI action containing information about a defined agent.
+			{
+				a = findAgent(evt.agent); // find agent by extension e.g. JSSIP/60001
+				var agentInt = parseInt(evt.agent);
+				if (!a) {
+					if (AgentMap.has(agentInt)) {
+						logger.debug("Agents: New Agent");
+						evt.name = AgentMap.get(agentInt).name;
+						evt.talktime = 0;
+						evt.avgtalktime = 0;
+						evt.callstaken = 0;
+						evt.queue = '--';
+						evt.status = "Logged Out";
+						evt.callMap = new Map();
+						for (var i = 0; i < Asterisk_queuenames.length; i++) {
+							evt.callMap.set(Asterisk_queuenames[i], 0); // set the total call to 0
+						}
+						//evt.callsabandoned = 0; -- this information is not available for agent
+						Agents.push(evt);
+
+					} else {
+						logger.debug("AMI event Agent not in AgentMap");
+					}
+				} else {
+					logger.debug("Existing agent");  // status always set to AGENT_LOGGEDOFF. Do not use this field
+
+				}
+				break;
+			}
 
 		case 'AgentComplete': // raised when a queue member has member finished servicing a caller in the queue
-		{ // update calls, talktime and holdtime
-			logger.debug(evt);
-			name = evt.membername.split("/");
-			a = findAgent(name[1]);
+			{ // update calls, talktime and holdtime
+				logger.debug(evt);
+				name = evt.membername.split("/");
+				a = findAgent(name[1]);
 
-			if (a) {
-				logger.debug("AgentComplete: " + "talktime = " + evt.talktime + ", holdtime= " + evt.holdtime);
+				if (a) {
+					logger.debug("AgentComplete: " + "talktime = " + evt.talktime + ", holdtime= " + evt.holdtime);
 
-				if (evt.talktime > 0) {
-					a.talktime = Number(Number(a.talktime) + Number(evt.talktime) / 60).toFixed(2);
-				}
-
-				a.holdtime += Number((Number(evt.holdtime ? evt.holdtime : "0") / 60).toFixed(2));
-				// increment the callsComplete - queueMember calls field didn't update.
-				incrementCallMap(a.callMap, evt.queue);
-				// do not send agent-resp till ends of QueueStatusComplete
-			} else
-				logger.debug("AgentComplete: cannot find agent " + evt.membername);
-			break;
-		}
-		case 'QueueMember':
-		{ // update status and averageTalkTime
-			logger.debug(evt);
-			name = evt.name.split("/");
-			a = findAgent(name[1]); // use full name e.g. PSSIP/30001 which is the extension
-			if (a) {
-				logger.debug("QueueMember(): found existing Agent");
-
-				if (((evt.status === "5") || (evt.status === "1")) && evt.paused === "1") // DEVICE_UNAVAILABLE
-					a.status = "Away";
-				else if (((evt.status === "1") || (evt.status === "5")) && evt.paused === "0") // In a call
-					a.status = "Ready";
-				else if (evt.status === "2") // In a call
-					a.status = "In Call";
-				else {
-					a.status = "Logged Out";
-					a.queue = "--";
-				}
-				if (a.queue === "--")
-					a.queue = evt.queue;
-				else if (a.queue.indexOf(evt.queue) == -1)
-					a.queue += ", " + evt.queue;
-
-
-				// QueueMember event doesn't update "calls" - get it from AgentComplete
-				a.callstaken = getTotalCallsTaken(a.callMap);
-
-				if (a.callstaken > 0) {
-					a.avgtalktime = (a.talktime / a.callstaken).toFixed(2);
-				}
-			}
-			// wait until we processed all members
-			break;
-		}
-		case 'QueueParams':
-		{
-			logger.debug(evt);
-			q = findQueue(evt.queue);
-			if (!q) {
-				q = {};
-				Queues.push(q);
-			}
-			q.completed = Number(evt.completed); // params
-			q.abandoned = Number(evt.abandoned); // params
-			q.calls = Number(evt.calls); // params
-			break;
-		}
-		case 'QueueSummary':
-		{
-			logger.debug(evt);
-			for (var i = 0; i < Asterisk_queuenames.length; i++) {
-				logger.debug("QueueSummary :" + evt.queue);
-				if (evt.queue === Asterisk_queuenames[i]) {
-					q = findQueue(evt.queue);
-					if (!q) {
-						q = {};
-						Queues.push(q);
+					if (evt.talktime > 0) {
+						a.talktime = Number(Number(a.talktime) + Number(evt.talktime) / 60).toFixed(2);
 					}
-					q.queue = evt.queue;
-					q.loggedin = evt.loggedin;
-					q.available = evt.available;
-					q.callers = Number(evt.callers);
 
-					q.holdtime = Number((evt.holdtime) / 60).toFixed(2);
-					q.talktime = Number(evt.talktime / 60).toFixed(2);
-					logger.debug("QueueSummary(): q.talktime: " + q.talktime);
-					q.longestholdtime = Number(evt.longestholdtime / 60).toFixed(2);
-				}
+					a.holdtime += Number((Number(evt.holdtime ? evt.holdtime : "0") / 60).toFixed(2));
+					// increment the callsComplete - queueMember calls field didn't update.
+					incrementCallMap(a.callMap, evt.queue);
+					// do not send agent-resp till ends of QueueStatusComplete
+				} else
+					logger.debug("AgentComplete: cannot find agent " + evt.membername);
+				break;
 			}
-			break;
-		}
+		case 'QueueMember':
+			{ // update status and averageTalkTime
+				logger.debug(evt);
+				name = evt.name.split("/");
+				a = findAgent(name[1]); // use full name e.g. PSSIP/30001 which is the extension
+				if (a) {
+					logger.debug("QueueMember(): found existing Agent");
+
+					if (((evt.status === "5") || (evt.status === "1")) && evt.paused === "1") // DEVICE_UNAVAILABLE
+						a.status = "Away";
+					else if (((evt.status === "1") || (evt.status === "5")) && evt.paused === "0") // In a call
+						a.status = "Ready";
+					else if (evt.status === "2") // In a call
+						a.status = "In Call";
+					else {
+						a.status = "Logged Out";
+						a.queue = "--";
+					}
+					if (a.queue === "--")
+						a.queue = evt.queue;
+					else if (a.queue.indexOf(evt.queue) == -1)
+						a.queue += ", " + evt.queue;
+
+
+					// QueueMember event doesn't update "calls" - get it from AgentComplete
+					a.callstaken = getTotalCallsTaken(a.callMap);
+
+					if (a.callstaken > 0) {
+						a.avgtalktime = (a.talktime / a.callstaken).toFixed(2);
+					}
+				}
+				// wait until we processed all members
+				break;
+			}
+		case 'QueueParams':
+			{
+				logger.debug(evt);
+				q = findQueue(evt.queue);
+				if (!q) {
+					q = {};
+					Queues.push(q);
+				}
+				q.completed = Number(evt.completed); // params
+				q.abandoned = Number(evt.abandoned); // params
+				q.calls = Number(evt.calls); // params
+				break;
+			}
+		case 'QueueSummary':
+			{
+				logger.debug(evt);
+				for (var i = 0; i < Asterisk_queuenames.length; i++) {
+					logger.debug("QueueSummary :" + evt.queue);
+					if (evt.queue === Asterisk_queuenames[i]) {
+						q = findQueue(evt.queue);
+						if (!q) {
+							q = {};
+							Queues.push(q);
+						}
+						q.queue = evt.queue;
+						q.loggedin = evt.loggedin;
+						q.available = evt.available;
+						q.callers = Number(evt.callers);
+
+						q.holdtime = Number((evt.holdtime) / 60).toFixed(2);
+						q.talktime = Number(evt.talktime / 60).toFixed(2);
+						logger.debug("QueueSummary(): q.talktime: " + q.talktime);
+						q.longestholdtime = Number(evt.longestholdtime / 60).toFixed(2);
+					}
+				}
+				break;
+			}
 		case 'QueueStatusComplete': // ready to send to the portal
-		{
-			logger.debug("QueueStatusComplete received");
-			sendEmit('queue-resp', {'queues': Queues});
-			sendEmit('agent-resp', {'agents': Agents});
-			break;
-		}
+			{
+				logger.debug("QueueStatusComplete received");
+				sendEmit('queue-resp', { 'queues': Queues });
+				sendEmit('agent-resp', { 'agents': Agents });
+				break;
+			}
 		case 'QueueMemberRemoved':
-		{
-			// set all Agent status to logoff, but do not send a emit, wait for amiaction. Continue to issue an amiaction
-			setAgentsLogOff();
-			amiaction({'action': 'QueueStatus'});
-			break;
-		}
+			{
+				// set all Agent status to logoff, but do not send a emit, wait for amiaction. Continue to issue an amiaction
+				setAgentsLogOff();
+				amiaction({ 'action': 'QueueStatus' });
+				break;
+			}
 		case 'AgentLogin':
 		case 'AgentLogoff':
 		case 'QueueMemberAdded':
-		{
-			amiaction({'action': 'QueueStatus'});
-			break;
-		}
+			{
+				amiaction({ 'action': 'QueueStatus' });
+				break;
+			}
 		case 'QueueStatus':
 		case 'Cdr':
 		case 'Queues':
@@ -759,10 +763,10 @@ function initialize() {
  * @returns {undefined} Not used
  */
 function callAmiActions() {
-	amiaction({'action': 'Agents'});
-	amiaction({'action': 'QueueSummary'});
+	amiaction({ 'action': 'Agents' });
+	amiaction({ 'action': 'QueueSummary' });
 	for (var i = 0; i < Queues.length; i++) {
-		amiaction({'action': 'QueueStatus', 'Queue': Queues[i].queue});
+		amiaction({ 'action': 'QueueStatus', 'Queue': Queues[i].queue });
 	}
 }
 
@@ -782,7 +786,7 @@ function mapAgents() {
 						queues += ", " + data.data[i].queue2_name;
 					}
 				}
-				var usr = {"name": data.data[i].first_name + " " + data.data[i].last_name, "queues": queues};
+				var usr = { "name": data.data[i].first_name + " " + data.data[i].last_name, "queues": queues };
 				if (AgentMap.has(ext))
 					AgentMap.delete(ext);
 				AgentMap.set(ext, usr);
@@ -804,7 +808,7 @@ function getAgentsFromProvider(callback) {
 	}, function (err, res, data) {
 		if (err) {
 			logger.error("getAgentsFromProvider ERROR  ");
-			data = {"message": "failed"};
+			data = { "message": "failed" };
 		} else {
 			callback(data);
 		}
@@ -818,18 +822,55 @@ function getAgentsFromProvider(callback) {
  */
 function resetAllCounters() {
 	for (var i = 0; i < Asterisk_queuenames.length; i++) {
-		amiaction({'action': 'QueueReset'}, {'Queue': Asterisk_queuenames[i]});
+		amiaction({ 'action': 'QueueReset' }, { 'Queue': Asterisk_queuenames[i] });
 		logger.log(Asterisk_queuenames[i]);
 	}
 }
 
 app.use(function (err, req, res, next) {
-  if (err.code !== 'EBADCSRFTOKEN') return next(err)
-  // handle CSRF token errors here
-  //res.status(403)
-  //res.send('form tampered with')
-  res.status(200).json({"message": "Form has been tampered"});
+	if (err.code !== 'EBADCSRFTOKEN') return next(err)
+	// handle CSRF token errors here
+	res.status(200).json({ "message": "Form has been tampered" });
 })
+
+
+/**
+ * Handles all GET request to server
+ * determines if user can procede or   
+ * before openam cookie shield is enforced
+ */
+app.use(function (req, res, next) {
+	if (req.path === '/ManagementPortal') {
+		return next();
+	} else if (req.path === '/logout') {
+		return next();
+	} else if (req.session.data) {		
+	 	if (req.session.data.uid) {
+			 if (req.session.role) 
+				return next(); //user is logged in go to next()
+
+			var username = req.session.data.uid;
+			getUserInfo(username, function (user) {
+				if (user.message === "success") {
+					req.session.id = user.data[0].agent_id;
+					req.session.role = user.data[0].role;
+					return next();
+				} else {
+					res.redirect('./')
+				}
+			});
+		}
+	} else {
+		res.redirect('./ManagementPortal');
+	}
+});
+
+//must come after above function
+//All get requests below are subjected to openam cookieShield
+app.use(agent.shield(cookieShield));
+
+
+
 
 /**
  * Handles a GET request for / Checks if user has
@@ -841,7 +882,10 @@ app.use(function (err, req, res, next) {
  */
 app.get('/', function (req, res) {
 	if (req.session.role === 'Manager') {
-		res.redirect('/dashboard');
+		res.redirect('./dashboard');
+	} else if (req.session.role != undefined) {
+		console.log("bad role");
+		res.redirect('./Logout');
 	} else {
 		res.render('pages/login', { csrfToken: req.csrfToken() });
 	}
@@ -857,9 +901,23 @@ app.get('/', function (req, res) {
 app.get('/dashboard', function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.render('pages/dashboard');
+	} else if (req.session.role != undefined) {
+		console.log("bad role");
+		res.redirect('./Logout');
 	} else {
 		res.redirect('./');
 	}
+});
+
+/**
+ * Handles a GET request for /dashboard. Checks user has
+ * a valid session and displays dashboard page.   
+ * 
+ * @param {string} '/dashboard'
+ * @param {function} function(req, res)
+ */
+app.get('/ManagementPortal', function (req, res) {
+	res.redirect('./');
 });
 
 /**
@@ -873,7 +931,7 @@ app.get('/cdr', function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.render('pages/cdr');
 	} else {
-		res.redirect('/');
+		res.redirect('./');
 	}
 });
 
@@ -890,29 +948,16 @@ app.post('/login', function (req, res) {
 			if (user.data[0].role === "Manager") {
 				req.session.id = user.data[0].agent_id;
 				req.session.role = user.data[0].role;
-				res.status(200).json({"message": "success"});
+				res.status(200).json({ "message": "success" });
 			} else {
 				// User is not a manager
-				res.status(200).json({"message": "username not found"});
+				res.status(200).json({ "message": "username not found" });
 			}
 		} else {
 			res.status(200).json(user);
 		}
 	});
 })
-
-/**
- * Handles a GET request for logout, destroys session 
- * and redirects the user to the login page. 
- * 
- * @param {string} '/logout'
- * @param {function} function(req, res)
- */
-app.get('/logout', function (req, res) {
-	req.session.destroy(function (err) {
-		res.redirect(req.get('referer'));
-	});
-});
 
 /**
  * Handles a GET request for token and returnes a valid JWT token
@@ -925,17 +970,50 @@ app.get('/token', function (req, res) {
 	if (req.session.role === 'Manager') {
 
 		var token = jwt.sign(
-			{id: req.session.id},
+			{ id: req.session.id },
 			new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))),
-			{expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout')))});
+			{ expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))) });
 
-		res.status(200).json({message: "success", token: token});
+		res.status(200).json({ message: "success", token: token });
 	} else {
-		req.session.destroy(function (err) {			
-			res.redirect(req.get('referer'));
+		req.session.destroy(function (err) {
+			res.redirect('./');
 		});
 	}
 })
+
+/**
+ * Handles a GET request for logout, destroys session 
+ * and redirects the user to the login page. 
+ * 
+ * @param {string} '/logout'
+ * @param {function} function(req, res)
+ */
+app.get('/logout', function (req, res) {
+	request({
+		method: 'POST',
+		url: decodeBase64(nconf.get('openam:serverUrl'))+'/json/sessions/?_action-logout',
+		headers: {
+			'iplanetDirectoryPro': req.session.key,
+			'Content-Type': 'application/json'
+		}
+	}, function (error, response, data) {
+		if (error) {
+			logger.error("logout ERROR: " + error);
+		} else {
+			res.cookie('iPlanetDirectoryPro', 'cookievalue', { 
+				maxAge: 0, 
+				domain: decodeBase64(nconf.get('openam:domain')), 
+				path: "/", 
+				value: "" });
+			req.session.destroy(function (err) {
+				res.redirect(req.get('referer'));
+			});
+		}
+
+	});
+
+});
 
 /**
  * Calls the RESTful service running on the provider host to verify the agent 
@@ -955,9 +1033,34 @@ function login(username, password, callback) {
 	}, function (error, response, data) {
 		if (error) {
 			logger.error("login ERROR");
-			data = {"message": "failed"};
+			data = { "message": "failed" };
 		} else {
 			logger.info("Agent Verify: " + data.message);
+		}
+		callback(data);
+	});
+}
+/**
+ * Calls the RESTful service running on the provider host to verify the agent 
+ * username and password.  
+ * 
+ * @param {type} username Agent username
+ * @param {type} password Agent password
+ * @param {type} callback Returns retrieved JSON
+ * @returns {undefined} Not used
+ */
+function getUserInfo(username, callback) {
+	var url = decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))) + '/getagentrec/' + username;
+	request({
+		url: url,
+		json: true
+	}, function (error, response, data) {
+		if (error) {
+			logger.error("login ERROR: " + error);
+			data = { "message": "failed" };
+		} else {
+			logger.info("Agent Verify: " + data.message);
+			console.log("Agent Verify: " + data.message);
 		}
 		callback(data);
 	});
@@ -985,9 +1088,9 @@ app.get('/agentassist', function (req, res) {
 	logger.info("Agent Assistance");
 	if (req.query.extension) {
 		sendEmit("agent-request", req.query.extension);
-		res.send({'message': 'Success'});
+		res.send({ 'message': 'Success' });
 	} else {
-		res.send({'message': 'Error'});
+		res.send({ 'message': 'Error' });
 	}
 });
 
@@ -997,8 +1100,8 @@ app.get('/agentassist', function (req, res) {
  * @returns {unresolved} Decoded readable string.
  */
 function decodeBase64(encodedString) {
-		var decodedString = new Buffer(encodedString, 'base64');
-		return(decodedString.toString());
+	var decodedString = new Buffer(encodedString, 'base64');
+	return (decodedString.toString());
 }
 
 

@@ -87,5 +87,9 @@
 	"iam": {
         "host": "host",
         "port": 1000
-	}    
+	},
+    "openam": {
+        "serverUrl": "<openam url>",
+		"domain": "<.fqdn>"
+    }  
 }
