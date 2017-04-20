@@ -28,6 +28,9 @@ var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
 var app = express(); // create our app w/ express
 
+//Required for REST calls to self signed certificate servers 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 cfile = 'config.json';
 nconf.argv().env();
 nconf.file({ file: cfile });
@@ -37,7 +40,11 @@ var credentials = {
 	cert: fs.readFileSync(decodeBase64(nconf.get('https:certificate')))
 };
 
-var agent = new openamAgent.PolicyAgent({serverUrl : decodeBase64(nconf.get('openam:serverUrl')) });
+var agent = new openamAgent.PolicyAgent({
+	serverUrl : decodeBase64(nconf.get('openam:serverUrl')),
+	serverHost: decodeBase64(nconf.get('openam:serverHost')), 
+	privateIP: decodeBase64(nconf.get('openam:privateIP')) 
+});
 var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
 
 app.use(cookieParser()); // must use cookieParser before expressSession
@@ -100,8 +107,7 @@ var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
 port = parseInt(decodeBase64(nconf.get('https:port-dashboard')));
 
-//Required for REST calls to self signed certificate servers 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 
 var httpsServer = https.createServer(credentials, app);
 
@@ -992,8 +998,9 @@ app.get('/token', function (req, res) {
 app.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: decodeBase64(nconf.get('openam:serverUrl'))+'/json/sessions/?_action-logout',
+		url: decodeBase64(nconf.get('openam:privateIP'))+'/json/sessions/?_action-logout',
 		headers: {
+			'host' : 'dev2demo.task3acrdemo.com',
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}

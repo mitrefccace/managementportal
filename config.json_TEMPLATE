@@ -90,6 +90,7 @@
 	},
     "openam": {
         "serverUrl": "<openam url>",
-		"domain": "<.fqdn>"
+		"domain": "<.fqdn>",
+        "privateIP": <ipaddres url>
     }  
 }
