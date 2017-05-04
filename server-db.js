@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var socketioJwt = require('socketio-jwt');
 var request = require('request');
 var json2csv = require('json2csv');
-var log4js = require('log4js'); //https://www.npmjs.com/package/log4js
+var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
 var tcpp = require('tcp-ping');
 var Map = require('collections/map');
 var url = require('url');
@@ -33,9 +33,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 cfile = 'config.json';
 nconf.argv().env();
-nconf.file({
-	file: cfile
-});
+nconf.file({ file: cfile });
 
 var credentials = {
 	key: fs.readFileSync(decodeBase64(nconf.get('https:private_key'))),
@@ -43,15 +41,10 @@ var credentials = {
 };
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl: decodeBase64(nconf.get('openam:serverUrl')),
-	privateIP: decodeBase64(nconf.get('openam:privateIP'))
+	serverUrl : decodeBase64(nconf.get('openam:serverUrl')),
+	privateIP: decodeBase64(nconf.get('openam:privateIP')) 
 });
-var cookieShield = new openamAgent.CookieShield({
-	getProfiles: false,
-	cdsso: false,
-	noRedirect: false,
-	passThrough: false
-});
+var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
 
 app.use(cookieParser()); // must use cookieParser before expressSession
 app.use(session({
@@ -68,29 +61,25 @@ app.use(session({
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
-app.use(bodyParser.urlencoded({
-	'extended': 'true'
-})); // parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ 'extended': 'true' })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
-app.use(bodyParser.json({
-	type: 'application/vnd.api+json'
-})); // parse application/vnd.api+json as json
-app.use(csrf({
-	cookie: false
-}));
+app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
+app.use(csrf({ cookie: false }));
 
 
 log4js.loadAppender('file');
 var logname = 'server-db';
 log4js.configure({
-	appenders: [{
-		type: 'dateFile',
-		filename: 'logs/' + logname + '.log',
-		pattern: '-yyyy-MM-dd',
-		alwaysIncludePattern: false,
-		maxLogSize: 20480,
-		backups: 10
-	}]
+	appenders: [
+		{
+			type: 'dateFile',
+			filename: 'logs/' + logname + '.log',
+			pattern: '-yyyy-MM-dd',
+			alwaysIncludePattern: false,
+			maxLogSize: 20480,
+			backups: 10
+		}
+	]
 });
 
 var debugLevel = decodeBase64(nconf.get('debuglevel'));
@@ -99,7 +88,7 @@ var logger = log4js.getLogger(logname);
 logger.setLevel(debugLevel); //log level hierarchy: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF
 
 
-nconf.defaults({ // if the port is not defined in the cocnfig.json file, default it to 8080
+nconf.defaults({// if the port is not defined in the cocnfig.json file, default it to 8080
 	dashboard: {
 		'pollInterval': 10000
 	},
@@ -111,9 +100,7 @@ nconf.defaults({ // if the port is not defined in the cocnfig.json file, default
 console.log('Config file: ' + cfile);
 logger.info('Config file: ' + cfile);
 
-var fqdn = shell.exec('hostname -f', {
-	silent: true
-}).stdout; //Shell command for hostname
+var fqdn = shell.exec('hostname -f', { silent: true }).stdout; //Shell command for hostname
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
@@ -123,9 +110,7 @@ port = parseInt(decodeBase64(nconf.get('https:port-dashboard')));
 
 var httpsServer = https.createServer(credentials, app);
 
-var io = require('socket.io')(httpsServer, {
-	cookie: false
-});
+var io = require('socket.io')(httpsServer, { cookie: false });
 io.set('origins', fqdnUrl);
 httpsServer.listen(port);
 console.log("https web server listening on " + port);
@@ -217,15 +202,11 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('Received AMI request: ' + message);
 
 		if (message === 'agent') {
-			socket.emit('agent-resp', {
-				'agents': Agents
-			});
+			socket.emit('agent-resp', { 'agents': Agents });
 
 			logger.debug('Sending agent resp');
 		} else if (message === 'queue') {
-			socket.emit('queue-resp', {
-				'queues': Queues
-			});
+			socket.emit('queue-resp', { 'queues': Queues });
 
 			logger.debug('Sending queue resp');
 		}
@@ -296,9 +277,7 @@ io.sockets.on('connection', function (socket) {
 			json: true
 		}, function (err, res, cdrdata) {
 			if (err) {
-				io.to(socket.id).emit('cdrtable-error', {
-					"message": "Error Accessing Data Records"
-				});
+				io.to(socket.id).emit('cdrtable-error', { "message": "Error Accessing Data Records" });
 			} else if (format === 'csv') {
 				//csv field values
 				var csvFields = ['calldate', 'clid', 'src',
@@ -307,13 +286,9 @@ io.sockets.on('connection', function (socket) {
 					'duration', 'billsec', 'disposition',
 					'amaflags', 'accountcode', 'userfield',
 					'uniqueid', 'linkedid', 'sequence',
-					'peeraccount'
-				];
+					'peeraccount'];
 				// Converts JSON object to a CSV file.
-				var csv = json2csv({
-					'data': cdrdata.data,
-					'fields': csvFields
-				});
+				var csv = json2csv({ 'data': cdrdata.data, 'fields': csvFields });
 				//returns CSV of Call Data Records
 				io.to(socket.id).emit('cdrtable-csv', csv);
 			} else {
@@ -373,16 +348,10 @@ function checkConnection(hosts, callback) {
 		// tests if each address is online
 		tcpp.probe(hostname, port, function (err, isAlive) {
 			if (err) {
-				callback({
-					error: "An Error Occurred"
-				});
+				callback({ error: "An Error Occurred" });
 			} else {
 				// push results to result arrary
-				results.push({
-					"name": name,
-					"host": host,
-					"status": isAlive
-				});
+				results.push({ "name": name, "host": host, "status": isAlive });
 				if (results.length === requests) {
 					//Sort Request by name
 					results.sort(function (a, b) {
@@ -397,10 +366,7 @@ function checkConnection(hosts, callback) {
 						return 0;
 					});
 					// Callback with results of resource status probes  
-					callback({
-						resources: results,
-						timestamp: new Date().getTime()
-					});
+					callback({ resources: results, timestamp: new Date().getTime() });
 				}
 			}
 		});
@@ -641,7 +607,7 @@ function handle_manager_event(evt) {
 						logger.debug("AMI event Agent not in AgentMap");
 					}
 				} else {
-					logger.debug("Existing agent"); // status always set to AGENT_LOGGEDOFF. Do not use this field
+					logger.debug("Existing agent");  // status always set to AGENT_LOGGEDOFF. Do not use this field
 
 				}
 				break;
@@ -742,30 +708,22 @@ function handle_manager_event(evt) {
 		case 'QueueStatusComplete': // ready to send to the portal
 			{
 				logger.debug("QueueStatusComplete received");
-				sendEmit('queue-resp', {
-					'queues': Queues
-				});
-				sendEmit('agent-resp', {
-					'agents': Agents
-				});
+				sendEmit('queue-resp', { 'queues': Queues });
+				sendEmit('agent-resp', { 'agents': Agents });
 				break;
 			}
 		case 'QueueMemberRemoved':
 			{
 				// set all Agent status to logoff, but do not send a emit, wait for amiaction. Continue to issue an amiaction
 				setAgentsLogOff();
-				amiaction({
-					'action': 'QueueStatus'
-				});
+				amiaction({ 'action': 'QueueStatus' });
 				break;
 			}
 		case 'AgentLogin':
 		case 'AgentLogoff':
 		case 'QueueMemberAdded':
 			{
-				amiaction({
-					'action': 'QueueStatus'
-				});
+				amiaction({ 'action': 'QueueStatus' });
 				break;
 			}
 		case 'QueueStatus':
@@ -810,17 +768,10 @@ function initialize() {
  * @returns {undefined} Not used
  */
 function callAmiActions() {
-	amiaction({
-		'action': 'Agents'
-	});
-	amiaction({
-		'action': 'QueueSummary'
-	});
+	amiaction({ 'action': 'Agents' });
+	amiaction({ 'action': 'QueueSummary' });
 	for (var i = 0; i < Queues.length; i++) {
-		amiaction({
-			'action': 'QueueStatus',
-			'Queue': Queues[i].queue
-		});
+		amiaction({ 'action': 'QueueStatus', 'Queue': Queues[i].queue });
 	}
 }
 
@@ -840,10 +791,7 @@ function mapAgents() {
 						queues += ", " + data.data[i].queue2_name;
 					}
 				}
-				var usr = {
-					"name": data.data[i].first_name + " " + data.data[i].last_name,
-					"queues": queues
-				};
+				var usr = { "name": data.data[i].first_name + " " + data.data[i].last_name, "queues": queues };
 				if (AgentMap.has(ext))
 					AgentMap.delete(ext);
 				AgentMap.set(ext, usr);
@@ -865,9 +813,7 @@ function getAgentsFromProvider(callback) {
 	}, function (err, res, data) {
 		if (err) {
 			logger.error("getAgentsFromProvider ERROR  ");
-			data = {
-				"message": "failed"
-			};
+			data = { "message": "failed" };
 		} else {
 			callback(data);
 		}
@@ -881,11 +827,7 @@ function getAgentsFromProvider(callback) {
  */
 function resetAllCounters() {
 	for (var i = 0; i < Asterisk_queuenames.length; i++) {
-		amiaction({
-			'action': 'QueueReset'
-		}, {
-			'Queue': Asterisk_queuenames[i]
-		});
+		amiaction({ 'action': 'QueueReset' }, { 'Queue': Asterisk_queuenames[i] });
 		logger.log(Asterisk_queuenames[i]);
 	}
 }
@@ -893,10 +835,23 @@ function resetAllCounters() {
 app.use(function (err, req, res, next) {
 	if (err.code !== 'EBADCSRFTOKEN') return next(err)
 	// handle CSRF token errors here
-	res.status(200).json({
-		"message": "Form has been tampered"
-	});
+	res.status(200).json({ "message": "Form has been tampered" });
 })
+
+/**  
+ * Get Call for Agent Assistance
+ * @param {type} param1 Extension
+ * @param {type} param2 Response
+ */
+app.use('/agentassist', function (req, res) {
+	logger.info("Agent Assistance");
+	if (req.query.extension) {
+		sendEmit("agent-request", req.query.extension);
+		res.send({ 'message': 'Success' });
+	} else {
+		res.send({ 'message': 'Error' });
+	}
+});
 
 
 /**
@@ -909,21 +864,9 @@ app.use(function (req, res, next) {
 		return next();
 	} else if (req.path === '/logout') {
 		return next();
-	} else if (req.path === '/agentassist') {
-		logger.info("Agent Assistance");
-		if (req.query.extension) {
-			sendEmit("agent-request", req.query.extension);
-			res.send({
-				'message': 'Success'
-			});
-		} else {
-			res.send({
-				'message': 'Error'
-			});
-		}
-	} else if (req.session.data) {
-		if (req.session.data.uid) {
-			if (req.session.role)
+	} else if (req.session.data) {		
+	 	if (req.session.data.uid) {
+			 if (req.session.role) 
 				return next(); //user is logged in go to next()
 
 			var username = req.session.data.uid;
@@ -964,9 +907,7 @@ app.get('/', function (req, res) {
 		console.log("bad role");
 		res.redirect('./Logout');
 	} else {
-		res.render('pages/login', {
-			csrfToken: req.csrfToken()
-		});
+		res.render('pages/login', { csrfToken: req.csrfToken() });
 	}
 });
 
@@ -1027,14 +968,10 @@ app.post('/login', function (req, res) {
 			if (user.data[0].role === "Manager") {
 				req.session.id = user.data[0].agent_id;
 				req.session.role = user.data[0].role;
-				res.status(200).json({
-					"message": "success"
-				});
+				res.status(200).json({ "message": "success" });
 			} else {
 				// User is not a manager
-				res.status(200).json({
-					"message": "username not found"
-				});
+				res.status(200).json({ "message": "username not found" });
 			}
 		} else {
 			res.status(200).json(user);
@@ -1052,17 +989,12 @@ app.post('/login', function (req, res) {
 app.get('/token', function (req, res) {
 	if (req.session.role === 'Manager') {
 
-		var token = jwt.sign({
-				id: req.session.id
-			},
-			new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))), {
-				expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout')))
-			});
+		var token = jwt.sign(
+			{ id: req.session.id },
+			new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))),
+			{ expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))) });
 
-		res.status(200).json({
-			message: "success",
-			token: token
-		});
+		res.status(200).json({ message: "success", token: token });
 	} else {
 		req.session.destroy(function (err) {
 			res.redirect('./');
@@ -1080,9 +1012,9 @@ app.get('/token', function (req, res) {
 app.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: decodeBase64(nconf.get('openam:privateIP')) + '/json/sessions/?_action-logout',
+		url: decodeBase64(nconf.get('openam:privateIP'))+'/json/sessions/?_action-logout',
 		headers: {
-			'host': 'dev2demo.task3acrdemo.com',
+			'host' : 'dev2demo.task3acrdemo.com',
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}
@@ -1090,12 +1022,11 @@ app.get('/logout', function (req, res) {
 		if (error) {
 			logger.error("logout ERROR: " + error);
 		} else {
-			res.cookie('iPlanetDirectoryPro', 'cookievalue', {
-				maxAge: 0,
-				domain: decodeBase64(nconf.get('openam:domain')),
-				path: "/",
-				value: ""
-			});
+			res.cookie('iPlanetDirectoryPro', 'cookievalue', { 
+				maxAge: 0, 
+				domain: decodeBase64(nconf.get('openam:domain')), 
+				path: "/", 
+				value: "" });
 			req.session.destroy(function (err) {
 				res.redirect(req.get('referer'));
 			});
@@ -1123,9 +1054,7 @@ function login(username, password, callback) {
 	}, function (error, response, data) {
 		if (error) {
 			logger.error("login ERROR");
-			data = {
-				"message": "failed"
-			};
+			data = { "message": "failed" };
 		} else {
 			logger.info("Agent Verify: " + data.message);
 		}
@@ -1149,9 +1078,7 @@ function getUserInfo(username, callback) {
 	}, function (error, response, data) {
 		if (error) {
 			logger.error("login ERROR: " + error);
-			data = {
-				"message": "failed"
-			};
+			data = { "message": "failed" };
 		} else {
 			logger.info("Agent Verify: " + data.message);
 			console.log("Agent Verify: " + data.message);
@@ -1173,6 +1100,8 @@ app.get('/resetAllCounters', function (req, res) {
 
 });
 
+
+
 /**
  * Function to decode the Base64 configuration file parameters.
  * @param {type} encodedString Base64 encoded string.
@@ -1182,3 +1111,5 @@ function decodeBase64(encodedString) {
 	var decodedString = new Buffer(encodedString, 'base64');
 	return (decodedString.toString());
 }
+
+
