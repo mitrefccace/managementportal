@@ -838,21 +838,6 @@ app.use(function (err, req, res, next) {
 	res.status(200).json({ "message": "Form has been tampered" });
 })
 
-/**  
- * Get Call for Agent Assistance
- * @param {type} param1 Extension
- * @param {type} param2 Response
- */
-app.get('/agentassist', function (req, res) {
-	logger.info("Agent Assistance");
-	if (req.query.extension) {
-		sendEmit("agent-request", req.query.extension);
-		res.send({ 'message': 'Success' });
-	} else {
-		res.send({ 'message': 'Error' });
-	}
-});
-
 
 /**
  * Handles all GET request to server
@@ -863,6 +848,8 @@ app.use(function (req, res, next) {
 	if (req.path === '/ManagementPortal') {
 		return next();
 	} else if (req.path === '/logout') {
+		return next();
+	} else if (req.path === '/agentassist') {
 		return next();
 	} else if (req.session.data) {		
 	 	if (req.session.data.uid) {
@@ -1100,6 +1087,20 @@ app.get('/resetAllCounters', function (req, res) {
 
 });
 
+/**  
+ * Get Call for Agent Assistance
+ * @param {type} param1 Extension
+ * @param {type} param2 Response
+ */
+app.get('/agentassist', function (req, res) {
+	logger.info("Agent Assistance");
+	if (req.query.extension) {
+		sendEmit("agent-request", req.query.extension);
+		res.send({ 'message': 'Success' });
+	} else {
+		res.send({ 'message': 'Error' });
+	}
+});
 
 /**
  * Function to decode the Base64 configuration file parameters.
