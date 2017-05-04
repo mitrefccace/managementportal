@@ -42,7 +42,6 @@ var credentials = {
 
 var agent = new openamAgent.PolicyAgent({
 	serverUrl : decodeBase64(nconf.get('openam:serverUrl')),
-	serverHost: decodeBase64(nconf.get('openam:serverHost')), 
 	privateIP: decodeBase64(nconf.get('openam:privateIP')) 
 });
 var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
