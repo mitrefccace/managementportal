@@ -838,20 +838,7 @@ app.use(function (err, req, res, next) {
 	res.status(200).json({ "message": "Form has been tampered" });
 })
 
-/**  
- * Get Call for Agent Assistance
- * @param {type} param1 Extension
- * @param {type} param2 Response
- */
-app.use('/agentassist', function (req, res) {
-	logger.info("Agent Assistance");
-	if (req.query.extension) {
-		sendEmit("agent-request", req.query.extension);
-		res.send({ 'message': 'Success' });
-	} else {
-		res.send({ 'message': 'Error' });
-	}
-});
+
 
 
 /**
@@ -860,7 +847,7 @@ app.use('/agentassist', function (req, res) {
  * before openam cookie shield is enforced
  */
 app.use(function (req, res, next) {
-	if (req.path === '/ManagementPortal') {
+	if (req.path === '/ManagementPortal'|| req.path === '/agentassist') {
 		return next();
 	} else if (req.path === '/logout') {
 		return next();
@@ -882,6 +869,21 @@ app.use(function (req, res, next) {
 		}
 	} else {
 		res.redirect('./ManagementPortal');
+	}
+});
+
+/**  
+ * Get Call for Agent Assistance
+ * @param {type} param1 Extension
+ * @param {type} param2 Response
+ */
+app.use('/agentassist', function (req, res) {
+	logger.info("Agent Assistance");
+	if (req.query.extension) {
+		sendEmit("agent-request", req.query.extension);
+		res.send({ 'message': 'Success' });
+	} else {
+		res.send({ 'message': 'Error' });
 	}
 });
 
