@@ -993,7 +993,7 @@ app.get('/token', agent.shield(cookieShield), function (req, res) {
 app.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + decodeBase64(nconf.get('openam:privateIP'))+'/json/sessions/?_action-logout',
+		url: 'https://' + decodeBase64(nconf.get('openam:privateIP'))+':8081/json/sessions/?_action-logout',
 		headers: {
 			'host' : url.parse(decodeBase64(nconf.get('openam:serverUrl'))).hostname,
 			'iplanetDirectoryPro': req.session.key,
