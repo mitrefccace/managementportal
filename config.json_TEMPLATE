@@ -89,7 +89,8 @@
         "port": 1000
 	},
     "openam": {
-        "serverUrl": "<openam url>",
-        "privateIP": <ipaddres url>
-    }  
+        "serverUrl": "https://server.name.com:8080/openam",
+        "privateIP": "127.0.0.1",
+        "domain": ".name.com"
+    }
 }

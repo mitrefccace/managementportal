@@ -889,7 +889,7 @@ app.use('/agentassist', function (req, res) {
 
 //must come after above function
 //All get requests below are subjected to openam cookieShield
-app.use(agent.shield(cookieShield));
+//app.use(agent.shield(cookieShield));
 
 
 
@@ -900,13 +900,13 @@ app.use(agent.shield(cookieShield));
  * display login page.   
  * 
  * @param {string} '/'
+ * @param {function} 'agent.shield(cookieShield)'
  * @param {function} function(req, res)
  */
-app.get('/', function (req, res) {
+app.get('/', agent.shield(cookieShield),function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.redirect('./dashboard');
 	} else if (req.session.role != undefined) {
-		console.log("bad role");
 		res.redirect('./Logout');
 	} else {
 		res.render('pages/login', { csrfToken: req.csrfToken() });
@@ -918,9 +918,10 @@ app.get('/', function (req, res) {
  * a valid session and displays dashboard page.   
  * 
  * @param {string} '/dashboard'
+ * @param {function} 'agent.shield(cookieShield)'
  * @param {function} function(req, res)
  */
-app.get('/dashboard', function (req, res) {
+app.get('/dashboard', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.render('pages/dashboard');
 	} else if (req.session.role != undefined) {
@@ -936,9 +937,10 @@ app.get('/dashboard', function (req, res) {
  * a valid session and displays dashboard page.   
  * 
  * @param {string} '/dashboard'
+ * @param {function} 'agent.shield(cookieShield)'
  * @param {function} function(req, res)
  */
-app.get('/ManagementPortal', function (req, res) {
+app.get('/ManagementPortal', agent.shield(cookieShield), function (req, res) {
 	res.redirect('./');
 });
 
@@ -947,9 +949,10 @@ app.get('/ManagementPortal', function (req, res) {
  * a valid session and displays CDR page.   
  * 
  * @param {string} '/cdr'
+ * @param {function} 'agent.shield(cookieShield)'
  * @param {function} function(req, res)
  */
-app.get('/cdr', function (req, res) {
+app.get('/cdr', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.render('pages/cdr');
 	} else {
@@ -957,45 +960,21 @@ app.get('/cdr', function (req, res) {
 	}
 });
 
-/**
- * Handles a POST request for login. Creates
- * valid session for authenticated Managers.   
- * 
- * @param {string} '/login'
- * @param {function} function(req, res)
- */
-app.post('/login', function (req, res) {
-	login(req.body.username, req.body.password, function (user) {
-		if (user.message === "success") {
-			if (user.data[0].role === "Manager") {
-				req.session.id = user.data[0].agent_id;
-				req.session.role = user.data[0].role;
-				res.status(200).json({ "message": "success" });
-			} else {
-				// User is not a manager
-				res.status(200).json({ "message": "username not found" });
-			}
-		} else {
-			res.status(200).json(user);
-		}
-	});
-})
 
 /**
  * Handles a GET request for token and returnes a valid JWT token
  * for Manager's with a valid session.
  * 
  * @param {string} '/token'
+ * @param {function} 'agent.shield(cookieShield)'
  * @param {function} function(req, res)
  */
-app.get('/token', function (req, res) {
+app.get('/token', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
-
 		var token = jwt.sign(
 			{ id: req.session.id },
 			new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))),
 			{ expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))) });
-
 		res.status(200).json({ message: "success", token: token });
 	} else {
 		req.session.destroy(function (err) {
@@ -1016,7 +995,7 @@ app.get('/logout', function (req, res) {
 		method: 'POST',
 		url: decodeBase64(nconf.get('openam:privateIP'))+'/json/sessions/?_action-logout',
 		headers: {
-			'host' : 'dev2demo.task3acrdemo.com',
+			'host' : url.parse(decodeBase64(nconf.get('openam:serverUrl'))).hostname,
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}
@@ -1083,7 +1062,6 @@ function getUserInfo(username, callback) {
 			data = { "message": "failed" };
 		} else {
 			logger.info("Agent Verify: " + data.message);
-			console.log("Agent Verify: " + data.message);
 		}
 		callback(data);
 	});
@@ -1093,13 +1071,13 @@ function getUserInfo(username, callback) {
 /**
  * Reset Asterisk stat counters
  * @param {type} param1 Not used
+ * @param {function} 'agent.shield(cookieShield)'
  * @param {type} param2 Not used
  */
-app.get('/resetAllCounters', function (req, res) {
+app.get('/resetAllCounters', agent.shield(cookieShield), function (req, res) {
 	logger.info("GET Call to reset counters");
 	resetAllCounters();
 	mapAgents();
-
 });
 
 
