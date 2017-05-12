@@ -100,7 +100,14 @@ nconf.defaults({// if the port is not defined in the cocnfig.json file, default 
 console.log('Config file: ' + cfile);
 logger.info('Config file: ' + cfile);
 
-var fqdn = shell.exec('hostname -f', { silent: true }).stdout; //Shell command for hostname
+var fqdn = '';
+if (nconf.get('nginx:fqdn')) {
+	fqdn = decodeBase64(nconf.get('nginx:fqdn'));
+} else {
+	fqdn = shell.exec('hostname -f', {
+		silent: true
+	}).stdout;
+}
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
