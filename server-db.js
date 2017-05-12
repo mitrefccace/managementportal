@@ -41,7 +41,7 @@ var credentials = {
 };
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : decodeBase64(nconf.get('openam:serverUrl')),
+	serverUrl : decodeBase64(nconf.get('openam:serverUrl')) + ":" + decodeBase64(nconf.get('openam:port')) + '/openam',
 	privateIP: decodeBase64(nconf.get('openam:privateIP')) 
 });
 var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
@@ -993,7 +993,7 @@ app.get('/token', agent.shield(cookieShield), function (req, res) {
 app.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + decodeBase64(nconf.get('openam:privateIP'))+':8081/json/sessions/?_action-logout',
+		url: 'https://' + decodeBase64(nconf.get('openam:privateIP'))+ ':' + decodeBase64(nconf.get('openam:port')) + '/json/sessions/?_action-logout',
 		headers: {
 			'host' : url.parse(decodeBase64(nconf.get('openam:serverUrl'))).hostname,
 			'iplanetDirectoryPro': req.session.key,
