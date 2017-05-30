@@ -138,12 +138,6 @@ if (decodeBase64(nconf.get('environment')) === "AD") {
 }
 var pollInterval = parseInt(decodeBase64(nconf.get('dashboard:pollInterval')));
 
-if (decodeBase64(nconf.get('environment')) === "ACL") {
-	asterisk_host = decodeBase64(nconf.get('asterisk:sip:host'));
-} else {
-	asterisk_host = decodeBase64(nconf.get('asteriskAD:sip:host'));
-}
-
 console.log("port number: " + port + ", poll interval:" + pollInterval);
 
 Asterisk_queuenames = queuenames.split(",");
