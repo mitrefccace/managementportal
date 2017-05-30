@@ -858,7 +858,7 @@ app.use(function (req, res, next) {
 			var username = req.session.data.uid;
 			getUserInfo(username, function (user) {
 				if (user.message === "success") {
-					req.session.id = user.data[0].agent_id;
+					req.session.agent_id = user.data[0].agent_id;
 					req.session.role = user.data[0].role;
 					return next();
 				} else {
@@ -968,7 +968,7 @@ app.get('/cdr', agent.shield(cookieShield), function (req, res) {
 app.get('/token', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
 		var token = jwt.sign(
-			{ id: req.session.id },
+			{ id: req.session.agent_id },
 			new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))),
 			{ expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))) });
 		res.status(200).json({ message: "success", token: token });
