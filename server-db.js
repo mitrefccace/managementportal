@@ -1,3 +1,6 @@
+/*jslint node: true */
+'use strict';
+
 var express = require('express');
 var fs = require('fs');
 var nconf = require('nconf');
@@ -302,7 +305,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 //calls sendResourceStatus every minute
-setInterval(sendResourceStatus, 60000)
+setInterval(sendResourceStatus, 60000);
 setImmediate(initialize);
 
 /**
@@ -371,7 +374,7 @@ function checkConnection(hosts, callback) {
 				}
 			}
 		});
-	})
+	});
 }
 
 /**
@@ -508,9 +511,7 @@ function amiaction(obj) {
 	ami.action(obj, function (err, res) {
 		if (err) {
 			logger.error('AMI amiaction error ');
-
 		}
-
 	});
 }
 
@@ -784,7 +785,7 @@ function mapAgents() {
 	getAgentsFromProvider(function (data) {
 		for (var i in data.data) {
 			if (data.data[i].extension) {
-				var ext = data.data[i].extension
+				var ext = data.data[i].extension;
 				var queues = "--";
 				if (data.data[i].queue_name !== null) {
 					queues = data.data[i].queue_name;
@@ -834,13 +835,10 @@ function resetAllCounters() {
 }
 
 app.use(function (err, req, res, next) {
-	if (err.code !== 'EBADCSRFTOKEN') return next(err)
+	if (err.code !== 'EBADCSRFTOKEN') return next(err);
 	// handle CSRF token errors here
 	res.status(200).json({ "message": "Form has been tampered" });
-})
-
-
-
+});
 
 /**
  * Handles all GET request to server
@@ -864,7 +862,7 @@ app.use(function (req, res, next) {
 					req.session.role = user.data[0].role;
 					return next();
 				} else {
-					res.redirect('./')
+					res.redirect('./');
 				}
 			});
 		}
@@ -891,8 +889,6 @@ app.use('/agentassist', function (req, res) {
 //must come after above function
 //All get requests below are subjected to openam cookieShield
 //app.use(agent.shield(cookieShield));
-
-
 
 
 /**
@@ -961,7 +957,6 @@ app.get('/cdr', agent.shield(cookieShield), function (req, res) {
 	}
 });
 
-
 /**
  * Handles a GET request for token and returnes a valid JWT token
  * for Manager's with a valid session.
@@ -982,7 +977,7 @@ app.get('/token', agent.shield(cookieShield), function (req, res) {
 			res.redirect('./');
 		});
 	}
-})
+});
 
 /**
  * Handles a GET request for logout, destroys session 
@@ -1068,7 +1063,6 @@ function getUserInfo(username, callback) {
 	});
 }
 
-
 /**
  * Reset Asterisk stat counters
  * @param {type} param1 Not used
@@ -1081,8 +1075,6 @@ app.get('/resetAllCounters', agent.shield(cookieShield), function (req, res) {
 	mapAgents();
 });
 
-
-
 /**
  * Function to decode the Base64 configuration file parameters.
  * @param {type} encodedString Base64 encoded string.
@@ -1092,5 +1084,3 @@ function decodeBase64(encodedString) {
 	var decodedString = new Buffer(encodedString, 'base64');
 	return (decodedString.toString());
 }
-
-
