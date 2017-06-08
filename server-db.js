@@ -30,6 +30,7 @@ var Agents = []; // Associative array
 var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
 var app = express(); // create our app w/ express
+const os = require('os'); //get home directory path
 
 //Required for REST calls to self signed certificate servers 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -302,6 +303,45 @@ io.sockets.on('connection', function (socket) {
 		});
 	});
 
+	//read color_config.json file for light configuration
+	try 
+    {
+        //send json file to client
+        var file_path = os.homedir() + '/dat/color_config.json';
+        var data = fs.readFileSync(file_path,'utf8');
+        socket.emit("html_setup",data);
+
+        //on submit update current color_config.json file
+        socket.on('submit', function(form_data){
+            var json_data = JSON.parse(data);
+            for(status in json_data.statuses)
+            {
+                var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
+                json_data.statuses[status].color = color_and_action[0].toLowerCase();
+                json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
+                json_data.statuses[status].blink = (color_and_action[1].toLowerCase() == "blinking") ? true : false;
+                json_data = set_rgb_values(json_data, status, color_and_action[0]);
+            }
+             fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
+
+            /*
+            //send to server
+            request({
+                url: "https:blablah:8005/updatelightconfigs"
+            }, function (err, res, data) {
+                if (err) {
+                     logger.error('Error: ' + err);
+                }
+            });
+            */
+
+        });
+    } 
+    catch (ex) 
+    {
+         console.log("JSON file error");
+         console.log(ex);
+    } 
 });
 
 //calls sendResourceStatus every minute
@@ -1083,4 +1123,65 @@ app.get('/resetAllCounters', agent.shield(cookieShield), function (req, res) {
 function decodeBase64(encodedString) {
 	var decodedString = new Buffer(encodedString, 'base64');
 	return (decodedString.toString());
+}
+
+/**
+ * Function that sets the rgb fields in the json file from a given color (for light config page)
+ * @param {json_data} a json object of the color_config.json file
+ * @param {status} the status index to update the correct status info in the json file
+ * @param {color} the name of the color
+ * @returns {return} the updated json object
+ */
+function set_rgb_values(json_data,status,color)
+{
+	//json_data.statuses[status] gets you the fields of each specific status
+    if(color == "red")
+    {
+         json_data.statuses[status].r = 255;
+         json_data.statuses[status].g = 0;
+         json_data.statuses[status].b = 0;
+    }
+    else if(color == "green")
+    {
+         json_data.statuses[status].r = 0;
+         json_data.statuses[status].g = 255;
+         json_data.statuses[status].b = 0;
+    }
+    else if(color == "blue")
+    {
+         json_data.statuses[status].r = 0;
+         json_data.statuses[status].g = 0;
+         json_data.statuses[status].b = 255;
+    }
+    else if(color == "orange")
+    {
+         json_data.statuses[status].r = 255;
+         json_data.statuses[status].g = 165;
+         json_data.statuses[status].b = 0;
+    }
+    else if(color == "yellow")
+    {
+         json_data.statuses[status].r = 255;
+         json_data.statuses[status].g = 255;
+         json_data.statuses[status].b = 0;
+    }
+    else if(color == "pink")
+    {
+         json_data.statuses[status].r = 255;
+         json_data.statuses[status].g = 0;
+         json_data.statuses[status].b = 255;
+    }
+    else if(color == "aqua")
+    {
+         json_data.statuses[status].r = 0;
+         json_data.statuses[status].g = 255;
+         json_data.statuses[status].b = 255;
+    }
+    else //color is white
+    {
+         json_data.statuses[status].r = 255;
+         json_data.statuses[status].g = 255;
+         json_data.statuses[status].b = 255;
+    }
+    return json_data;
 }
