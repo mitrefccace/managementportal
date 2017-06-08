@@ -179,24 +179,27 @@
 			$(document).ready(function () {
 				$("#sidebarlight").addClass("active");
 				var socket = io();  
+                socket.on("connection", function(connect_data){
+                    
+                    socket.emit("get_color_config");
+                    
+                    //sets up the html page dynmically via the json file received
+    				socket.on("html_setup", function(data) {
+                        var json_data = JSON.parse(data);
+                        append_html(json_data);
+                        for(status in json_data.statuses)
+                        {
+                            //set currently selected color
+                            var selected_option = get_selected_option_id(json_data, status);
+                            document.getElementById(json_data.statuses[status].id).value = selected_option;
+                            document.getElementById(json_data.statuses[status].id).old_value = selected_option; 
 
-                //sets up the html page dynmically via the json file received
-				socket.on("html_setup", function(data) {
-                    var json_data = JSON.parse(data);
-                    append_html(json_data);
-                    for(status in json_data.statuses)
-                    {
-                        //set currently selected color
-                        var selected_option = get_selected_option_id(json_data, status);
-                        document.getElementById(json_data.statuses[status].id).value = selected_option;
-                        document.getElementById(json_data.statuses[status].id).old_value = selected_option; 
+                            //disable selected color from other menues
+                            disable_colors(selected_option,"",json_data.statuses[status].id); 
+                        }
 
-                        //disable selected color from other menues
-                        disable_colors(selected_option,"",json_data.statuses[status].id); 
-                    }
-
-                 }); 
-                   
+                     }); 
+                });      
 			});
         </script>
     </body>

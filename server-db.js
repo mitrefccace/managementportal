@@ -304,44 +304,54 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	//read color_config.json file for light configuration
-	try 
-    {
-        //send json file to client
-        var file_path = os.homedir() + '/dat/color_config.json';
-        var data = fs.readFileSync(file_path,'utf8');
-        socket.emit("html_setup",data);
+	socket.on("get_color_config", function(data){
+		try 
+	    {
+	        //send json file to client
+	        var file_path = os.homedir() + '/dat/color_config.json';
+	        var data = fs.readFileSync(file_path,'utf8');
+	        socket.emit("html_setup",data);
+	    } 
+	    catch (ex) 
+	    {
+	         logger.error('Error: ' + ex);
+	    } 
+	});
 
-        //on submit update current color_config.json file
-        socket.on('submit', function(form_data){
-            var json_data = JSON.parse(data);
-            for(status in json_data.statuses)
-            {
-                var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
-                json_data.statuses[status].color = color_and_action[0].toLowerCase();
-                json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
-                json_data.statuses[status].blink = (color_and_action[1].toLowerCase() == "blinking") ? true : false;
-                json_data = set_rgb_values(json_data, status, color_and_action[0]);
-            }
-             fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
+	//on light color config submit update current color_config.json file
+    socket.on('submit', function(form_data){
+    	try 
+	    {
+	        var file_path = os.homedir() + '/dat/color_config.json';
+	        var data = fs.readFileSync(file_path,'utf8');
+	        var json_data = JSON.parse(data);
+	        for(status in json_data.statuses)
+	        {
+	            var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
+	            json_data.statuses[status].color = color_and_action[0].toLowerCase();
+	            json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
+	            json_data.statuses[status].blink = (color_and_action[1].toLowerCase() == "blinking") ? true : false;
+	            json_data = set_rgb_values(json_data, status, color_and_action[0]);
+	        }
+	         fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
 
-            /*
-            //send to server
-            request({
-                url: "https:blablah:8005/updatelightconfigs"
-            }, function (err, res, data) {
-                if (err) {
-                     logger.error('Error: ' + err);
-                }
-            });
-            */
+	        /*
+	        //send to server
+	        request({
+	            url: "https:blablah:8005/updatelightconfigs"
+	        }, function (err, res, data) {
+	            if (err) {
+	                 logger.error('Error: ' + err);
+	            }
+	        });
+	        */   
+	    } 
+	    catch (ex) 
+	    {
+	         logger.error('Error: ' + ex);
+	    } 
 
-        });
-    } 
-    catch (ex) 
-    {
-         console.log("JSON file error");
-         console.log(ex);
-    } 
+    });
 });
 
 //calls sendResourceStatus every minute
