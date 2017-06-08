@@ -998,6 +998,29 @@ app.get('/cdr', agent.shield(cookieShield), function (req, res) {
 });
 
 /**
+ * Handles a GET request for /light. Checks user has
+ * a valid session and displays light page.   
+ * 
+ * @param {string} '/light'
+ * @param {function} 'agent.shield(cookieShield)'
+ * @param {function} function(req, res)
+ */
+app.get('/light', agent.shield(cookieShield), function (req, res) {
+	if (req.session.role === 'Manager') {
+		res.render('pages/light');
+	} else {
+		res.redirect('./');
+	}
+});
+
+app.get('/', function (req, res){
+    res.redirect('/light');
+});
+app.get('/light', function (req, res){
+    res.render('pages/light')
+});
+
+/**
  * Handles a GET request for token and returnes a valid JWT token
  * for Manager's with a valid session.
  * 
