@@ -1,0 +1,119 @@
+{
+  "colors": [
+    "off",
+    "aqua",
+    "blue",
+    "green",
+    "orange",
+    "pink",
+    "red",
+    "white",
+    "yellow"
+  ],
+  "actions": [
+    "solid",
+    "blinking"
+  ],
+  "statuses": [
+    {
+      "id": "off_duty",
+      "name": "Off Duty",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "color": "off",
+      "blink": false,
+      "stop": true
+    },
+    {
+      "id": "away",
+      "name": "On duty, away from station (Away)",
+      "r": 255,
+      "g": 165,
+      "b": 0,
+      "color": "orange",
+      "blink": false,
+      "stop": false
+    },
+    {
+      "id": "ready",
+      "name": "On duty, awaiting a call (Ready)",
+      "r": 0,
+      "g": 255,
+      "b": 0,
+      "color": "green",
+      "blink": false,
+      "stop": false
+    },
+    {
+      "id": "in_call",
+      "name": "In a Call",
+      "r": 255,
+      "g": 0,
+      "b": 0,
+      "color": "red",
+      "blink": false,
+      "stop": false
+    },
+    {
+      "id": "hold",
+      "name": "Call on Hold",
+      "r": 0,
+      "g": 0,
+      "b": 255,
+      "color": "blue",
+      "blink": true,
+      "stop": false
+    },
+    {
+      "id": "incoming_call",
+      "name": "Incoming Call",
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "color": "white",
+      "blink": false,
+      "stop": false
+    },
+    {
+      "id": "transferred_call",
+      "name": "Incoming Transferred Call",
+      "r": 0,
+      "g": 255,
+      "b": 255,
+      "color": "aqua",
+      "blink": true,
+      "stop": false
+    },
+    {
+      "id": "wrap_up",
+      "name": "Wrap up",
+      "r": 0,
+      "g": 0,
+      "b": 255,
+      "color": "blue",
+      "blink": false,
+      "stop": false
+    },
+    {
+      "id": "need_assistance",
+      "name": "Need assistance",
+      "r": 255,
+      "g": 255,
+      "b": 0,
+      "color": "yellow",
+      "blink": true,
+      "stop": false
+    },
+    {
+      "id": "missed_call",
+      "name": "Missed Call",
+      "r": 0,
+      "g": 255,
+      "b": 0,
+      "color": "green",
+      "blink": true,
+      "stop": false
+    }
+  ]
+}
