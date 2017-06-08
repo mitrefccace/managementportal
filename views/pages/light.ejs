@@ -65,7 +65,7 @@
 		<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 		<script type="text/javascript">
 
-            
+            var socket;
             /**
              * disables color from all other statuses' selection lists and reenables old_color. does not disable currently selected color from its correlating status
              * @param {color} is the current color value to disable
@@ -104,29 +104,8 @@
                 inputs.each(function() {
                     parsed_inputs.push(this.value);
                 });
-                var socket;
 
-                $.ajax({
-                    url: './token',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        //alert(JSON.stringify(data));
-                        if (data.message === "success") 
-                        {
-                            socket = io.connect('https://' + window.location.host, {
-                                path: '/ManagementPortal/socket.io',
-                                query: 'token=' + data.token,
-                                forceNew: true
-                            }); 
-                             socket.emit("submit", parsed_inputs);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.log('Error');
-                        $('#message').text('An Error Occured.');
-                    }
-                });
+                socket.emit("submit", parsed_inputs);
             }
 
             /**
@@ -196,10 +175,10 @@
                         '</tr>');  
                 }
             }
-
+            
 			$(document).ready(function () {
 				$("#sidebarlight").addClass("active");
-                var socket;
+                
 
                 $.ajax({
                     url: './token',
