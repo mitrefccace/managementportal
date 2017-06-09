@@ -80,7 +80,10 @@ module.exports={
             // we're connected!
             var collectionName = "records";
             //insert recordArray into the database
-            db.collection("records").insert(arrayOfRecords);
+            db.collection("records").insert(arrayOfRecords,function(){
+                db.close();
+                console.log('Done.');
+            });
             // var dbItems = db.collection("records").find();
             // var iterator = 0;
             // var minute=1;
@@ -104,7 +107,5 @@ module.exports={
             //     iterator++;
             // });
         });
-    // findAverageNumberOfCallsPerMinute:function(dbItems){
-    
     }
 }

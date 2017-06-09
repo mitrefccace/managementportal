@@ -27,6 +27,5 @@ if(fs.existsSync("./gumbelmaxout.txt")){
         The second parameter is the path to your running mongo database which can be changed
         to your personal path*/  
         tools.addToMongo(rec,'mongodb://localhost/test');
-        console.log('Done.')
     });
     
