@@ -10,7 +10,7 @@ ___
 #### Installation
 
 - Download and install Node.js [here.](https://nodejs.org/en/download/)
-- Navigate to your working directory and install the required node modules by using:
+- Navigate to your cloned directory and install the required node modules by using:
              
         $ npm install randgen
         $ npm install mongoose
