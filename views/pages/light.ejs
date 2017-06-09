@@ -66,6 +66,7 @@
 		<script type="text/javascript">
 
             var socket;
+           
             /**
              * disables color from all other statuses' selection lists and reenables old_color. does not disable currently selected color from its correlating status
              * @param {color} is the current color value to disable
@@ -184,8 +185,7 @@
                     url: './token',
                     type: 'GET',
                     dataType: 'json',
-                    success: function (data) {
-                        //alert(JSON.stringify(data));
+                    success: function (data) 
                         if (data.message === "success") 
                         {
                             socket = io.connect('https://' + window.location.host, {

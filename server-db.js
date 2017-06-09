@@ -330,21 +330,20 @@ io.sockets.on('connection', function (socket) {
 	            var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
 	            json_data.statuses[status].color = color_and_action[0].toLowerCase();
 	            json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
-	            json_data.statuses[status].blink = (color_and_action[1].toLowerCase() == "blinking") ? true : false;
+	            json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
 	            json_data = set_rgb_values(json_data, status, color_and_action[0]);
 	        }
 	         fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
 
-	        /*
 	        //send to server
 	        request({
-	            url: "https:blablah:8005/updatelightconfigs"
+	            url: 'https:blablah:8005/updatelightconfigs'
 	        }, function (err, res, data) {
 	            if (err) {
 	                 logger.error('Error: ' + err);
 	            }
 	        });
-	        */   
+	       
 	    } 
 	    catch (ex) 
 	    {
