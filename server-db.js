@@ -325,7 +325,7 @@ io.sockets.on('connection', function (socket) {
 	        var file_path = os.homedir() + '/dat/color_config.json';
 	        var data = fs.readFileSync(file_path,'utf8');
 	        var json_data = JSON.parse(data);
-	        for(status in json_data.statuses)
+	        for(var status in json_data.statuses)
 	        {
 	            var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
 	            json_data.statuses[status].color = color_and_action[0].toLowerCase();
