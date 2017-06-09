@@ -337,7 +337,7 @@ io.sockets.on('connection', function (socket) {
 
 	        //send to server
 	        request({
-	            url: 'https:blablah:8005/updatelightconfigs'
+	            url: 'https://172.21.1.122:8005/updatelightconfigs'
 	        }, function (err, res, data) {
 	            if (err) {
 	                 logger.error('Error: ' + err);
