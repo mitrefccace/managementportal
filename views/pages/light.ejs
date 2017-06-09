@@ -66,6 +66,7 @@
 		<script type="text/javascript">
 
             var socket;
+           
             /**
              * disables color from all other statuses' selection lists and reenables old_color. does not disable currently selected color from its correlating status
              * @param {color} is the current color value to disable
@@ -139,7 +140,7 @@
             */
             function append_html(json_data)
             {
-                for (status in json_data.statuses)
+                for (var status in json_data.statuses)
                 {
                     //append <label> and <select> with unique id - name and id are id from statuses list in json
                     $("#form_table").append(
@@ -151,9 +152,9 @@
                                 '<select class="form-control"  aria-hidden="true" id="' + json_data.statuses[status].id+ '" name ="'+json_data.statuses[status].id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value;">');
 
                     //append <option> - value is the color and action concatinated: "green_blinking" for example
-                    for (color in json_data.colors)
+                    for (var color in json_data.colors)
                     {
-                        for( action in json_data.actions)
+                        for(var action in json_data.actions)
                         {
                             if(json_data.colors[color] == "off") //don't want off-solid and off-blinking
                             {
@@ -184,8 +185,8 @@
                     url: './token',
                     type: 'GET',
                     dataType: 'json',
-                    success: function (data) {
-                        //alert(JSON.stringify(data));
+                    success: function (data) 
+                    {
                         if (data.message === "success") 
                         {
                             socket = io.connect('https://' + window.location.host, {
@@ -213,13 +214,12 @@
                              }); 
                         }
                     },
-                    error: function (xhr, status, error) {
+                    error: function (xhr, status, error) 
+                    {
                         console.log('Error');
                         $('#message').text('An Error Occured.');
                     }
                 });
-
-                
 			});
         </script>
     </body>
