@@ -1188,7 +1188,7 @@ function set_rgb_values(json_data,status,color)
     else if(color == "orange")
     {
          json_data.statuses[status].r = 255;
-         json_data.statuses[status].g = 165;
+         json_data.statuses[status].g = 50;
          json_data.statuses[status].b = 0;
     }
     else if(color == "yellow")
