@@ -14,6 +14,7 @@ module.exports={
             var startDate = new Date();
             var realDate = new Date();
             startDate.setHours(0,0,0,0);
+            var counter = new Date(startDate.getTime());
             startDate/=1000;
             var endDate = new Date();
             endDate.setHours(23,59,59,0);
@@ -47,7 +48,6 @@ module.exports={
                 };
                 console.log(timeIndexArray.indexOf(1));
 
-            var counter = startDate;
             //create record collection
             var recordArray = [];
             recordArray.length=range;
@@ -63,8 +63,8 @@ module.exports={
                     "holdtime": 0,
                     "longestholdtime": 0
                 };
-                
-                    recordArray[i].timestamp=counter;
+                    counter.setSeconds(counter.getSeconds() + 1)
+                    recordArray[i].timestamp=counter.getTime();
                     recordArray[i].callers=timeIndexArray[i];
                     
                 }
