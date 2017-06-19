@@ -45,6 +45,7 @@ module.exports={
                     var offsetIndex = dateToBeInserted-offset;
                     timeIndexArray[offsetIndex]+=1;
                 };
+                console.log(timeIndexArray.indexOf(1));
 
             var counter = startDate;
             //create record collection
