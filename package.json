@@ -17,6 +17,7 @@
   "dependencies": {
     "asterisk-manager": "^0.1.15",
     "body-parser": "^1.15.2",
+    "bootstrap-select": "^1.12.2",
     "collections": "^5.0.5",
     "cookie-parser": "^1.4.3",
     "csurf": "^1.9.0",
