@@ -1,4 +1,3 @@
-/*jslint node: true */
 'use strict';
 
 var express = require('express');
@@ -1026,7 +1025,7 @@ app.get('/', function (req, res){
     res.redirect('/light');
 });
 app.get('/light', function (req, res){
-    res.render('pages/light')
+    res.render('pages/light');
 });
 
 /**
