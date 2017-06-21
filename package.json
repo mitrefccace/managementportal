@@ -17,7 +17,6 @@
   "dependencies": {
     "asterisk-manager": "^0.1.15",
     "body-parser": "^1.15.2",
-    "bootstrap-select": "^1.12.2",
     "collections": "^5.0.5",
     "cookie-parser": "^1.4.3",
     "csurf": "^1.9.0",
@@ -27,7 +26,6 @@
     "express-session": "^1.14.2",
     "json2csv": "^3.6.3",
     "jsonwebtoken": "^7.2.0",
-    "lodash": "^4.17.4",
     "log4js": "^0.6.38",
     "mongodb": "^2.2.29",
     "nconf": "^0.8.4",

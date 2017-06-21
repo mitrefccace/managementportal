@@ -4,14 +4,182 @@
 	<head>
 		<% include ../partials/head %>
         <style>
-            .text-yellow
+           #form_container tr
             {
-                color:yellow;
+                height:55px;
             }
-            .text-green:
+            #form_container .form-control p
             {
-                color:green;
+                font-size: 20px;
+                padding: 0px 12px;
             }
+            #form_container th
+            {
+                font-size: 20px;
+            }
+            .btn:not(.btn-primary)
+            {
+                background-color: white; 
+            }
+            .circle
+            {
+                display: inline-block;
+                width:20px;
+                height: 20px;
+                border-radius: 50%;
+                float: left;
+                margin-top: 5px;
+                margin-right: 10px;
+            }
+            .gray
+            {
+                background-color: #777777;
+            }
+             .aqua-solid
+            {
+                background-color: #00c0ef;
+            }
+            .aqua-blinking
+            {
+                width:10px !important;
+                height: 10px !important;
+                background-color: #00c0ef;
+                box-shadow: 8px 0 0 -4px #00c0ef, 
+                          -8px 0 0 -4px #00c0ef, 
+                            0 8px 0 -4px #00c0ef,
+                           0 -8px 0 -4px #00c0ef, 
+                          6px -6px 0 -4px #00c0ef, 
+                          -6px -6px 0 -4px #00c0ef, 
+                          -6px 6px 0 -4px #00c0ef, 
+                          6px 6px 0 -4px #00c0ef;
+            }
+             .blue-solid
+            {
+                background-color: #0073b7;
+            }
+            .blue-blinking
+            {
+                width:10px !important;
+                height: 10px !important;
+                background-color: #0073b7;
+                box-shadow: 8px 0 0 -4px #0073b7, 
+                          -8px 0 0 -4px #0073b7, 
+                            0 8px 0 -4px #0073b7,
+                           0 -8px 0 -4px #0073b7, 
+                          6px -6px 0 -4px #0073b7, 
+                          -6px -6px 0 -4px #0073b7, 
+                          -6px 6px 0 -4px #0073b7, 
+                          6px 6px 0 -4px #0073b7;
+            }
+             .green-solid
+            {
+                background-color: #00a65a;
+            }
+            .green-blinking
+            {
+                width:10px !important;
+                height: 10px !important;
+                background-color: #00a65a;
+                box-shadow: 8px 0 0 -4px #00a65a, 
+                          -8px 0 0 -4px #00a65a, 
+                            0 8px 0 -4px #00a65a,
+                           0 -8px 0 -4px #00a65a, 
+                          6px -6px 0 -4px #00a65a, 
+                          -6px -6px 0 -4px #00a65a, 
+                          -6px 6px 0 -4px #00a65a, 
+                          6px 6px 0 -4px #00a65a;
+            }
+             .orange-solid
+            {
+                background-color: #ff851b;
+            }
+              .orange-blinking
+            {
+                width:10px !important;
+                height: 10px !important;
+                background-color: #ff851b;
+                box-shadow: 8px 0 0 -4px #ff851b, 
+                          -8px 0 0 -4px #ff851b, 
+                            0 8px 0 -4px #ff851b,
+                           0 -8px 0 -4px #ff851b, 
+                          6px -6px 0 -4px #ff851b, 
+                          -6px -6px 0 -4px #ff851b, 
+                          -6px 6px 0 -4px #ff851b, 
+                          6px 6px 0 -4px #ff851b;
+            }
+             .red-solid
+            {
+                background-color: #d33621;
+            }
+            .red-blinking
+            {
+                width:10px !important; 
+                height: 10px !important;
+                background-color: #d33621;
+                box-shadow: 8px 0 0 -4px #d33621, 
+                          -8px 0 0 -4px #d33621, 
+                            0 8px 0 -4px #d33621,
+                           0 -8px 0 -4px #d33621, 
+                          6px -6px 0 -4px #d33621, 
+                          -6px -6px 0 -4px #d33621, 
+                          -6px 6px 0 -4px #d33621, 
+                          6px 6px 0 -4px #d33621;
+            }
+             .pink-solid
+            {
+                background-color: #d626d0;
+            }
+            .pink-blinking
+            {
+                width:10px !important; 
+                height: 10px !important;
+                background-color: #d626d0;
+                box-shadow: 8px 0 0 -4px #d626d0, 
+                          -8px 0 0 -4px #d626d0, 
+                            0 8px 0 -4px #d626d0,
+                           0 -8px 0 -4px #d626d0, 
+                          6px -6px 0 -4px #d626d0, 
+                          -6px -6px 0 -4px #d626d0, 
+                          -6px 6px 0 -4px #d626d0, 
+                          6px 6px 0 -4px #d626d0;
+            }
+             .yellow-solid
+            {
+                background-color: #ffcb11;
+            }
+            .yellow-blinking
+            {
+                width:10px !important;
+                height: 10px !important;
+                background-color: #ffcb11;
+                box-shadow: 8px 0 0 -4px #ffcb11, 
+                          -8px 0 0 -4px #ffcb11, 
+                            0 8px 0 -4px #ffcb11,
+                           0 -8px 0 -4px #ffcb11, 
+                          6px -6px 0 -4px #ffcb11, 
+                          -6px -6px 0 -4px #ffcb11, 
+                          -6px 6px 0 -4px #ffcb11, 
+                          6px 6px 0 -4px #ffcb11;
+            }
+             .white-solid
+            {
+                background-color: white;
+                border: 1px solid black;
+            }
+            .white-blinking
+            {
+                width:10px !important;
+                height: 10px !important;
+                background-color: white;
+                box-shadow: 8px 0 0 -4px white, 
+                          -8px 0 0 -4px white, 
+                            0 8px 0 -4px white,
+                           0 -8px 0 -4px white, 
+                          6px -6px 0 -4px white, 
+                          -6px -6px 0 -4px white, 
+                          -6px 6px 0 -4px white, 
+                          6px 6px 0 -4px white;
+            } 
         </style>
 	</head>
     <body class="hold-transition skin-purple sidebar-mini">
@@ -38,18 +206,18 @@
                                 <div class="box-header with-border">
                                     <h3 class="box-title"> Light Configuration </h3>
                                 </div><!-- /.box-header -->
-                                <div class="box-body table-responsive">
+                                <div class="box-body table-responsive" style="overflow:visible !important;">
 								     <form class="form-inline" id = "form_input" action = "">
                                         <div class = "col-lg-12" id = "form_container">
                                             <table id = "form_table" style="font-size: 20px; width:50%; min-width: 400px;">
-                                                <tr>
+                                                <tr style="height:20px;">
                                                     <th style = "text-decoration: underline; padding-bottom: 5px;"> Status </th>
                                                     <th style = "text-decoration: underline; padding-bottom: 5px;"> Color </th>
                                                 </tr>
                                             </table>
                                         </div>
                                         <div class = "col-lg-12" style = "margin-top: 5px;">
-                                            <input type="button" onclick = "submit_form()" class="btn btn-primary btn-lg" value = "Save">
+                                            <input style="margin-top: 20px;" type="button" onclick = "submit_form()" class="btn btn-primary btn-lg" value = "Save">
                                         </div>
                                     </form>
                                 </div><!-- /.box-body -->
@@ -73,6 +241,9 @@
 		<script type="text/javascript" src="./bower_components/AdminLTE/dist/js/app.min.js"></script>
 		<!-- socket.io-client -->
 		<script type="text/javascript" src="./socket.io/socket.io.js"></script>
+        <!--bootstrap-select-->
+        <script type="text/javascript" src="./bower_components/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
+        <link rel = "stylesheet" type="text/css" href="./bower_components/bootstrap-select/dist/css/bootstrap-select.min.css">
 		<script type="text/javascript">
 
             var socket;
@@ -103,6 +274,7 @@
                         options[option].style.color="#515151";
                     }
                 }
+                $('.selectpicker').selectpicker('refresh');
             }
 
            /**
@@ -110,7 +282,7 @@
             */
             function submit_form()
             {
-                var inputs = $("#form_input :input"); //all input fields
+                var inputs = $("#form_input :input").not(':button'); //all input fields (not button because bootstrap-select makes them into buttons)
                 var parsed_inputs = new Array(); //only the values of the statuses
                 inputs.each(function() {
                     parsed_inputs.push(this.value);
@@ -152,30 +324,40 @@
             {
                 for (var status in json_data.statuses)
                 {
-                    //append <label> and <select> with unique id - name and id are id from statuses list in json
+                    var status_id = json_data.statuses[status].id;
+                    var status_name = capitalize_first_letter(json_data.statuses[status].name);
+                    
+                    //append <label> and <select>
+                    //  <select> has unique id (id from json_data)
                     $("#form_table").append(
                         '<tr>' +
                             '<th style=" font-weight: normal">'+
-                                '<p style = "margin-right: 10px; " for="' + json_data.statuses[status].id + '">' + capitalize_first_letter(json_data.statuses[status].name) + ':</p>' +
+                                '<p style = "margin-right: 10px; margin-top: 10px;" for="' + status_id + '">' + status_name + ':</p>' +
                             '</th>'+
                             '<th style=" font-weight: normal">'+
-                                '<select class="form-control selectpicker"  aria-hidden="true" id="' + json_data.statuses[status].id+ '" name ="'+json_data.statuses[status].id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value;">');
+                                '<select class="form-control selectpicker"  aria-hidden="true" id="' + status_id+ '" name ="'+status_id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value;">');
 
-                    //append <option> - value is the color and action concatinated: "green_blinking" for example
-                    for (var color in json_data.colors)
+                    //append <option> 
+                    //  "<option> value" is the color and action concatinated, "green_blinking" for example
+                    //  "<option> id" is the word option concatinated with the status id, "option_away" for example
+                    //  the div class name in "data-content" is for the circle icon, "green-blinking" or "green-solid"
+                    for (var color in json_data.colors) 
                     {
-                        for(var action in json_data.actions)
+                        for(var action in json_data.actions) 
                         {
-                            if(json_data.colors[color] == "off") //don't want off-solid and off-blinking
+                            var circle_icon_class = json_data.colors[color].toLowerCase() + "-" json_data.actions[action].toLowerCase();
+                            var name_shown = capitalize_first_letter(json_data.colors[color])+' - '+ json_data.actions[action]; 
+                            var value = json_data.colors[color].toLowerCase() + "_" json_data.actions[action].toLowerCase(); 
+                            if(json_data.colors[color] == "off") //don't want off-solid and off-blinking, so we break out of the loop
                             {
-                                $("#" + json_data.statuses[status].id).append(
-                                    '<option value = "'+ json_data.colors[color].toLowerCase() +'">' + capitalize_first_letter(json_data.colors[color]) + '</option>');
+                                $("#" + status_id).append(
+                                    '<option data-content="<span class=\'circle gray\'></span><div style=\'font-size:20px;\'>'+name_shown+'</div>" value = "'+ value+'" id = "option_'+status_id+'"> </option>');
                                 break;
                             }
                             else
                             {
-                                $("#" + json_data.statuses[status].id).append(
-                                    '<option data-icon="glyphicon-circle text-'+json_data.colors[color].toLowerCase+'" value = "'+ json_data.colors[color].toLowerCase() +'_' +json_data.actions[action].toLowerCase() +'" id = "option_'+json_data.statuses[status].id+'">' + capitalize_first_letter(json_data.colors[color]) + ' - ' + json_data.actions[action] + '</option>');
+                                $("#" + status_id).append(
+                                    '<option data-content="<span class=\'circle ' +circle_icon_class +'\'></span><div style=\'font-size:20px;\'>'+name_shown+'</div>" value = "'+ value+'" id = "option_'+status_id+'"> </option>');
                             }
                         }
                     }
@@ -185,6 +367,7 @@
                             '</th>'+
                         '</tr>');  
                 }
+                $('.selectpicker').selectpicker('refresh');
             }
             
 			$(document).ready(function () {
@@ -220,7 +403,7 @@
                                     //disable selected color from other menues
                                     disable_colors(selected_option,"",json_data.statuses[status].id); 
                                 }
-
+                                $('.selectpicker').selectpicker('refresh');
                              }); 
                         }
                     },
