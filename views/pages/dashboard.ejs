@@ -78,6 +78,28 @@
 						</div><!-- ./col -->
 					</div><!-- /.row -->
 
+					<!-- Charts -->
+					<div class="row">
+						<div class="col-md-4">
+							<!-- LINE CHART -->
+							<div class="box box-info">
+								<div class="box-header with-border">
+									<h3 class="box-title">Queue Size
+									</h3>
+									<!--<div class="box-tools pull-right">
+										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+										</button>
+										<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+									</div>-->
+								</div>
+								<div class="box-body">
+									<div id="queueSizeLineChart" style="height:250px"></div>
+								</div>
+								<!-- /.box-body -->
+							</div>
+						</div>
+					</div>
+
 					<!-- Queue Information Box -->
 					<div class="row">
 						<div class="col-lg-12">
@@ -204,6 +226,12 @@
 		<script type="text/javascript" src="./bower_components/bootstrap/dist/js/bootstrap.js"></script>
 		<!-- AdminLTE App -->
 		<script type="text/javascript" src="./bower_components/AdminLTE/dist/js/app.min.js"></script>
+		<!-- ChartJS -->
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/chartjs/Chart.min.js"></script>
+		<!-- flot -->
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
 		<!-- moment.js 2.15.1 -->
 		<script type="text/javascript" src="./bower_components/moment/moment.js"></script>
 		<!-- Angular -->
@@ -213,16 +241,13 @@
 		<!-- Angular Bootstrap -->
 		<script type="text/javascript" src="./bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 		<!-- socket.io -->
-		<script type="text/javascript" src='./socket.io/socket.io.js'></script>
-
-
+		<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 
 		<!-- Angular Controllers -->
-		<script type='text/javascript' src='public/js/controllers/dashboard.js'></script>
-		<script type='text/javascript' src='public/js/controllers/filters.js'></script>
-		<script type='text/javascript' src='public/js/services/csrservices.js'></script>
-		<script type='text/javascript' src='public/js/core-dashboard.js'></script>
-
+		<script type="text/javascript" src="public/js/controllers/dashboard.js"></script>
+		<script type="text/javascript" src="public/js/controllers/filters.js"></script>
+		<script type="text/javascript" src="public/js/services/csrservices.js"></script>
+		<script type="text/javascript" src="public/js/core-dashboard.js"></script>
 
 		<script type="text/javascript">
 			var socket;
@@ -277,7 +302,17 @@
 									$('#resourcetable').append(newRow);
 								}
 							}
+						});
 
+						socket.on('metrics', function (data) {
+							$.plot("#queueSizeLineChart", [data], {
+								lines:{show: true},
+								xaxis: {
+									mode: "time",
+									minTickSize: [2, "hour"],
+									timeformat: "%H:%M"
+								}
+							});
 						});
 					} else {
 						//TODO: handle bad connections
@@ -288,7 +323,6 @@
 					$('#message').text('An Error Occured.');
 				}
 			});
-
 
 			$(document).ready(function () {
 				$("#sidebardashboard").addClass("active");
@@ -308,8 +342,6 @@
 					dataType: "json"
 				})
 			}
-
 		</script>
-
 	</body>
 </html>

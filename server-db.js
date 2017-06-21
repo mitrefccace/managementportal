@@ -19,6 +19,7 @@ var https = require('https');
 var shell = require('shelljs');
 var csrf = require('csurf');
 var openamAgent = require('openam-agent');
+var MongoClient = require('mongodb').MongoClient;
 
 var port = null; // set the port
 var cfile = null; // Config file
@@ -115,8 +116,6 @@ var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
 port = parseInt(decodeBase64(nconf.get('https:port-dashboard')));
-
-
 
 var httpsServer = https.createServer(credentials, app);
 
@@ -376,6 +375,36 @@ function sendResourceStatus() {
 	checkConnection(hostMap, function (data) {
 		io.to('my room').emit('resource-status', data);
 	});
+
+	// Connection URL
+	var url = 'mongodb://localhost:27017/test';
+	var db;
+	MongoClient.connect(url)
+		.then(function(database) {
+				db = database;
+				console.log('connected');
+				return db.collection('records').find({}, { timestamp: 1, callers: 1, _id: 0});
+		})
+		.then(function(cursor) {
+				return cursor.sort({ timestamp : 1}).toArray();
+		})
+		.then(function(docs) {
+			var newArray = [];
+			for(var i = 0; i < docs.length; i++) {
+					var point = [];
+					point.push(docs[i].timestamp);
+					point.push(docs[i].callers);
+					newArray.push(point);
+			}
+
+			io.to('my room').emit('metrics', newArray);
+		})
+		.then(function() {
+				db.close();
+		})
+		.catch(function(err) {
+				throw err;
+		});
 }
 
 /**
@@ -385,10 +414,8 @@ function sendResourceStatus() {
  * @returns {undefined}
  */
 function checkConnection(hosts, callback) {
-
 	var results = [];
 	var requests = hosts.length;
-
 
 	hosts.forEach(function (host, name) {
 
