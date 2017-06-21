@@ -1,25 +1,26 @@
 'use strict';
 
+var AsteriskManager = require('asterisk-manager');
+var bodyParser = require('body-parser');
+var cfile = null; // Config file
+var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
+var csrf = require('csurf');
 var express = require('express');
 var fs = require('fs');
-var nconf = require('nconf');
-var jwt = require('jsonwebtoken');
-var bodyParser = require('body-parser');
-var socketioJwt = require('socketio-jwt');
-var request = require('request');
-var json2csv = require('json2csv');
-var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
-var tcpp = require('tcp-ping');
-var Map = require('collections/map');
-var url = require('url');
-var AsteriskManager = require('asterisk-manager');
-var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
-var session = require('express-session');
 var https = require('https');
-var shell = require('shelljs');
-var csrf = require('csurf');
-var openamAgent = require('openam-agent');
+var json2csv = require('json2csv');
+var jwt = require('jsonwebtoken');
+var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
+var Map = require('collections/map');
 var MongoClient = require('mongodb').MongoClient;
+var nconf = require('nconf');
+var openamAgent = require('openam-agent');
+var request = require('request');
+var session = require('express-session');
+var shell = require('shelljs');
+var socketioJwt = require('socketio-jwt');
+var tcpp = require('tcp-ping');
+var url = require('url');
 
 var port = null; // set the port
 var cfile = null; // Config file
@@ -70,7 +71,6 @@ app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(csrf({ cookie: false }));
 
-
 log4js.loadAppender('file');
 var logname = 'server-db';
 log4js.configure({
@@ -90,7 +90,6 @@ var debugLevel = decodeBase64(nconf.get('debuglevel'));
 
 var logger = log4js.getLogger(logname);
 logger.setLevel(debugLevel); //log level hierarchy: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF
-
 
 nconf.defaults({// if the port is not defined in the cocnfig.json file, default it to 8080
 	dashboard: {
@@ -121,8 +120,20 @@ var httpsServer = https.createServer(credentials, app);
 
 var io = require('socket.io')(httpsServer, { cookie: false });
 io.set('origins', fqdnUrl);
-httpsServer.listen(port);
-console.log("https web server listening on " + port);
+
+// mongoDB Connection URL
+//var mongodbUrl = decodeBase64(nconf.get('mongdodb:url'))
+var mongodbUrl = 'mongodb://localhost:27017/test';
+var db;
+// Initialize connection once
+MongoClient.connect(mongodbUrl, function(err, database) {
+  if(err) throw err;
+  db = database;
+
+  // Start the application after the database connection is ready
+	httpsServer.listen(port);
+	console.log("https web server listening on " + port);
+});
 
 // Validates the token, if valid go to connection.
 // If token is not valid, no connection will be established.
@@ -131,7 +142,6 @@ io.use(socketioJwt.authorize({
 	timeout: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))), // seconds to send the authentication message
 	handshake: decodeBase64(nconf.get('jsonwebtoken:handshake'))
 }));
-
 
 logger.info('Listen on port: ' + port);
 var queuenames = decodeBase64(nconf.get('dashboard:queuesACL'));
@@ -146,7 +156,6 @@ Asterisk_queuenames = queuenames.split(",");
 
 logger.info('****** Restarting server-db  ****');
 logger.info('Asterisk queuename: ' + Asterisk_queuenames + ", Poll Interval: " + pollInterval);
-
 
 io.sockets.on('connection', function (socket) {
 	var token = socket.decoded_token;
@@ -186,7 +195,6 @@ io.sockets.on('connection', function (socket) {
 			logger.debug('Message is webuser type');
 		}
 	});
-
 
 	// Handle incoming Socket.IO registration requests - add to the room
 	socket.on('register-manager', function (data) {
@@ -341,7 +349,6 @@ io.sockets.on('connection', function (socket) {
 	                 logger.error('Error: ' + err);
 	            }
 	        });
-	       
 	    } 
 	    catch (ex) 
 	    {
@@ -376,19 +383,12 @@ function sendResourceStatus() {
 		io.to('my room').emit('resource-status', data);
 	});
 
-	// Connection URL
-	var url = 'mongodb://localhost:27017/test';
-	var db;
-	MongoClient.connect(url)
-		.then(function(database) {
-				db = database;
-				console.log('connected');
-				return db.collection('records').find({}, { timestamp: 1, callers: 1, _id: 0});
-		})
-		.then(function(cursor) {
-				return cursor.sort({ timestamp : 1}).toArray();
-		})
+	// MongoDB query for chart data
+	db.collection('records')
+		.find({}, {timestamp: 1, callers: 1, _id: 0})
+		.sort({timestamp : 1}).toArray()
 		.then(function(docs) {
+			// Format for the chart data [[x,y],[x,y],...]
 			var newArray = [];
 			for(var i = 0; i < docs.length; i++) {
 					var point = [];
@@ -396,14 +396,13 @@ function sendResourceStatus() {
 					point.push(docs[i].callers);
 					newArray.push(point);
 			}
-
+			return newArray;
+		})
+		.then(function(newArray){
 			io.to('my room').emit('metrics', newArray);
 		})
-		.then(function() {
-				db.close();
-		})
 		.catch(function(err) {
-				throw err;
+				//throw err;
 		});
 }
 
