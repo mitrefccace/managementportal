@@ -84,7 +84,7 @@
 							<!-- LINE CHART -->
 							<div class="box">
 								<div class="box-header with-border">
-									<h3 class="box-title">Average Queue Size <small>(10 min. intervals)</small>
+									<h3 class="box-title">Average Calls In Queue <small>(10 min. intervals)</small>
 									</h3>
 									<div class="box-tools pull-right">
 										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
@@ -231,6 +231,7 @@
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
+		<script type="text/javascript" src="public/js/jquery.flot.axislabels.js"></script>
 		<!-- moment.js 2.15.1 -->
 		<script type="text/javascript" src="./bower_components/moment/moment.js"></script>
 		<!-- Angular -->
@@ -259,7 +260,7 @@
 					//alert(JSON.stringify(data));
 					if (data.message === "success") {
 						socket = io.connect('https://' + window.location.host, {
-							path: '/ManagementPortal/socket.io',
+							path: '/socket.io',
 							query: 'token=' + data.token,
 							forceNew: true
 						});		
@@ -304,13 +305,23 @@
 						});
 
 						socket.on('metrics', function (data) {
-							$.plot("#queueSizeLineChart", [data], {
+							var target = .5;
+							var targetData = createTargetLine(data, target)
+
+							$.plot("#queueSizeLineChart", [data, targetData], {
 								lines:{show: true},
+								axisLabels: {show: true},
 								xaxis: {
 									mode: "time",
 									minTickSize: [2, "hour"],
-									timeformat: "%H:%M"
-								}
+									timeformat: "%H:%M",
+									axisLabel: "Time"
+								},
+								yaxis: {
+									position: "left",
+									axisLabel: "Calls"
+								},
+								colors: ["#0022FF", "#FF4040"]
 							});
 						});
 					} else {
@@ -326,6 +337,19 @@
 			$(document).ready(function () {
 				$("#sidebardashboard").addClass("active");
 			});
+
+			function createTargetLine(data, target) {
+				var targetData = [];
+				var point = []
+				point.push(data[0][0]);
+				point.push(target);
+				targetData.push(point);
+				var point2 = [];
+				point2.push(data[data.length - 1][0]);
+				point2.push(target);
+				targetData.push(point2);
+				return targetData;
+			}
 
 			function refreshResourceStatus() {
 				$('#statusRefreshIcon').addClass('fa-spin');
