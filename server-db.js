@@ -10,6 +10,7 @@ var fs = require('fs');
 var https = require('https');
 var json2csv = require('json2csv');
 var jwt = require('jsonwebtoken');
+var _ = require('lodash');
 var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
 var Map = require('collections/map');
 var MongoClient = require('mongodb').MongoClient;
@@ -388,14 +389,11 @@ function sendResourceStatus() {
 		.find({}, {timestamp: 1, callers: 1, _id: 0})
 		.sort({timestamp : 1}).toArray()
 		.then(function(docs) {
-			// Format for the chart data [[x,y],[x,y],...]
-			var newArray = [];
-			for(var i = 0; i < docs.length; i++) {
-					var point = [];
-					point.push(docs[i].timestamp);
-					point.push(docs[i].callers);
-					newArray.push(point);
-			}
+			// Data points are each second. 10 minutes = 60 * 10;
+			var seconds = 60 * 10;
+			var meanArray = aggregateMean(docs, 'callers', seconds);
+			var newArray = convertTo2DArray(meanArray, 'timestamp', 'mean');
+			// Format for chart data [[x,y],[x,y],...]
 			return newArray;
 		})
 		.then(function(newArray){
@@ -405,6 +403,30 @@ function sendResourceStatus() {
 				//throw err;
 		});
 }
+
+var aggregateMean = function(array, property, numberPoints) {
+    var meanArray = [];
+    for (var i = 0; i < array.length; i += numberPoints) {
+        // If the number remaining is less than numberPoints break
+        // because otherwise the mean wouldn't be correct.
+        if (i + numberPoints > array.length) break;
+        var sliced = _.slice(array, i, i + numberPoints);
+        var mean = _.meanBy(sliced, property);
+        meanArray.push({timestamp: sliced[0].timestamp, mean: mean});
+    }
+    return meanArray;
+};
+
+var convertTo2DArray = function (array, firstProperty, secondProperty) {
+    var newArray = [];
+    for(var i = 0; i < array.length; i++) {
+        var point = [];
+        point.push(array[i][firstProperty]);
+        point.push(array[i][secondProperty]);
+        newArray.push(point);
+    }
+    return newArray;
+};
 
 /**
  * Check resource status
