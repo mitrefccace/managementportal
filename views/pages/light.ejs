@@ -21,6 +21,18 @@
             {
                 background-color: white; 
             }
+            .dropdown-menu > li > a
+            {
+                color: #333;
+            }
+            .dropup-menu > li > a
+            {
+                color: #333;
+            }
+            .bootstrap-select.btn-group .dropdown-menu
+            {
+                z-index: 10000;
+            }
             .circle
             {
                 display: inline-block;
@@ -235,7 +247,7 @@
                                 <div class="box-body table-responsive" style="overflow:visible !important;">
 								     <form class="form-inline" id = "form_input" action = "">
                                         <div class = "col-lg-12" id = "form_container">
-                                            <table id = "form_table" style="font-size: 20px; width:50%; min-width: 400px;">
+                                            <table id = "form_table" style="font-size: 20px; width: 80%; max-width:700px;">
                                                 <tr style="height:20px;">
                                                     <th style = "text-decoration: underline; padding-bottom: 5px;"> Status </th>
                                                     <th style = "text-decoration: underline; padding-bottom: 5px;"> Color </th>
@@ -297,7 +309,7 @@
                     if (options[option].value == old_color)
                     {
                         options[option].disabled = false;
-                        options[option].style.color="#515151";
+                        options[option].style.color="#333";
                     }
                 }
                 $('.selectpicker').selectpicker('refresh');
@@ -357,11 +369,11 @@
                     //  <select> has unique id (id from json_data)
                     $("#form_table").append(
                         '<tr>' +
-                            '<th style=" font-weight: normal">'+
+                            '<th style=" font-weight: normal; min-width:140px;">'+
                                 '<p style = "margin-right: 10px; margin-top: 10px;" for="' + status_id + '">' + status_name + ':</p>' +
                             '</th>'+
-                            '<th style=" font-weight: normal">'+
-                                '<select class="form-control selectpicker"  aria-hidden="true" id="' + status_id+ '" name ="'+status_id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value;">');
+                            '<th style=" font-weight: normal; min-width:215px; width: 100%; max-width: 50%;">'+
+                                '<select class="form-control selectpicker" aria-hidden="true" id="' + status_id+ '" name ="'+status_id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value;">');
 
                     //append <option> 
                     //  "<option> value" is the color and action concatinated, "green_blinking" for example
@@ -377,7 +389,7 @@
                             if(json_data.colors[color] == "off") //don't want off-solid and off-blinking, so we break out of the loop
                             {
                                 $("#" + status_id).append(
-                                    '<option data-content="<span class=\'circle gray\'></span><div style=\'font-size:20px;\'>'+name_shown+'</div>" value = "'+ value+'" id = "option_'+status_id+'"> </option>');
+                                    '<option data-content="<span class=\'circle gray\'></span><div style=\'font-size:20px;\'> Off </div>" value = "off" id = "option_'+status_id+'"> </option>');
                                 break;
                             }
                             else
