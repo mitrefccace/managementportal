@@ -260,7 +260,7 @@
 					//alert(JSON.stringify(data));
 					if (data.message === "success") {
 						socket = io.connect('https://' + window.location.host, {
-							path: '/socket.io',
+							path: '/ManagementPortal/socket.io',
 							query: 'token=' + data.token,
 							forceNew: true
 						});		
