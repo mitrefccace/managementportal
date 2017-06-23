@@ -98,5 +98,8 @@
 	"nginx": {
         "fqdn": "nginx.server.com",
         "path": "ManagementPortal" 
-    }
+    },
+	"mongodb": {
+		"connectionURI": "mongodb://localhost:27017/test"
+	}
 }
