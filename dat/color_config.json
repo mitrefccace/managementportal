@@ -19,7 +19,7 @@
       "id": "off_duty",
       "name": "Off Duty",
       "r": 0,
-      "g": 255,
+      "g": 0,
       "b": 0,
       "color": "off",
       "blink": false,
@@ -67,7 +67,7 @@
     },
     {
       "id": "wrap_up",
-      "name": "Wrap up",
+      "name": "Wrap Up",
       "r": 0,
       "g": 0,
       "b": 255,
