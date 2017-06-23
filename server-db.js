@@ -122,12 +122,12 @@ var httpsServer = https.createServer(credentials, app);
 var io = require('socket.io')(httpsServer, { cookie: false });
 io.set('origins', fqdnUrl);
 
-// mongoDB Connection URL
-//var mongodbUrl = decodeBase64(nconf.get('mongdodb:url'))
-var mongodbUrl = 'mongodb://localhost:27017/test';
+// MongoDB Connection URI
+//var mongodbUri = decodeBase64(nconf.get('mongdodb:connectionURI'));
+var mongodbUri = 'mongodb://localhost:27017/test';
 var db;
 // Initialize connection once
-MongoClient.connect(mongodbUrl, function(err, database) {
+MongoClient.connect(mongodbUri, function(err, database) {
   if(err) throw err;
   db = database;
 

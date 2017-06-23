@@ -34,7 +34,6 @@
 								<div class="icon">
 									<i class="ion ion-ios-telephone"></i>
 								</div>
-
 							</div>
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
@@ -47,7 +46,6 @@
 								<div class="icon">
 									<i class="ion ion-checkmark"></i>
 								</div>
-
 							</div>
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
@@ -60,7 +58,6 @@
 								<div class="icon">
 									<i class="ion ion-clock"></i>
 								</div>
-
 							</div>
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
@@ -73,7 +70,6 @@
 								<div class="icon">
 									<i class="ion ion-close-circled"></i>
 								</div>
-
 							</div>
 						</div><!-- ./col -->
 					</div><!-- /.row -->
@@ -107,7 +103,6 @@
 									<h3 class="box-title">Queue Information</h3>
 									<div class="box-tools pull-right">
 										<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-
 									</div>
 								</div><!-- /.box-header -->
 								<div class="box-body table-responsive no-padding" style="max-height: 250px; overflow-y: scroll">
@@ -123,7 +118,6 @@
 											<th class="text-center">Talk Time (min)</th>
 											<th class="text-center">Hold Time (min)</th>
 											<th class="text-center">Longest Hold Time (min)</th>
-
 										</tr>
 										<tr ng-repeat="q in Queues">
 											<td><span class="queue-info">{{q.queue}}</span></td>
@@ -136,7 +130,6 @@
 											<td class="text-center"><span class="queue-info">{{q.talktime}}</span></td>
 											<td class="text-center"><span class="queue-info">{{q.holdtime}}</span></td>
 											<td class="text-center"><span class="queue-info">{{q.longestholdtime}}</span></td>
-
 										</tr>
 									</table>
 								</div><!-- /.box-body -->
@@ -152,7 +145,6 @@
 									<h3 class="box-title">Call Agent Summary</h3>
 									<div class="box-tools pull-right">
 										<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-
 									</div>
 								</div><!-- /.box-header -->
 								<div id="agentSummary" class="box-body table-responsive no-padding" style="max-height: 250px; overflow-y: scroll">
@@ -217,14 +209,8 @@
 			</div><!-- /.content-wrapper -->
 			<% include ../partials/footer %>
 		</div><!-- ./wrapper -->
+		
 		<!-- REQUIRED JS SCRIPTS -->
-
-		<!-- jQuery -->
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/jQuery/jquery-2.2.3.min.js"></script>
-		<!-- Bootstrap 3.3.5 -->
-		<script type="text/javascript" src="./bower_components/bootstrap/dist/js/bootstrap.js"></script>
-		<!-- AdminLTE App -->
-		<script type="text/javascript" src="./bower_components/AdminLTE/dist/js/app.min.js"></script>
 		<!-- ChartJS -->
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/chartjs/Chart.min.js"></script>
 		<!-- flot -->
@@ -232,16 +218,13 @@
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
 		<script type="text/javascript" src="public/js/jquery.flot.axislabels.js"></script>
-		<!-- moment.js 2.15.1 -->
-		<script type="text/javascript" src="./bower_components/moment/moment.js"></script>
+
 		<!-- Angular -->
 		<script type="text/javascript" src="./bower_components/angular/angular.min.js"></script>
 		<!-- Angular-Route -->
 		<script type="text/javascript" src="./bower_components/angular-route/angular-route.min.js"></script>
 		<!-- Angular Bootstrap -->
 		<script type="text/javascript" src="./bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-		<!-- socket.io -->
-		<script type="text/javascript" src="./socket.io/socket.io.js"></script>
 
 		<!-- Angular Controllers -->
 		<script type="text/javascript" src="public/js/controllers/dashboard.js"></script>
