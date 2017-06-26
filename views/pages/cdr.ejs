@@ -155,7 +155,6 @@
 				}
 			});
 
-
 			// initialize the datatable
 			var datatable = $('#cdrtable').DataTable({
 				"columns": [
@@ -205,23 +204,7 @@
 				datatable.column(18).visible(toggle);
 			}
 
-			$(document).ready(function () {
-
-				$("#sidebarcdr").addClass("active");
-				toggleTable(); // hide extra columns on initial load
-
-				//click event for the toggle button on the CDR table
-				$('#toggle').on('click', function (e) {
-					e.preventDefault();
-					toggleTable();
-				});
-
-
-				//click event for downloading CSV file
-				$('#cdrdownloadbtn').click(function () {
-					socket.emit('cdrtable-get-data', {"format": "csv"});
-				});
-
+			function DateRangePickerSetup() {
 				// sets the Date Range picker start and end date
 				var start = moment("2016-01-01");
 				var end = moment(); //today
@@ -255,8 +238,25 @@
 					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add('days', 1).format();
 					socket.emit('cdrtable-get-data', {"format": "json", "start": startdate, "end": enddate});
 				});
-			});
+			}
 
+			$(document).ready(function () {
+				$("#sidebarcdr").addClass("active");
+				toggleTable(); // hide extra columns on initial load
+
+				//click event for the toggle button on the CDR table
+				$('#toggle').on('click', function (e) {
+					e.preventDefault();
+					toggleTable();
+				});
+
+				//click event for downloading CSV file
+				$('#cdrdownloadbtn').click(function () {
+					socket.emit('cdrtable-get-data', {"format": "csv"});
+				});
+
+				DateRangePickerSetup();
+			});			
         </script>
     </body>
 </html>

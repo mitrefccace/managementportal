@@ -133,7 +133,7 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 
 		console.log('MongoDB Connection Successful');
 		db = database;
-		
+
 		// Start the application after the database connection is ready
 		httpsServer.listen(port);
 		console.log('https web server listening on ' + port);
