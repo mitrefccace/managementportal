@@ -13,6 +13,10 @@
 				<!-- Content Header (Page header) -->
 				<section class="content-header">
 					<h1>Management Dashboard</h1>
+					<div id="reportrange" class="dropdown-menu-left" >
+						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+						<span></span> <b class="caret"></b>
+				</div>
 					<ol class="breadcrumb">
 						<li><a href="./dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
 						<li class="active">Management Dashboard</li>
@@ -28,7 +32,7 @@
 							<!-- small box -->
 							<div class="small-box bg-aqua">
 								<div class="inner">
-									<h3>{{summary.calls| shownum}}</h3>
+									<h3 ng-bind="summary.calls| shownum"></h3>
 									<h4>Calls Waiting</h4>
 								</div>
 								<div class="icon">
@@ -40,7 +44,7 @@
 							<!-- small box -->
 							<div class="small-box bg-green">
 								<div class="inner">
-									<h3>{{summary.completed| shownum}}</h3>
+									<h3 ng-bind="summary.completed| shownum"></h3>
 									<h4>Calls Handled</h4>
 								</div>
 								<div class="icon">
@@ -52,7 +56,7 @@
 							<!-- small box -->
 							<div class="small-box bg-yellow">
 								<div class="inner">
-									<h3>{{summary.avgholdtime| shownum}}</h3>
+									<h3 ng-bind="summary.avgholdtime| shownum"></h3>
 									<h4>Average Hold Time (min)</h4>
 								</div>
 								<div class="icon">
@@ -64,7 +68,7 @@
 							<!-- small box -->
 							<div class="small-box bg-red">
 								<div class="inner">
-									<h3>{{summary.abandoned| shownum}}</h3>
+									<h3 ng-bind="summary.abandoned| shownum"></h3>
 									<h4>Calls Abandoned</h4>
 								</div>
 								<div class="icon">
@@ -120,16 +124,16 @@
 											<th class="text-center">Longest Hold Time (min)</th>
 										</tr>
 										<tr ng-repeat="q in Queues">
-											<td><span class="queue-info">{{q.queue}}</span></td>
-											<td id="qname" class="text-center"><span class="queue-info">{{q.loggedin}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.available}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.callers}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.calls}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.completed}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.abandoned}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.talktime}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.holdtime}}</span></td>
-											<td class="text-center"><span class="queue-info">{{q.longestholdtime}}</span></td>
+											<td><span class="queue-info" ng-bind="q.queue"></span></td>
+											<td id="qname" class="text-center"><span class="queue-info" ng-bind="q.loggedin"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.available"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.callers"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.calls"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.completed"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.abandoned"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.talktime"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.holdtime"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.longestholdtime"></span></td>
 										</tr>
 									</table>
 								</div><!-- /.box-body -->
@@ -163,14 +167,14 @@
 											<th class="text-center">Status</th>
 										</tr>
 										<tr ng-repeat="a in Agents" highlight-on-change="{{a.help}}" ng-click="a.help = 'no'">
-											<td><span class="queue-info">{{a.name}}</span></td>
+											<td><span class="queue-info" ng-bind="a.name"></span></td>
 
-											<td class="text-center"><span class="queue-info">{{a.agent}}</span></td>
-											<td class="text-center"><span class="queue-info">{{a.queue}}</span></td>
-											<td class="text-center"><span class="queue-info">{{a.callstaken}}</span></td>
-											<td class="text-center"><span class="queue-info">{{a.avgtalktime}}</span></td>
-											<td class="text-center"><span class="queue-info">{{a.talktime}}</span></td>
-											<td class="text-center"><span class="queue-info">{{a.status}}</span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.agent"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.queue"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.callstaken"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.avgtalktime"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.talktime"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.status"></span></td>
 										</tr>
 									</table>
 								</div><!-- /.box-body -->
@@ -211,14 +215,6 @@
 		</div><!-- ./wrapper -->
 		
 		<!-- REQUIRED JS SCRIPTS -->
-		<!-- ChartJS -->
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/chartjs/Chart.min.js"></script>
-		<!-- flot -->
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
-		<script type="text/javascript" src="public/js/jquery.flot.axislabels.js"></script>
-
 		<!-- Angular -->
 		<script type="text/javascript" src="./bower_components/angular/angular.min.js"></script>
 		<!-- Angular-Route -->
@@ -231,6 +227,16 @@
 		<script type="text/javascript" src="public/js/controllers/filters.js"></script>
 		<script type="text/javascript" src="public/js/services/csrservices.js"></script>
 		<script type="text/javascript" src="public/js/core-dashboard.js"></script>
+
+		<!-- ChartJS -->
+		<!--<script type="text/javascript" src="./bower_components/AdminLTE/plugins/chartjs/Chart.min.js"></script>-->
+		<!-- flot -->
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
+		<script type="text/javascript" src="public/js/jquery.flot.axislabels.js"></script>
+		<!-- DateRangePicker -->
+		<script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 
 		<script type="text/javascript">
 			var socket;

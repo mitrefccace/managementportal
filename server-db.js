@@ -123,18 +123,28 @@ var io = require('socket.io')(httpsServer, { cookie: false });
 io.set('origins', fqdnUrl);
 
 // MongoDB Connection URI
-//var mongodbUri = decodeBase64(nconf.get('mongdodb:connectionURI'));
-var mongodbUri = 'mongodb://localhost:27017/test';
+var mongodbUriEncoded = nconf.get('mongodb:connectionURI');
 var db;
-// Initialize connection once
-MongoClient.connect(mongodbUri, function(err, database) {
-  if(err) throw err;
-  db = database;
+if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
+	var mongodbUri = decodeBase64(mongodbUriEncoded);
+	// Initialize connection once
+	MongoClient.connect(mongodbUri, function(err, database) {
+		if(err) throw err;
 
-  // Start the application after the database connection is ready
+		console.log('MongoDB Connection Successful');
+		db = database;
+		
+		// Start the application after the database connection is ready
+		httpsServer.listen(port);
+		console.log('https web server listening on ' + port);
+	});
+}
+else {
+	console.log('Missing MongoDB Connection URI in config');
+
 	httpsServer.listen(port);
-	console.log("https web server listening on " + port);
-});
+	console.log('https web server listening on ' + port);
+}
 
 // Validates the token, if valid go to connection.
 // If token is not valid, no connection will be established.
@@ -167,7 +177,7 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
-		var confobj = new Object();
+		var confobj = {};
 		confobj.host = decodeBase64(nconf.get('asteriskAD:sip:host'));
 		confobj.realm = decodeBase64(nconf.get('asteriskAD:sip:realm'));
 		confobj.stun = decodeBase64(nconf.get('asteriskAD:sip:stun'));
@@ -187,7 +197,7 @@ io.sockets.on('connection', function (socket) {
 		socket.emit('sipconf', confobj);
 
 		if (message === 'webuser') {
-			var qobj = new Object();
+			var qobj = {};
 			qobj.queues = decodeBase64(nconf.get('dashboard:queuesAD'));
 			if (decodeBase64(nconf.get('environment')) === "ACL") {
 				qobj.queues = decodeBase64(nconf.get('dashboard:queuesACL'));
@@ -385,23 +395,25 @@ function sendResourceStatus() {
 	});
 
 	// MongoDB query for chart data
-	db.collection('records')
-		.find({}, {timestamp: 1, callers: 1, _id: 0})
-		.sort({timestamp : 1}).toArray()
-		.then(function(docs) {
-			// Data points are each second. 10 minutes = 60 * 10;
-			var seconds = 60 * 10;
-			var meanArray = aggregateMean(docs, 'callers', seconds);
-			var newArray = convertTo2DArray(meanArray, 'timestamp', 'mean');
-			// Format for chart data [[x,y],[x,y],...]
-			return newArray;
-		})
-		.then(function(newArray){
-			io.to('my room').emit('metrics', newArray);
-		})
-		.catch(function(err) {
-				//throw err;
-		});
+	if (db) {
+		db.collection('records')
+			.find({}, {timestamp: 1, callers: 1, _id: 0})
+			.sort({timestamp : 1}).toArray()
+			.then(function(docs) {
+				// Data points are each second. 10 minutes = 60 * 10;
+				var seconds = 60 * 10;
+				var meanArray = aggregateMean(docs, 'callers', seconds);
+				var newArray = convertTo2DArray(meanArray, 'timestamp', 'mean');
+				// Format for chart data [[x,y],[x,y],...]
+				return newArray;
+			})
+			.then(function(newArray){
+				io.to('my room').emit('metrics', newArray);
+			})
+			.catch(function(err) {
+					//throw err;
+			});
+	}
 }
 
 var aggregateMean = function(array, property, numberPoints) {

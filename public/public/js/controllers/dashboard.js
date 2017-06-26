@@ -107,14 +107,14 @@ var dbController = angular.module('dashboardModule', ['csrService'])
 				
 			}
 			
-		}
+		};
 		$scope.initData = function () {
 			   //$scope.getQueues();
 			   socket.emit('config', 'agent');
 			   socket.emit('config', 'webuser');
 			   socket.emit('ami-req', "agent");
 			   socket.emit('ami-req', "queue");
-		} 
+		};
 		
 		angular.element(document).ready($scope.initData());       
      
@@ -151,5 +151,5 @@ dbController.filter('shownum', function () {
 		else {
 			return input;
 		}
-	}
+	};
 });
