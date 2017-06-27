@@ -16,22 +16,12 @@
   ],
   "statuses": [
     {
-      "id": "off_duty",
-      "name": "Off Duty",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "color": "off",
-      "blink": false,
-      "stop": true
-    },
-    {
       "id": "away",
       "name": "Away",
       "r": 255,
-      "g": 165,
+      "g": 255,
       "b": 0,
-      "color": "orange",
+      "color": "yellow",
       "blink": false,
       "stop": false
     },
