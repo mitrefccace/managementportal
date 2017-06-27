@@ -320,6 +320,17 @@ io.sockets.on('connection', function (socket) {
 		});
 	});
 
+	socket.on('metrics-get-data', function (data) {
+		if (data.start && data.end) {
+			// Set start and end internally
+			// Eventually store them in redis.
+			var metricsStartDate = new Date(data.start);
+			var metricsEndDate = new Date(data.end);
+			console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
+			CreateMetrics(metricsStartDate, metricsEndDate);
+		}
+	});
+
 	//read color_config.json file for light configuration
 	socket.on("get_color_config", function(data){
 		try 
@@ -394,6 +405,12 @@ function sendResourceStatus() {
 		io.to('my room').emit('resource-status', data);
 	});
 
+	var metricsStartDate = Date();
+	var metricsEndDate = Date();
+	CreateMetrics(metricsStartDate, metricsEndDate);
+}
+
+var CreateMetrics = function(startDate, endDate) {
 	// MongoDB query for chart data
 	if (db) {
 		db.collection('records')
@@ -414,7 +431,7 @@ function sendResourceStatus() {
 					//throw err;
 			});
 	}
-}
+};
 
 var aggregateMean = function(array, property, numberPoints) {
     var meanArray = [];

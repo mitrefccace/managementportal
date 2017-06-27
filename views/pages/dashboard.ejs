@@ -353,9 +353,9 @@
 
 				// Click event for new date range selected
 				$('#reportrange').on('apply.daterangepicker', function (evt, picker) {
-					var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add('days', 1).format();
-					//socket.emit('metrics-get-data', {"format": "json", "start": startdate, "end": enddate});
+					var startdate = moment(picker.startDate.format('YYYY-MM-DD'));
+					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days');
+					socket.emit('metrics-get-data', {"format": "json", "start": startdate, "end": enddate});
 				});
 			}
 
