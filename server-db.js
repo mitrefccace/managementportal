@@ -326,8 +326,7 @@ io.sockets.on('connection', function (socket) {
 			// Eventually store them in redis.
 			var metricsStartDate = new Date(data.start);
 			var metricsEndDate = new Date(data.end);
-			console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
-			CreateMetrics(metricsStartDate, metricsEndDate);
+			CreateMetrics(metricsStartDate.getTime(), metricsEndDate.getTime());
 		}
 	});
 
@@ -405,45 +404,70 @@ function sendResourceStatus() {
 		io.to('my room').emit('resource-status', data);
 	});
 
-	var metricsStartDate = Date();
-	var metricsEndDate = Date();
+	var metricsStartDate = 1497916801000;
+	var metricsEndDate = 1498003200000;
 	CreateMetrics(metricsStartDate, metricsEndDate);
 }
 
-var CreateMetrics = function(startDate, endDate) {
+var CreateMetrics = function(metricsStartDate, metricsEndDate) {
+	console.log('CreateMetrics');
+	console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
+	console.log('start and end: ' + new Date(metricsStartDate) + ', ' + new Date(metricsEndDate));
 	// MongoDB query for chart data
 	if (db) {
-		db.collection('records')
-			.find({}, {timestamp: 1, callers: 1, _id: 0})
-			.sort({timestamp : 1}).toArray()
-			.then(function(docs) {
-				// Data points are each second. 10 minutes = 60 * 10;
-				var seconds = 60 * 10;
-				var meanArray = aggregateMean(docs, 'callers', seconds);
-				var newArray = convertTo2DArray(meanArray, 'timestamp', 'mean');
-				// Format for chart data [[x,y],[x,y],...]
-				return newArray;
-			})
-			.then(function(newArray){
+		db.collection('records').aggregate(
+			[
+				{$match:{timestamp:{$gt:metricsStartDate, $lt:metricsEndDate}}},
+				{
+					"$project": {
+							"date": {
+									"$add": [ new Date(0), "$timestamp" ]
+							},
+							"callers" : "$callers",
+							"timestamp": "$timestamp"
+					}
+				}, {
+					$group : {
+							"_id" : { 
+									year: { $year: "$date" }, 
+									month: { $month: "$date" }, 
+									day: { $dayOfMonth: "$date" }, 
+									hour: { $hour: "$date" }, 
+									minutes: {$multiply:[{$floor:{ $divide: [{$minute: "$date"}, 10]}}, 10] }
+									},
+							"timestamp":{$min: "$timestamp"},
+							"avg_call":{"$avg": "$callers" }
+						}
+				} , {
+					$sort:{timestamp: 1}
+				} , {
+					$group : {
+						"_id" : null,
+						"data": { $push:  { "avg_call": "$avg_call", "timestamp": "$timestamp" } }
+					}
+				}
+			]
+		)
+		.toArray()
+		.then(function(results){
+			if (results[0]) {
+				console.log('number of points ' + results[0].data.length);
+				var newArray = convertTo2DArray(results[0].data, 'timestamp', 'avg_call');
 				io.to('my room').emit('metrics', newArray);
-			})
-			.catch(function(err) {
-					//throw err;
-			});
+			}
+			else {
+				//clear chart data
+				// var newArray = [];
+				// io.to('my room').emit('metrics', newArray);
+				// does io.to send [] ?
+				console.log('No metrics query results');
+			}
+		})
+		.catch(function(err) {
+			console.log('Metrics query error');
+			//throw err;
+		});
 	}
-};
-
-var aggregateMean = function(array, property, numberPoints) {
-    var meanArray = [];
-    for (var i = 0; i < array.length; i += numberPoints) {
-        // If the number remaining is less than numberPoints break
-        // because otherwise the mean wouldn't be correct.
-        if (i + numberPoints > array.length) break;
-        var sliced = _.slice(array, i, i + numberPoints);
-        var mean = _.meanBy(sliced, property);
-        meanArray.push({timestamp: sliced[0].timestamp, mean: mean});
-    }
-    return meanArray;
 };
 
 var convertTo2DArray = function (array, firstProperty, secondProperty) {
