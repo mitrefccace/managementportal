@@ -170,7 +170,7 @@ if (decodeBase64(nconf.get('environment')) === "AD") {
 	queuenames = decodeBase64(nconf.get('dashboard:queuesAD'));
 }
 var pollInterval = parseInt(decodeBase64(nconf.get('dashboard:pollInterval')));
-
+var adUrl = decodeBase64(nconf.get('acedirect:url'));
 console.log("port number: " + port + ", poll interval:" + pollInterval);
 
 Asterisk_queuenames = queuenames.split(",");
@@ -374,7 +374,7 @@ io.sockets.on('connection', function (socket) {
 
 	        //send to server
 	        request({
-	            url: 'https://172.21.1.122:8005/updatelightconfigs'
+	            url: adUrl + '/updatelightconfigs'
 	        }, function (err, res, data) {
 	            if (err) {
 	                 logger.error('Error: ' + err);
