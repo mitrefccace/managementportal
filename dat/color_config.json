@@ -64,6 +64,16 @@
       "color": "blue",
       "blink": false,
       "stop": false
-    }
+    },
+		{
+      "id": "missed_call",
+      "name": "Missed Call",
+      "r": 0,
+      "g": 0,
+      "b": 255,
+      "color": "blue",
+      "blink": true,
+      "stop": false
+    }		
   ]
 }
