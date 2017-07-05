@@ -272,7 +272,6 @@ io.sockets.on('connection', function (socket) {
 		logger.info('Room ' + room + ' has ' + numClients + ' client(s)' + ' for client id:' + socket.id);
 		logger.debug('Request to create or join room' + room);
 
-
 		if (numClients === 1) {
 			socket.emit('created', room);
 		} else if (numClients === 2) {
@@ -420,6 +419,7 @@ function sendResourceStatus() {
 }
 
 var CreateMetrics = function(metricsStartDate, metricsEndDate) {
+	var metrics = {};
 	console.log('CreateMetrics');
 	console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
 	console.log('start and end: ' + new Date(metricsStartDate) + ', ' + new Date(metricsEndDate));
@@ -462,8 +462,11 @@ var CreateMetrics = function(metricsStartDate, metricsEndDate) {
 		.then(function(results){
 			if (results[0]) {
 				console.log('number of points ' + results[0].data.length);
-				var newArray = convertTo2DArray(results[0].data, 'timestamp', 'avg_call');
-				io.to('my room').emit('metrics', newArray);
+				metrics.averageCallsInQueue = convertTo2DArray(results[0].data, 'timestamp', 'avg_call');
+
+				var target = 0.5;
+				var targetData = createTargetLine(metrics.averageCallsInQueue, target);
+				metrics.averageCallsInQueueTarget = targetData;
 			}
 			else {
 				//clear chart data
@@ -471,7 +474,25 @@ var CreateMetrics = function(metricsStartDate, metricsEndDate) {
 				// io.to('my room').emit('metrics', newArray);
 				// does io.to send [] ?
 				console.log('No metrics query results');
+				metrics.averageCallsInQueue = [];
+				metrics.averageCallsInQueueTarget = [];
 			}
+		})
+		.then(function(){
+			// Agent Status Pie Chart
+			metrics.agentStatus = [
+				{ label: "Away",  data: 3},
+				{ label: "In Call",  data: 30},
+				{ label: "Ready",  data: 5},
+				{ label: "Logged Out",  data: 20}
+			];
+
+			// Generate real data from Agents array
+			// Do it for one queue (user selected?)
+			// Agents[i].status  Agents[i].queue
+			// Make pie chart colors match busylight status colors?
+
+			io.to('my room').emit('metrics', metrics);
 		})
 		.catch(function(err) {
 			console.log('Metrics query error');
@@ -480,7 +501,20 @@ var CreateMetrics = function(metricsStartDate, metricsEndDate) {
 	}
 };
 
-var convertTo2DArray = function (array, firstProperty, secondProperty) {
+var createTargetLine = function(data, target) {
+	var targetData = [];
+	var point = [];
+	point.push(data[0][0]);
+	point.push(target);
+	targetData.push(point);
+	var point2 = [];
+	point2.push(data[data.length - 1][0]);
+	point2.push(target);
+	targetData.push(point2);
+	return targetData;
+};
+
+var convertTo2DArray = function(array, firstProperty, secondProperty) {
     var newArray = [];
     for(var i = 0; i < array.length; i++) {
         var point = [];
@@ -1049,7 +1083,6 @@ app.use('/agentassist', function (req, res) {
 //All get requests below are subjected to openam cookieShield
 //app.use(agent.shield(cookieShield));
 
-
 /**
  * Handles a GET request for / Checks if user has
  * a valid session, if so display dashboard else 
@@ -1190,9 +1223,7 @@ app.get('/logout', function (req, res) {
 				res.redirect(req.get('referer'));
 			});
 		}
-
 	});
-
 });
 
 /**
