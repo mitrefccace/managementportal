@@ -81,7 +81,7 @@
 					<!-- Charts -->
 					<div class="row">
 						<div class="col-md-4">
-							<!-- LINE CHART -->
+							<!-- Average Calls In Queue LINE CHART -->
 							<div class="box">
 								<div class="box-header with-border">
 									<h3 class="box-title">Average Calls In Queue <small>(10 min. intervals)</small>
@@ -93,6 +93,23 @@
 								</div>
 								<div class="box-body">
 									<div id="queueSizeLineChart" style="height:250px"></div>
+								</div>
+								<!-- /.box-body -->
+							</div>
+						</div>
+						<div class="col-md-4">
+							<!-- Agent Status PIE CHART -->
+							<div class="box">
+								<div class="box-header with-border">
+									<h3 class="box-title">Agent Status
+									</h3>
+									<div class="box-tools pull-right">
+										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+										</button>
+									</div>
+								</div>
+								<div class="box-body">
+									<div id="agentStatusPieChart" style="height:250px"></div>
 								</div>
 								<!-- /.box-body -->
 							</div>
@@ -235,6 +252,7 @@
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
 		<script type="text/javascript" src="public/js/jquery.flot.axislabels.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.pie.min.js"></script>
 		<!-- DateRangePicker -->
 		<script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 
@@ -294,10 +312,7 @@
 						});
 
 						socket.on('metrics', function (data) {
-							var target = .5;
-							var targetData = createTargetLine(data, target)
-
-							$.plot("#queueSizeLineChart", [data, targetData], {
+							$.plot("#queueSizeLineChart", [data.averageCallsInQueue, data.averageCallsInQueueTarget], {
 								lines:{show: true},
 								axisLabels: {show: true},
 								xaxis: {
@@ -312,6 +327,26 @@
 								},
 								colors: ["#0022FF", "#FF4040"]
 							});
+
+							$.plot("#agentStatusPieChart", data.agentStatus, {
+								series: {
+									pie: { 
+										show: true,
+										radius: 1,
+										label: {
+											show: true,
+											radius: 3/4,
+											formatter: labelFormatter,
+											background: {
+												opacity: 0.5
+											}
+										}
+									}
+								},
+								legend: {
+									show: false
+								}
+							});
 						});
 					} else {
 						//TODO: handle bad connections
@@ -322,6 +357,12 @@
 					$('#message').text('An Error Occured.');
 				}
 			});
+
+			// Label formatter for flot pie chart
+			function labelFormatter(label, series) {
+				return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+			}
+
 
 			function DateRangePickerSetup() {
 				// sets the Date Range picker start and end date
@@ -364,19 +405,6 @@
 
 				DateRangePickerSetup();
 			});
-
-			function createTargetLine(data, target) {
-				var targetData = [];
-				var point = []
-				point.push(data[0][0]);
-				point.push(target);
-				targetData.push(point);
-				var point2 = [];
-				point2.push(data[data.length - 1][0]);
-				point2.push(target);
-				targetData.push(point2);
-				return targetData;
-			}
 
 			function refreshResourceStatus() {
 				$('#statusRefreshIcon').addClass('fa-spin');
