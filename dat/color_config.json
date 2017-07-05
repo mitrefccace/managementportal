@@ -65,7 +65,7 @@
       "blink": false,
       "stop": false
     },
-		{
+    {
       "id": "missed_call",
       "name": "Missed Call",
       "r": 0,
