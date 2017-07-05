@@ -384,7 +384,6 @@ io.sockets.on('connection', function (socket) {
 	    {
 	         logger.error('Error: ' + ex);
 	    } 
-
     });
 });
 
@@ -627,50 +626,6 @@ function findAgent(agent) { // find agent by name e.g. JSSIP/30001
 }
 
 /**
- * Find the agent name given the agent information
- * @param {type} agent
- * @returns {unresolved} Not used
- */
-function findAgentName(agent) {
-	for (var i = 0; i < Agents.length; i++) {
-		if (Agents[i].agent == agent)
-			return Agents[i].name;
-	}
-}
-
-/**
- * Find agent by name and queue
- * @param {type} agent
- * @param {type} queue
- * @returns {unresolved}
- */
-function findAgentInQueue(agent, queue) { // find agent by name (extension) and queue
-	logger.debug("findAgentInQueue() Entering:  agent= " + agent + ", queue= " + queue);
-	for (var i = 0; i < Agents.length; i++) {
-		logger.debug(Agents[i]);
-		if ((Agents[i].agent === agent) && (Agents[i].queue === queue)) {
-			logger.debug("findAgentInQueue(): found Agent " + agent + ", queue:" + queue);
-			return Agents[i];
-		} else if ((Agents[i].agent === agent) && (Agents[i].queue === "--")) { // queue not set
-			logger.debug("findAgentInQueue(): empty queue");
-			return Agents[i];
-		}
-	}
-	return null;
-}
-
-/**
- * Display agent information in the array
- * @returns {undefined} Not used
- */
-function printAgent() {
-	logger.debug("Entering printAgent() ");
-	for (var i = 0; i < Agents.length; i++) {
-		logger.debug(Agents[i]);
-	}
-}
-
-/**
  * Set all agent status as Logoff. 
  * @returns {undefined} Not used
  */
@@ -705,28 +660,6 @@ function amiaction(obj) {
 		if (err) {
 			logger.error('AMI amiaction error ');
 		}
-	});
-}
-
-/**
- * Initialize Agent Call map (total calls taken) 
- * @param {type} obj Map
- * @returns {undefined} Not used
- */
-function setCallMap(map) {
-	for (var i = 0; i < Asterisk_queuenames.length; i++) {
-		map.set(Asterisk_queuenames[i], 0); // set the total call to 0
-	}
-}
-
-/**
- * Display the content of agent call map
- * @param {type} obj Map
- * @returns {undefined} Not used
- */
-function printCallMap(m) {
-	m.forEach(function (call, queue) {
-		logger.debug("printCallMap(): " + queue + " " + call);
 	});
 }
 
@@ -929,17 +862,6 @@ function handle_manager_event(evt) {
 			break;
 		default:
 			break;
-	}
-}
-
-/**
- * Display event detail information
- * @param {type} evt Event to display
- * @returns {undefined} Not used
- */
-function showEvent(evt) {
-	if (evt) {
-		logger.debug('Event: ' + evt.event);
 	}
 }
 
