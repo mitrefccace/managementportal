@@ -1,6 +1,7 @@
 'use strict';
+var logger = require('../helpers/logger');
 
-exports.createMetrics = function(db, logger, metricsStartDate, metricsEndDate, callback) {
+exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback) {
 	var metrics = {};
 	logger.debug('CreateMetrics');
 	logger.debug('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
