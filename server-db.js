@@ -51,9 +51,8 @@ var credentials = {
 var agent = new openamAgent.PolicyAgent({
 	serverUrl : decodeBase64(nconf.get('openam:serverUrl')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
 	privateIP: decodeBase64(nconf.get('openam:privateIP')),
-	errorPage: function (status, message, details) {
+	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
-  	//return '<html><body><h1>' + status + ' - '  + message + '</h1></body></html>';
   } 
 });
 var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
