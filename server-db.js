@@ -52,7 +52,7 @@ var agent = new openamAgent.PolicyAgent({
 	serverUrl : decodeBase64(nconf.get('openam:serverUrl')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
 	privateIP: decodeBase64(nconf.get('openam:privateIP')),
 	errorPage: function (status, message, details) {
-		return '<html><body><h1>Policy Agent Error</h1></body></html>';
+		return '<html><body><h1>Access Error</h1></body></html>';
   	//return '<html><body><h1>' + status + ' - '  + message + '</h1></body></html>';
   } 
 });
