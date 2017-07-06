@@ -2,43 +2,46 @@
 
 var AsteriskManager = require('asterisk-manager');
 var bodyParser = require('body-parser');
-var cfile = null; // Config file
 var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
 var csrf = require('csurf');
+var decodeBase64 = require('./helpers/utility').decodeBase64;
 var express = require('express');
 var fs = require('fs');
 var https = require('https');
 var json2csv = require('json2csv');
 var jwt = require('jsonwebtoken');
-var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
+var logger = require('./helpers/logger');
 var Map = require('collections/map');
 var metrics = require('./controllers/metrics');
 var MongoClient = require('mongodb').MongoClient;
 var nconf = require('nconf');
 var openamAgent = require('openam-agent');
+const os = require('os'); //get home directory path
 var request = require('request');
 var session = require('express-session');
+var set_rgb_values = require('./helpers/utility').set_rgb_values;
 var shell = require('shelljs');
 var socketioJwt = require('socketio-jwt');
 var tcpp = require('tcp-ping');
 var url = require('url');
 
 var port = null; // set the port
-var cfile = null; // Config file
 var ami = null; // Asterisk AMI 
 var Queues = []; // Associative array
 var Agents = []; // Associative array
 var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
+
 var app = express(); // create our app w/ express
-const os = require('os'); //get home directory path
 
 //Required for REST calls to self signed certificate servers 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-cfile = 'config.json';
+var cfile = 'config.json'; // Config file
 nconf.argv().env();
 nconf.file({ file: cfile });
+console.log('Config file: ' + cfile);
+logger.info('Config file: ' + cfile);
 
 var credentials = {
 	key: fs.readFileSync(decodeBase64(nconf.get('https:private_key'))),
@@ -71,26 +74,6 @@ app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
 app.use(csrf({ cookie: false }));
 
-log4js.loadAppender('file');
-var logname = 'server-db';
-log4js.configure({
-	appenders: [
-		{
-			type: 'dateFile',
-			filename: 'logs/' + logname + '.log',
-			pattern: '-yyyy-MM-dd',
-			alwaysIncludePattern: false,
-			maxLogSize: 20480,
-			backups: 10
-		}
-	]
-});
-
-var debugLevel = decodeBase64(nconf.get('debuglevel'));
-
-var logger = log4js.getLogger(logname);
-logger.setLevel(debugLevel); //log level hierarchy: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF
-
 nconf.defaults({// if the port is not defined in the cocnfig.json file, default it to 8080
 	dashboard: {
 		'pollInterval': 10000
@@ -99,9 +82,6 @@ nconf.defaults({// if the port is not defined in the cocnfig.json file, default 
 		'port-dashboard': 8090
 	}
 });
-
-console.log('Config file: ' + cfile);
-logger.info('Config file: ' + cfile);
 
 var fqdn = '';
 if (nconf.get('nginx:fqdn')) {
@@ -333,7 +313,7 @@ io.sockets.on('connection', function (socket) {
 			// Eventually store them in redis.
 			var metricsStartDate = new Date(data.start);
 			var metricsEndDate = new Date(data.end);
-			metrics.createMetrics(db, logger, metricsStartDate.getTime(), metricsEndDate.getTime(), function(metrics) {
+			metrics.createMetrics(db, metricsStartDate.getTime(), metricsEndDate.getTime(), function(metrics) {
 				io.to('my room').emit('metrics', metrics);
 			});
 		}
@@ -410,7 +390,7 @@ function sendResourceStatus() {
 
 	var metricsStartDate = 1497916801000;
 	var metricsEndDate = 1498003200000;
-	metrics.createMetrics(db, logger, metricsStartDate, metricsEndDate, function(data) {
+	metrics.createMetrics(db, metricsStartDate, metricsEndDate, function(data) {
 		io.to('my room').emit('metrics', data);
 	});
 }
@@ -1092,66 +1072,3 @@ app.get('/resetAllCounters', agent.shield(cookieShield), function (req, res) {
 	resetAllCounters();
 	mapAgents();
 });
-
-/**
- * Function to decode the Base64 configuration file parameters.
- * @param {type} encodedString Base64 encoded string.
- * @returns {unresolved} Decoded readable string.
- */
-function decodeBase64(encodedString) {
-	var decodedString = new Buffer(encodedString, 'base64');
-	return (decodedString.toString());
-}
-
-/**
- * Function that sets the rgb fields in the json file from a given color (for light config page)
- * @param {json_data} a json object of the color_config.json file
- * @param {status} the status index to update the correct status info in the json file
- * @param {color} the name of the color
- * @returns {return} the updated json object
- */
-function set_rgb_values(json_data, status, color) {
-	//json_data.statuses[status] gets you the fields of each specific status
-	if(color == "red") {
-		json_data.statuses[status].r = 255;
-		json_data.statuses[status].g = 0;
-		json_data.statuses[status].b = 0;
-	}
-	else if(color == "green") {
-		json_data.statuses[status].r = 0;
-		json_data.statuses[status].g = 255;
-		json_data.statuses[status].b = 0;
-	}
-	else if(color == "blue") {
-		json_data.statuses[status].r = 0;
-		json_data.statuses[status].g = 0;
-		json_data.statuses[status].b = 255;
-	}
-	else if(color == "orange") {
-		json_data.statuses[status].r = 255;
-		json_data.statuses[status].g = 50;
-		json_data.statuses[status].b = 0;
-	}
-	else if(color == "yellow") {
-		json_data.statuses[status].r = 255;
-		json_data.statuses[status].g = 255;
-		json_data.statuses[status].b = 0;
-	}
-	else if(color == "pink") {
-		json_data.statuses[status].r = 255;
-		json_data.statuses[status].g = 0;
-		json_data.statuses[status].b = 255;
-	}
-	else if(color == "aqua") {
-		json_data.statuses[status].r = 0;
-		json_data.statuses[status].g = 255;
-		json_data.statuses[status].b = 255;
-	}
-	else {
-		//color is white
-		json_data.statuses[status].r = 255;
-		json_data.statuses[status].g = 255;
-		json_data.statuses[status].b = 255;
-	}
-	return json_data;
-}
