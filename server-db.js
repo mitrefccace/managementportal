@@ -10,9 +10,9 @@ var fs = require('fs');
 var https = require('https');
 var json2csv = require('json2csv');
 var jwt = require('jsonwebtoken');
-var _ = require('lodash');
 var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
 var Map = require('collections/map');
+var metrics = require('./controllers/metrics');
 var MongoClient = require('mongodb').MongoClient;
 var nconf = require('nconf');
 var openamAgent = require('openam-agent');
@@ -27,7 +27,6 @@ var port = null; // set the port
 var cfile = null; // Config file
 var ami = null; // Asterisk AMI 
 var Queues = []; // Associative array
-var QueuesArray = []; // Asterisk queues information held here
 var Agents = []; // Associative array
 var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
@@ -247,7 +246,6 @@ io.sockets.on('connection', function (socket) {
 	socket.on('agent-help', function (data) {
 		logger.debug('Received agent help data' + data);
 		io.sockets.emit('agent-request', data);
-
 	});
 
 	socket.on('message', function (message) {
@@ -335,56 +333,54 @@ io.sockets.on('connection', function (socket) {
 			// Eventually store them in redis.
 			var metricsStartDate = new Date(data.start);
 			var metricsEndDate = new Date(data.end);
-			CreateMetrics(metricsStartDate.getTime(), metricsEndDate.getTime());
+			metrics.createMetrics(db, logger, metricsStartDate.getTime(), metricsEndDate.getTime(), function(metrics) {
+				io.to('my room').emit('metrics', metrics);
+			});
 		}
 	});
 
 	//read color_config.json file for light configuration
 	socket.on("get_color_config", function(){
-		try 
-	    {
-	        //send json file to client
-	        var file_path = os.homedir() + '/dat/color_config.json';
-	        var data = fs.readFileSync(file_path,'utf8');
-	        socket.emit("html_setup", data);
-	    } 
-	    catch (ex) 
-	    {
-	         logger.error('Error: ' + ex);
-	    } 
+		try {
+			//send json file to client
+			var file_path = os.homedir() + '/dat/color_config.json';
+			var data = fs.readFileSync(file_path,'utf8');
+			socket.emit("html_setup", data);
+		} 
+		catch (ex) {
+			logger.error('Error: ' + ex);
+		} 
 	});
 
 	//on light color config submit update current color_config.json file
-    socket.on('submit', function(form_data){
-    	try 
-	    {
-	        var file_path = os.homedir() + '/dat/color_config.json';
-	        var data = fs.readFileSync(file_path,'utf8');
-	        var json_data = JSON.parse(data);
-	        for(var status in json_data.statuses)
-	        {
-	            var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
-	            json_data.statuses[status].color = color_and_action[0].toLowerCase();
-	            json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
-	            json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
-	            json_data = set_rgb_values(json_data, status, color_and_action[0]);
-	        }
-	         fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
+	socket.on('submit', function(form_data){
+		try {
+			var file_path = os.homedir() + '/dat/color_config.json';
+			var data = fs.readFileSync(file_path,'utf8');
+			var json_data = JSON.parse(data);
+			for(var status in json_data.statuses)
+			{
+				var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
+				json_data.statuses[status].color = color_and_action[0].toLowerCase();
+				json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
+				json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
+				json_data = set_rgb_values(json_data, status, color_and_action[0]);
+			}
+			fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
 
-	        //send to server
-	        request({
-	            url: adUrl + '/updatelightconfigs'
-	        }, function (err, res, data) {
-	            if (err) {
-	                 logger.error('Error: ' + err);
-	            }
-	        });
-	    } 
-	    catch (ex) 
-	    {
-	         logger.error('Error: ' + ex);
-	    } 
-    });
+			//send to server
+			request({
+				url: adUrl + '/updatelightconfigs'
+			}, function (err, res, data) {
+				if (err) {
+					logger.error('Error: ' + err);
+				}
+			});
+		} 
+		catch (ex) {
+			logger.error('Error: ' + ex);
+		} 
+	});
 });
 
 //calls sendResourceStatus every minute
@@ -414,117 +410,10 @@ function sendResourceStatus() {
 
 	var metricsStartDate = 1497916801000;
 	var metricsEndDate = 1498003200000;
-	CreateMetrics(metricsStartDate, metricsEndDate);
+	metrics.createMetrics(db, logger, metricsStartDate, metricsEndDate, function(data) {
+		io.to('my room').emit('metrics', data);
+	});
 }
-
-var CreateMetrics = function(metricsStartDate, metricsEndDate) {
-	var metrics = {};
-	// Convert these to use logger
-	// console.log('CreateMetrics');
-	// console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
-	// console.log('start and end: ' + new Date(metricsStartDate) + ', ' + new Date(metricsEndDate));
-
-	// MongoDB query for chart data
-	if (db) {
-		db.collection('records').aggregate(
-			[
-				{$match:{timestamp:{$gt:metricsStartDate, $lt:metricsEndDate}}},
-				{
-					"$project": {
-							"date": {
-									"$add": [ new Date(0), "$timestamp" ]
-							},
-							"callers" : "$callers",
-							"timestamp": "$timestamp"
-					}
-				}, {
-					$group : {
-							"_id" : { 
-									year: { $year: "$date" }, 
-									month: { $month: "$date" }, 
-									day: { $dayOfMonth: "$date" }, 
-									hour: { $hour: "$date" }, 
-									minutes: {$multiply:[{$floor:{ $divide: [{$minute: "$date"}, 10]}}, 10] }
-									},
-							"timestamp":{$min: "$timestamp"},
-							"avg_call":{"$avg": "$callers" }
-						}
-				} , {
-					$sort:{timestamp: 1}
-				} , {
-					$group : {
-						"_id" : null,
-						"data": { $push:  { "avg_call": "$avg_call", "timestamp": "$timestamp" } }
-					}
-				}
-			]
-		)
-		.toArray()
-		.then(function(results){
-			if (results[0]) {
-				metrics.averageCallsInQueue = convertTo2DArray(results[0].data, 'timestamp', 'avg_call');
-
-				// Persist target some other way.
-				var averageCallsInQueueTarget = 0.5;
-				var targetData = createTargetLine(metrics.averageCallsInQueue, averageCallsInQueueTarget);
-				metrics.averageCallsInQueueTarget = targetData;
-			}
-			else {
-				//clear chart data
-				// var newArray = [];
-				// io.to('my room').emit('metrics', newArray);
-				// does io.to send [] ?
-				console.log('No metrics query results');
-				metrics.averageCallsInQueue = [];
-				metrics.averageCallsInQueueTarget = [];
-			}
-		})
-		.then(function(){
-			// Agent Status Pie Chart
-			metrics.agentStatus = [
-				{ label: "Away",  data: 3},
-				{ label: "In Call",  data: 30},
-				{ label: "Ready",  data: 5},
-				{ label: "Logged Out",  data: 20}
-			];
-
-			// Generate real data from Agents array
-			// Do it for one queue (user selected?)
-			// Agents[i].status  Agents[i].queue
-			// Make pie chart colors match busylight status colors?
-
-			io.to('my room').emit('metrics', metrics);
-		})
-		.catch(function(err) {
-			console.log('Metrics query error: ' + err);
-			//throw err;
-		});
-	}
-};
-
-var createTargetLine = function(data, target) {
-	var targetData = [];
-	var point = [];
-	point.push(data[0][0]);
-	point.push(target);
-	targetData.push(point);
-	var point2 = [];
-	point2.push(data[data.length - 1][0]);
-	point2.push(target);
-	targetData.push(point2);
-	return targetData;
-};
-
-var convertTo2DArray = function(array, firstProperty, secondProperty) {
-    var newArray = [];
-    for(var i = 0; i < array.length; i++) {
-        var point = [];
-        point.push(array[i][firstProperty]);
-        point.push(array[i][secondProperty]);
-        newArray.push(point);
-    }
-    return newArray;
-};
 
 /**
  * Check resource status
@@ -1017,7 +906,7 @@ app.use('/agentassist', function (req, res) {
 app.get('/', agent.shield(cookieShield),function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.redirect('./dashboard');
-	} else if (req.session.role != undefined) {
+	} else if (req.session.role !== undefined) {
 		res.redirect('./Logout');
 	} else {
 		res.render('pages/login', { csrfToken: req.csrfToken() });
@@ -1035,7 +924,7 @@ app.get('/', agent.shield(cookieShield),function (req, res) {
 app.get('/dashboard', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.render('pages/dashboard');
-	} else if (req.session.role != undefined) {
+	} else if (req.session.role !== undefined) {
 		console.log("bad role");
 		res.redirect('./Logout');
 	} else {
@@ -1150,22 +1039,23 @@ app.get('/logout', function (req, res) {
  * @param {type} callback Returns retrieved JSON
  * @returns {undefined} Not used
  */
-function login(username, password, callback) {
-	var url = decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))) + "/agentverify/";
-	var params = "?username=" + escape(username) + "&password=" + escape(password);
-	request({
-		url: url + params,
-		json: true
-	}, function (error, response, data) {
-		if (error) {
-			logger.error("login ERROR");
-			data = { "message": "failed" };
-		} else {
-			logger.info("Agent Verify: " + data.message);
-		}
-		callback(data);
-	});
-}
+// function login(username, password, callback) {
+// 	var url = decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))) + "/agentverify/";
+// 	var params = "?username=" + escape(username) + "&password=" + escape(password);
+// 	request({
+// 		url: url + params,
+// 		json: true
+// 	}, function (error, response, data) {
+// 		if (error) {
+// 			logger.error("login ERROR");
+// 			data = { "message": "failed" };
+// 		} else {
+// 			logger.info("Agent Verify: " + data.message);
+// 		}
+// 		callback(data);
+// 	});
+// }
+
 /**
  * Calls the RESTful service running on the provider host to verify the agent 
  * username and password.  
@@ -1220,56 +1110,48 @@ function decodeBase64(encodedString) {
  * @param {color} the name of the color
  * @returns {return} the updated json object
  */
-function set_rgb_values(json_data, status, color)
-{
+function set_rgb_values(json_data, status, color) {
 	//json_data.statuses[status] gets you the fields of each specific status
-    if(color == "red")
-    {
-         json_data.statuses[status].r = 255;
-         json_data.statuses[status].g = 0;
-         json_data.statuses[status].b = 0;
-    }
-    else if(color == "green")
-    {
-         json_data.statuses[status].r = 0;
-         json_data.statuses[status].g = 255;
-         json_data.statuses[status].b = 0;
-    }
-    else if(color == "blue")
-    {
-         json_data.statuses[status].r = 0;
-         json_data.statuses[status].g = 0;
-         json_data.statuses[status].b = 255;
-    }
-    else if(color == "orange")
-    {
-         json_data.statuses[status].r = 255;
-         json_data.statuses[status].g = 50;
-         json_data.statuses[status].b = 0;
-    }
-    else if(color == "yellow")
-    {
-         json_data.statuses[status].r = 255;
-         json_data.statuses[status].g = 255;
-         json_data.statuses[status].b = 0;
-    }
-    else if(color == "pink")
-    {
-         json_data.statuses[status].r = 255;
-         json_data.statuses[status].g = 0;
-         json_data.statuses[status].b = 255;
-    }
-    else if(color == "aqua")
-    {
-         json_data.statuses[status].r = 0;
-         json_data.statuses[status].g = 255;
-         json_data.statuses[status].b = 255;
-    }
-    else //color is white
-    {
-         json_data.statuses[status].r = 255;
-         json_data.statuses[status].g = 255;
-         json_data.statuses[status].b = 255;
-    }
-    return json_data;
+	if(color == "red") {
+		json_data.statuses[status].r = 255;
+		json_data.statuses[status].g = 0;
+		json_data.statuses[status].b = 0;
+	}
+	else if(color == "green") {
+		json_data.statuses[status].r = 0;
+		json_data.statuses[status].g = 255;
+		json_data.statuses[status].b = 0;
+	}
+	else if(color == "blue") {
+		json_data.statuses[status].r = 0;
+		json_data.statuses[status].g = 0;
+		json_data.statuses[status].b = 255;
+	}
+	else if(color == "orange") {
+		json_data.statuses[status].r = 255;
+		json_data.statuses[status].g = 50;
+		json_data.statuses[status].b = 0;
+	}
+	else if(color == "yellow") {
+		json_data.statuses[status].r = 255;
+		json_data.statuses[status].g = 255;
+		json_data.statuses[status].b = 0;
+	}
+	else if(color == "pink") {
+		json_data.statuses[status].r = 255;
+		json_data.statuses[status].g = 0;
+		json_data.statuses[status].b = 255;
+	}
+	else if(color == "aqua") {
+		json_data.statuses[status].r = 0;
+		json_data.statuses[status].g = 255;
+		json_data.statuses[status].b = 255;
+	}
+	else {
+		//color is white
+		json_data.statuses[status].r = 255;
+		json_data.statuses[status].g = 255;
+		json_data.statuses[status].b = 255;
+	}
+	return json_data;
 }
