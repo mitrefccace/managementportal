@@ -25,6 +25,7 @@
     "angular-route": "^1.5.8",
     "angular-bootstrap": "^2.2.0",
     "datatables": "^1.10.12",
-    "bootstrap-select": "^1.12.2"
+    "bootstrap-select": "^1.12.2",
+    "flot-axislabels": "*"
   }
 }

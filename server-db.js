@@ -218,7 +218,7 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	// Handle incoming Socket.IO registration requests - add to the room
-	socket.on('register-manager', function (data) {
+	socket.on('register-manager', function () {
 		logger.info("Adding client socket to room: 'my room'");
 		// Add this socket to my room
 		socket.join('my room');
@@ -226,7 +226,7 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	//Manually get resource status
-	socket.on('resource-status-update', function (data) {
+	socket.on('resource-status-update', function () {
 		sendResourceStatus();
 	});
 
@@ -340,13 +340,13 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	//read color_config.json file for light configuration
-	socket.on("get_color_config", function(data){
+	socket.on("get_color_config", function(){
 		try 
 	    {
 	        //send json file to client
 	        var file_path = os.homedir() + '/dat/color_config.json';
 	        var data = fs.readFileSync(file_path,'utf8');
-	        socket.emit("html_setup",data);
+	        socket.emit("html_setup", data);
 	    } 
 	    catch (ex) 
 	    {
@@ -419,9 +419,11 @@ function sendResourceStatus() {
 
 var CreateMetrics = function(metricsStartDate, metricsEndDate) {
 	var metrics = {};
-	console.log('CreateMetrics');
-	console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
-	console.log('start and end: ' + new Date(metricsStartDate) + ', ' + new Date(metricsEndDate));
+	// Convert these to use logger
+	// console.log('CreateMetrics');
+	// console.log('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
+	// console.log('start and end: ' + new Date(metricsStartDate) + ', ' + new Date(metricsEndDate));
+
 	// MongoDB query for chart data
 	if (db) {
 		db.collection('records').aggregate(
@@ -460,11 +462,11 @@ var CreateMetrics = function(metricsStartDate, metricsEndDate) {
 		.toArray()
 		.then(function(results){
 			if (results[0]) {
-				console.log('number of points ' + results[0].data.length);
 				metrics.averageCallsInQueue = convertTo2DArray(results[0].data, 'timestamp', 'avg_call');
 
-				var target = 0.5;
-				var targetData = createTargetLine(metrics.averageCallsInQueue, target);
+				// Persist target some other way.
+				var averageCallsInQueueTarget = 0.5;
+				var targetData = createTargetLine(metrics.averageCallsInQueue, averageCallsInQueueTarget);
 				metrics.averageCallsInQueueTarget = targetData;
 			}
 			else {
@@ -494,7 +496,7 @@ var CreateMetrics = function(metricsStartDate, metricsEndDate) {
 			io.to('my room').emit('metrics', metrics);
 		})
 		.catch(function(err) {
-			console.log('Metrics query error');
+			console.log('Metrics query error: ' + err);
 			//throw err;
 		});
 	}
@@ -535,7 +537,6 @@ function checkConnection(hosts, callback) {
 	var requests = hosts.length;
 
 	hosts.forEach(function (host, name) {
-
 		var parsedurl = url.parse(host, true, true);
 		var hostname = parsedurl.hostname;
 		var port = parsedurl.port;
@@ -574,7 +575,6 @@ function checkConnection(hosts, callback) {
  * @returns {undefined} Not used
  */
 function init_ami() {
-
 	if (ami === null) {
 		try {
 			if (decodeBase64(nconf.get('environment')) === "ACL") {
@@ -1087,13 +1087,6 @@ app.get('/light', agent.shield(cookieShield), function (req, res) {
 	}
 });
 
-app.get('/', function (req, res){
-    res.redirect('/light');
-});
-app.get('/light', function (req, res){
-    res.render('pages/light');
-});
-
 /**
  * Handles a GET request for token and returnes a valid JWT token
  * for Manager's with a valid session.
@@ -1227,7 +1220,7 @@ function decodeBase64(encodedString) {
  * @param {color} the name of the color
  * @returns {return} the updated json object
  */
-function set_rgb_values(json_data,status,color)
+function set_rgb_values(json_data, status, color)
 {
 	//json_data.statuses[status] gets you the fields of each specific status
     if(color == "red")
