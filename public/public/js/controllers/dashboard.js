@@ -2,9 +2,9 @@
  * New node file
  */
 //var socket = io.connect();
-var dbController = angular.module('dashboardModule', ['csrService'])
+var dbController = angular.module('dashboardModule', ['csrService', 'angularDurationFormat'])
 		.controller('dashboardController', function($scope, $http, $window, socket) {
-		
+	
 		$scope.Queues = [];
 		$scope.qNames = [];
 		$scope.queue = "";
@@ -96,17 +96,12 @@ var dbController = angular.module('dashboardModule', ['csrService'])
 				$scope.summary.abandoned += $scope.Queues[i].abandoned;
 			}
 			
-			
 			if ($scope.summary.completed > 0 && $scope.summary.holdtime > 0) {
 				$scope.summary.avgholdtime = Number($scope.summary.holdtime / $scope.summary.completed).toFixed(2);
-				
 			}
-			
 			else {
 				$scope.summary.avgholdtime = 0;
-				
 			}
-			
 		};
 		$scope.initData = function () {
 			   //$scope.getQueues();
@@ -151,5 +146,11 @@ dbController.filter('shownum', function () {
 		else {
 			return input;
 		}
+	};
+});
+
+dbController.filter('dateformat', function () {
+	return function (input) {
+		return moment.duration(input, "minutes").format('HH:mm:ss', { trim: false });
 	};
 });
