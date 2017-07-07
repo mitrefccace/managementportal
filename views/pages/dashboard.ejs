@@ -56,8 +56,8 @@
 							<!-- small box -->
 							<div class="small-box bg-yellow">
 								<div class="inner">
-									<h3 ng-bind="summary.avgholdtime| shownum"></h3>
-									<h4>Average Hold Time (min)</h4>
+									<h3 ng-bind="summary.avgholdtime | shownum | dateformat"></h3>
+									<h4>Average Hold Time (h:m:s)</h4>
 								</div>
 								<div class="icon">
 									<i class="ion ion-clock"></i>
@@ -136,9 +136,9 @@
 											<th class="text-center">Total Calls</th>
 											<th class="text-center">Calls Handled</th>
 											<th class="text-center">Calls Abandoned</th>
-											<th class="text-center">Talk Time (min)</th>
-											<th class="text-center">Hold Time (min)</th>
-											<th class="text-center">Longest Hold Time (min)</th>
+											<th class="text-center">Talk Time (h:m:s)</th>
+											<th class="text-center">Hold Time (h:m:s)</th>
+											<th class="text-center">Longest Hold Time (h:m:s)</th>
 										</tr>
 										<tr ng-repeat="q in Queues">
 											<td><span class="queue-info" ng-bind="q.queue"></span></td>
@@ -148,9 +148,9 @@
 											<td class="text-center"><span class="queue-info" ng-bind="q.calls"></span></td>
 											<td class="text-center"><span class="queue-info" ng-bind="q.completed"></span></td>
 											<td class="text-center"><span class="queue-info" ng-bind="q.abandoned"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.talktime"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.holdtime"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.longestholdtime"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.talktime | shownum | dateformat"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.holdtime | shownum | dateformat"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="q.longestholdtime | shownum | dateformat"></span></td>
 										</tr>
 									</table>
 								</div><!-- /.box-body -->
@@ -175,8 +175,8 @@
 											<th class="text-center">Registered Ext.</th>
 											<th class="text-center">Registered Queue</th>
 											<th class="text-center">Calls Completed</th>
-											<th class="text-center">Average Call Time (min)</th>
-											<th class="text-center">Talk Time (min)</th> 
+											<th class="text-center">Average Call Time (h:m:s)</th>
+											<th class="text-center">Talk Time (h:m:s)</th> 
 											<!-- Placeholders for a future function -->
 											<!-- <th class="text-center"Calls Abandoned</th> -->
 											<!-- <th class="text-center">Hang-Ups</th> -->
@@ -189,8 +189,8 @@
 											<td class="text-center"><span class="queue-info" ng-bind="a.agent"></span></td>
 											<td class="text-center"><span class="queue-info" ng-bind="a.queue"></span></td>
 											<td class="text-center"><span class="queue-info" ng-bind="a.callstaken"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.avgtalktime"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.talktime"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.avgtalktime | shownum | dateformat"></span></td>
+											<td class="text-center"><span class="queue-info" ng-bind="a.talktime | shownum | dateformat"></span></td>
 											<td class="text-center"><span class="queue-info" ng-bind="a.status"></span></td>
 										</tr>
 									</table>
@@ -255,6 +255,9 @@
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.pie.min.js"></script>
 		<!-- DateRangePicker -->
 		<script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
+		<!-- Moment Duration Format -->
+		<script type="text/javascript" src="./bower_components/moment-duration-format/lib/moment-duration-format.js"></script>
+		<script type="text/javascript" src="./bower_components/angular-moment-duration-format/angular-moment-duration-format.min.js"></script>
 
 		<script type="text/javascript">
 			var socket;

@@ -26,6 +26,7 @@
     "angular-bootstrap": "^2.2.0",
     "datatables": "^1.10.12",
     "bootstrap-select": "^1.12.2",
-    "flot-axislabels": "*"
+    "flot-axislabels": "*",
+    "angular-moment-duration-format": "^0.1.0"
   }
 }
