@@ -149,8 +149,8 @@ dbController.filter('shownum', function () {
 	};
 });
 
-dbController.filter('dateformat', function () {
+dbController.filter('minsectimeformat', function () {
 	return function (input) {
-		return moment.duration(input, "minutes").format('HH:mm:ss', { trim: false });
+		return moment.duration(input, "minutes").format('mm:ss', { trim: false });
 	};
 });
