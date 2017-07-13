@@ -1,7 +1,7 @@
 'use strict';
 var logger = require('../helpers/logger');
 
-exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback) {
+exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, callback) {
 	var metrics = {};
 	logger.debug('CreateMetrics');
 	logger.debug('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
@@ -9,6 +9,7 @@ exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback)
 
 	// MongoDB query for chart data
 	if (db) {
+		metrics.showCharts = true;
 		db.collection('records').aggregate(
 			[
 				{$match:{timestamp:{$gt:metricsStartDate, $lt:metricsEndDate}}},
@@ -84,6 +85,9 @@ exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback)
 		.catch(function(err) {
 			logger.error('Metrics query error: ' + err);
 		});
+	}
+	else {
+		metrics.showCharts = false;
 	}
 };
 
