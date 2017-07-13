@@ -4,6 +4,25 @@
 	<head>
 		<% include ../partials/head %>
         <style>
+            .wordwrap
+            {
+              white-space: -moz-pre-wrap !important;
+              white-space: -pre-wrap;
+              white-space: -o-pre-wrap;
+              white-space pre-wrap;
+              white-space: -webkit-pre-wrap;
+              white-space: normal;
+            }
+            .btn-gray
+            {
+              background-color: #f2f2f2 !important;
+              border-color: #ccc;
+              color:#616161;
+            }
+            .btn-gray:hover
+            {
+              background-color:#e8e8e8 !important;
+            }
            #form_container tr
             {
                 height:55px;
@@ -245,7 +264,7 @@
                                     <h3 class="box-title"> Light Configuration </h3>
                                 </div><!-- /.box-header -->
                                 <div class="box-body table-responsive" style="overflow:visible !important;">
-								     <form class="form-inline" id = "form_input" action = "">
+								                     <form class="form-inline" id = "form_input" action = "">
                                         <div class = "col-lg-12" id = "form_container">
                                             <table id = "form_table" style="font-size: 20px; width: 80%; max-width:700px;">
                                                 <tr style="height:20px;">
@@ -254,8 +273,15 @@
                                                 </tr>
                                             </table>
                                         </div>
-                                        <div class = "col-lg-12" style = "margin-top: 5px;">
-                                            <input style="margin-top: 20px;" type="button" onclick = "submit_form()" class="btn btn-primary btn-lg" value = "Save">
+                                        <div class = "row">
+                                          <div class = "col-xs-4" style = "margin-top: 5px;">
+                                              <input style="margin-top: 20px; width: 100%; max-width: 175px;" type="button" onclick = "reset_color_config()" class="btn btn-gray btn-lg wordwrap" value = "Reset to Default">
+                                          </div>
+                                        </div>
+                                        <div class ="row">
+                                          <div class = "col-xs-4" style = "margin-top: 5px;">
+                                            <input style="width: 100%; max-width: 175px;" type="button" onclick = "submit_form()" class="btn btn-primary btn-lg" value = "Save">
+                                          </div>
                                         </div>
                                     </form>
                                 </div><!-- /.box-body -->
@@ -271,10 +297,18 @@
         <!--bootstrap-select-->
         <script type="text/javascript" src="./bower_components/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
         <link rel = "stylesheet" type="text/css" href="./bower_components/bootstrap-select/dist/css/bootstrap-select.min.css">
-		<script type="text/javascript">
+		    <script type="text/javascript">
 
             var socket;
            
+
+           /**
+            * reders the data in default_color_config.json on the screen. NOTE: does not save the data, user still has to hit "save"
+           */
+           function reset_color_config()
+           {
+              socket.emit("reset-color-config");
+           }
             /**
              * disables color from all other statuses' selection lists and reenables old_color. does not disable currently selected color from its correlating status
              * @param {color} is the current color value to disable
@@ -396,7 +430,28 @@
                 }
                 $('.selectpicker').selectpicker('refresh');
             }
-            
+
+            /**
+             *sets up the html document dynamically based on the json data received
+             *@param {data}  the unparsed color_config.json file
+            */
+            function setup_html(data)
+            {
+              var json_data = JSON.parse(data);
+              append_html(json_data);
+              for(status in json_data.statuses)
+              {
+                  //set currently selected color
+                  var selected_option = get_selected_option_id(json_data, status);
+                  document.getElementById(json_data.statuses[status].id).value = selected_option;
+                  document.getElementById(json_data.statuses[status].id).old_value = selected_option; 
+
+                  //disable selected color from other menues
+                  disable_colors(selected_option,"",json_data.statuses[status].id); 
+              }
+              $('.selectpicker').selectpicker('refresh');
+            }    
+
 			$(document).ready(function () {
 				$("#sidebarlight").addClass("active");
                 
@@ -418,20 +473,20 @@
                 
                             //sets up the html page dynmically via the json file received
                             socket.on("html_setup", function(data) {
-                                var json_data = JSON.parse(data);
-                                append_html(json_data);
-                                for(status in json_data.statuses)
-                                {
-                                    //set currently selected color
-                                    var selected_option = get_selected_option_id(json_data, status);
-                                    document.getElementById(json_data.statuses[status].id).value = selected_option;
-                                    document.getElementById(json_data.statuses[status].id).old_value = selected_option; 
-
-                                    //disable selected color from other menues
-                                    disable_colors(selected_option,"",json_data.statuses[status].id); 
-                                }
-                                $('.selectpicker').selectpicker('refresh');
+                                setup_html(data);
                              }); 
+
+                            //updates the colors shown on the page (does not resave them, just changes the display)
+                            socket.on("update-colors", function(data){
+                                document.getElementById("form_table").innerHTML="";
+                                $("#form_table").append(
+                                    '<tr style="height:20px;">' +
+                                        '<th style = "text-decoration: underline; padding-bottom: 5px;"> Status </th>' +
+                                        '<th style = "text-decoration: underline; padding-bottom: 5px;"> Color </th>' +
+                                      '</tr>)'
+                                );
+                                setup_html(data);
+                            });
                         }
                     },
                     error: function (xhr, status, error) 

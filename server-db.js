@@ -140,10 +140,11 @@ io.use(socketioJwt.authorize({
 if (!fs.existsSync('../dat')) { //make sure dir existsSync
   fs.mkdirSync('../dat', '0775');
 }
-if (!fs.existsSync('../dat/color_config.json')) {
+if (!fs.existsSync('../dat/color_config.json') || !fs.existsSync('../dat/default_color_config.json') ) {
   // copy it from dat
   logger.info('copying default color config file to ~/dat since it does not exist...');
   fs.createReadStream('dat/color_config.json').pipe(fs.createWriteStream('../dat/color_config.json'));
+  fs.createReadStream('dat/default_color_config.json').pipe(fs.createWriteStream('../dat/default_color_config.json'));
 }
 
 logger.info('Listen on port: ' + port);
@@ -362,6 +363,19 @@ io.sockets.on('connection', function (socket) {
 		} 
 		catch (ex) {
 			logger.error('Error: ' + ex);
+		} 
+	});
+
+	//sends the default_color_config.json data back to the management portal
+	socket.on('reset-color-config', function(){
+		try {
+			var default_color_config = os.homedir() + '/dat/default_color_config.json';
+			var data = fs.readFileSync(default_color_config,'utf8');
+			socket.emit("update-colors",data);
+		} 
+		catch (ex) {
+			logger.error('Error: ' + ex);
+			console.log('Error: ' + ex);
 		} 
 	});
 });
