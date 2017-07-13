@@ -273,14 +273,19 @@
                                                 </tr>
                                             </table>
                                         </div>
-                                        <div class = "row">
-                                          <div class = "col-xs-4" style = "margin-top: 5px;">
+                                        <div class = "row" style="margin-top: 25px; padding-left: 10px;">
+                                          <div class = "col-xs-4">
                                               <input style="margin-top: 20px; width: 100%; max-width: 175px;" type="button" onclick = "reset_color_config()" class="btn btn-gray btn-lg wordwrap" value = "Reset to Default">
                                           </div>
                                         </div>
-                                        <div class ="row">
+                                        <div class ="row" style="padding-left: 10px;">
                                           <div class = "col-xs-4" style = "margin-top: 5px;">
                                             <input style="width: 100%; max-width: 175px;" type="button" onclick = "submit_form()" class="btn btn-primary btn-lg" value = "Save">
+                                          </div>
+                                        </div>
+                                        <div class = "row" style="padding-left: 10px;">
+                                          <div class ="col-lg-12">
+                                            <p style="margin-top:10px; color: red;" id="submit-text"></p>
                                           </div>
                                         </div>
                                     </form>
@@ -300,7 +305,11 @@
 		    <script type="text/javascript">
 
             var socket;
-           
+
+            function addMessage()
+            {
+              document.getElementById("submit-text").innerHTML= 'Click "Save" to submit your changes';
+            }
 
            /**
             * reders the data in default_color_config.json on the screen. NOTE: does not save the data, user still has to hit "save"
@@ -343,6 +352,7 @@
             */
             function submit_form()
             {
+                document.getElementById("submit-text").innerHTML= "";
                 var inputs = $("#form_input :input").not(':button'); //all input fields (not button because bootstrap-select makes them into buttons)
                 var parsed_inputs = new Array(); //only the values of the statuses
                 inputs.each(function() {
@@ -396,7 +406,7 @@
                                 '<p style = "margin-right: 10px; margin-top: 10px;" for="' + status_id + '">' + status_name + ':</p>' +
                             '</th>'+
                             '<th style=" font-weight: normal; min-width:215px; width: 100%; max-width: 50%;">'+
-                                '<select class="form-control selectpicker" aria-hidden="true" id="' + status_id+ '" name ="'+status_id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value;">');
+                                '<select class="form-control selectpicker" aria-hidden="true" id="' + status_id+ '" name ="'+status_id+'" onfocus = "this.old_value" onchange = "disable_colors(this.value,this.old_value,this.id);this.old_value=this.value; addMessage();">');
 
                     //append <option> 
                     //  "<option> value" is the color and action concatinated, "green_blinking" for example
@@ -485,6 +495,7 @@
                                         '<th style = "text-decoration: underline; padding-bottom: 5px;"> Color </th>' +
                                       '</tr>)'
                                 );
+                                document.getElementById("submit-text").innerHTML= 'Click "Save" to submit your changes';
                                 setup_html(data);
                             });
                         }
