@@ -317,7 +317,7 @@ io.sockets.on('connection', function (socket) {
 			// Eventually store them in redis.
 			var metricsStartDate = new Date(data.start);
 			var metricsEndDate = new Date(data.end);
-			metrics.createMetrics(db, metricsStartDate.getTime(), metricsEndDate.getTime(), function(metrics) {
+			metrics.createMetrics(db, Agents, metricsStartDate.getTime(), metricsEndDate.getTime(), function(metrics) {
 				io.to('my room').emit('metrics', metrics);
 			});
 		}
@@ -407,7 +407,7 @@ function sendResourceStatus() {
 
 	var metricsStartDate = 1497916801000;
 	var metricsEndDate = 1498003200000;
-	metrics.createMetrics(db, metricsStartDate, metricsEndDate, function(data) {
+	metrics.createMetrics(db, Agents, metricsStartDate, metricsEndDate, function(data) {
 		io.to('my room').emit('metrics', data);
 	});
 }
