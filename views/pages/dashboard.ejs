@@ -79,7 +79,7 @@
 					</div><!-- /.row -->
 
 					<!-- Charts -->
-					<div class="row">
+					<div id="charts" class="row hidden" >
 						<div class="col-md-4">
 							<!-- Average Calls In Queue LINE CHART -->
 							<div class="box">
@@ -315,41 +315,47 @@
 						});
 
 						socket.on('metrics', function (data) {
-							$.plot("#queueSizeLineChart", [data.averageCallsInQueue, data.averageCallsInQueueTarget], {
-								lines:{show: true},
-								axisLabels: {show: true},
-								xaxis: {
-									mode: "time",
-									minTickSize: [2, "hour"],
-									timeformat: "%H:%M",
-									axisLabel: "Time"
-								},
-								yaxis: {
-									position: "left",
-									axisLabel: "Calls"
-								},
-								colors: ["#0022FF", "#FF4040"]
-							});
+							if (data.showCharts) {
+								$("#charts").removeClass('hidden');
+								$.plot("#queueSizeLineChart", [data.averageCallsInQueue, data.averageCallsInQueueTarget], {
+									lines:{show: true},
+									axisLabels: {show: true},
+									xaxis: {
+										mode: "time",
+										minTickSize: [2, "hour"],
+										timeformat: "%H:%M",
+										axisLabel: "Time"
+									},
+									yaxis: {
+										position: "left",
+										axisLabel: "Calls"
+									},
+									colors: ["#0022FF", "#FF4040"]
+								});
 
-							$.plot("#agentStatusPieChart", data.agentStatus, {
-								series: {
-									pie: { 
-										show: true,
-										radius: 1,
-										label: {
+								$.plot("#agentStatusPieChart", data.agentStatus, {
+									series: {
+										pie: { 
 											show: true,
-											radius: 3/4,
-											formatter: labelFormatter,
-											background: {
-												opacity: 0.5
+											radius: 1,
+											label: {
+												show: true,
+												radius: 3/4,
+												formatter: labelFormatter,
+												background: {
+													opacity: 0.5
+												}
 											}
 										}
+									},
+									legend: {
+										show: false
 									}
-								},
-								legend: {
-									show: false
-								}
-							});
+								});
+							}
+							else {
+								$("#charts").addClass('hidden');
+							}
 						});
 					} else {
 						//TODO: handle bad connections
