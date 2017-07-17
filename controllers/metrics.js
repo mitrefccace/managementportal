@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 var logger = require('../helpers/logger');
 
 exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, callback) {
@@ -7,9 +8,10 @@ exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, c
 	logger.debug('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
 	logger.debug('start and end: ' + new Date(metricsStartDate) + ', ' + new Date(metricsEndDate));
 
-	// MongoDB query for chart data
 	if (db) {
 		metrics.showCharts = true;
+
+		// MongoDB query for chart data
 		db.collection('records').aggregate(
 			[
 				{$match:{timestamp:{$gt:metricsStartDate, $lt:metricsEndDate}}},
@@ -44,7 +46,7 @@ exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, c
 			]
 		)
 		.toArray()
-		.then(function(results){
+		.then(function(results) {
 			if (results[0]) {
 				metrics.averageCallsInQueue = convertTo2DArray(results[0].data, 'timestamp', 'avg_call');
 
@@ -55,32 +57,27 @@ exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, c
 			}
 			else {
 				//clear chart data
-				// var newArray = [];
-				// io.to('my room').emit('metrics', newArray);
-				// does io.to send [] ?
-				console.log('No metrics query results');
+				logger.debug('No metrics query results');
 				metrics.averageCallsInQueue = [];
 				metrics.averageCallsInQueueTarget = [];
 			}
 		})
-		.then(function(){
+		.then(function() {
 			// Agent Status Pie Chart
-			metrics.agentStatus = [
-				{ label: "Away",  data: 3},
-				{ label: "In Call",  data: 30},
-				{ label: "Ready",  data: 5},
-				{ label: "Logged Out",  data: 20}
-			];
-
-			// Generate real data from Agents array
-			// Do it for one queue (user selected?)
-			// Agents[i].status  Agents[i].queue
+			// Make chart data from Agents array
+			// Improvements:
+			// Do it for one user selected queue?
 			// Make pie chart colors match busylight status colors?
 
-			// Callback with results of resource status probes  
-			callback(metrics);
+			logger.debug(Agents.length);
+			var grouped = _.countBy(Agents, 'status');
+			metrics.agentStatus = [];
+			_.forOwn(grouped, function(item, key) {
+				metrics.agentStatus.push({ "label": key, "data": item});
+			});
+			//logger.debug(JSON.stringify(metrics.agentStatus, null, '\t'));
 
-			//io.to('my room').emit('metrics', metrics);
+			callback(metrics);
 		})
 		.catch(function(err) {
 			logger.error('Metrics query error: ' + err);
@@ -105,12 +102,12 @@ var createTargetLine = function(data, target) {
 };
 
 var convertTo2DArray = function(array, firstProperty, secondProperty) {
-    var newArray = [];
-    for(var i = 0; i < array.length; i++) {
-        var point = [];
-        point.push(array[i][firstProperty]);
-        point.push(array[i][secondProperty]);
-        newArray.push(point);
-    }
-    return newArray;
+	var newArray = [];
+	for(var i = 0; i < array.length; i++) {
+		var point = [];
+		point.push(array[i][firstProperty]);
+		point.push(array[i][secondProperty]);
+		newArray.push(point);
+	}
+	return newArray;
 };
