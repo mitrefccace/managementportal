@@ -137,14 +137,15 @@ io.use(socketioJwt.authorize({
 }));
 
 //light status config requirement: copy dat/color_config.json to ~/dat if not already there
-if (!fs.existsSync('../dat')) { //make sure dir existsSync
-  fs.mkdirSync('../dat', '0775');
+var color_config_file_path = os.homedir() + '/dat';
+if (!fs.existsSync(color_config_file_path)) { //make sure dir existsSync
+  fs.mkdirSync(color_config_file_path, '0775');
 }
-if (!fs.existsSync('../dat/color_config.json') || !fs.existsSync('../dat/default_color_config.json') ) {
+if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsSync(color_config_file_path + '/default_color_config.json') ) {
   // copy it from dat
   logger.info('copying default color config file to ~/dat since it does not exist...');
-  fs.createReadStream('dat/color_config.json').pipe(fs.createWriteStream('../dat/color_config.json'));
-  fs.createReadStream('dat/default_color_config.json').pipe(fs.createWriteStream('../dat/default_color_config.json'));
+  fs.createReadStream('dat/color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/color_config.json'));
+  fs.createReadStream('dat/default_color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/default_color_config.json'));
 }
 
 logger.info('Listen on port: ' + port);
