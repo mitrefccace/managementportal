@@ -1,6 +1,3 @@
-/**
- * New node file
- */
 //var socket = io.connect();
 var dbController = angular.module('dashboardModule', ['csrService', 'angularDurationFormat'])
 		.controller('dashboardController', function($scope, $http, $window, socket) {
@@ -112,7 +109,6 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		};
 		
 		angular.element(document).ready($scope.initData());       
-     
 	});
 
 dbController.directive('highlightOnChange', function() {
@@ -120,7 +116,7 @@ dbController.directive('highlightOnChange', function() {
 	    link : function(scope, element, attrs) {
 	      var timer;
 	      attrs.$observe( 'highlightOnChange', function ( val ) {
-	        console.log("Highlighting val:" + val);
+	        //console.log("Highlighting val:" + val);
 	        if (val === 'yes') {
 	        	timer = setInterval(function () {
 	        		jQuery(element).addClass("danger");
