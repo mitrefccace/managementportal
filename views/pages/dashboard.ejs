@@ -245,8 +245,6 @@
 		<script type="text/javascript" src="public/js/services/csrservices.js"></script>
 		<script type="text/javascript" src="public/js/core-dashboard.js"></script>
 
-		<!-- ChartJS -->
-		<!--<script type="text/javascript" src="./bower_components/AdminLTE/plugins/chartjs/Chart.min.js"></script>-->
 		<!-- flot -->
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
 		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
@@ -369,9 +367,8 @@
 
 			// Label formatter for flot pie chart
 			function labelFormatter(label, series) {
-				return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
-			}
-
+				return "<div style='font-size:10pt; text-align:center; padding:2px; color:black;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+			} 
 
 			function DateRangePickerSetup() {
 				// sets the Date Range picker start and end date
