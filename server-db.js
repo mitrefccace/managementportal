@@ -483,6 +483,11 @@ function init_ami() {
 }
 
 /**
+ * Initialize the AMI connection.
+ */
+init_ami();
+
+/**
  * Send message to the dashboard
  * @param {type} evt Asterisk Event type
  * @param {type} message Asterisk message 
@@ -541,7 +546,6 @@ function findQueue(queue) {
  * @returns {undefined}
  */
 function amiaction(obj) {
-	init_ami();
 	ami.action(obj, function (err, res) {
 		if (err) {
 			logger.error('AMI amiaction error ');
@@ -757,7 +761,6 @@ function handle_manager_event(evt) {
  */
 function initialize() {
 
-	init_ami();
 	mapAgents();
 	callAmiActions();
 	resetAllCounters();
