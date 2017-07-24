@@ -391,7 +391,8 @@ setImmediate(initialize);
 function sendResourceStatus() {
 	var hostMap = new Map();
 	// list of resources to check for status 
-	hostMap.set("Asterisk", decodeBase64(nconf.get('asteriskAD:sip:websocket')));
+	hostMap.set("Asterisk", "https://" + decodeBase64(nconf.get('asteriskAD:sip:realm')) + ":" + decodeBase64(nconf.get('asteriskAD:sip:wsport'))  + "/" );	
+	
 	hostMap.set("ACR-CDR", decodeBase64(nconf.get('acr-cdr:url')));
 	hostMap.set("VRS Lookup", decodeBase64(nconf.get('vrscheck:url')));
 	if (decodeBase64(nconf.get('environment')) === "ACL")
