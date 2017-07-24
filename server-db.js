@@ -398,7 +398,7 @@ function sendResourceStatus() {
 		hostMap.set("ACE Connect Lite", decodeBase64(nconf.get('aceconnectlite:url')));
 	if (decodeBase64(nconf.get('environment')) === "AD")
 		hostMap.set("ACE Direct", decodeBase64(nconf.get('acedirect:url')));
-	hostMap.set("ZenDesk", decodeBase64(nconf.get('zendesk:url')));
+	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:url')));
 	hostMap.set("Agent Provider", decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))));
 
 	checkConnection(hostMap, function (data) {
