@@ -147,6 +147,6 @@ dbController.filter('shownum', function () {
 
 dbController.filter('minsectimeformat', function () {
 	return function (input) {
-		return moment.duration(input, "minutes").format('mm:ss', { trim: false });
+		return moment.duration(Number(input), "minutes").format('mm:ss', { trim: false });
 	};
 });
