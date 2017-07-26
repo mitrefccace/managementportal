@@ -675,7 +675,6 @@ function handle_manager_event(evt) {
 					else if (a.queue.indexOf(evt.queue) == -1)
 						a.queue += ", " + evt.queue;
 
-
 					// QueueMember event doesn't update "calls" - get it from AgentComplete
 					a.callstaken = getTotalCallsTaken(a.callMap);
 
