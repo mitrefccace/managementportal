@@ -89,6 +89,10 @@
 			var socket;// = io.connect('http://' + window.location.host); // opens socket.io connection
 			var ENV = "";	// environment variable to control header text		
 			var toggle = true; // toggle boolean for CDR table
+
+			// sets the Date Range picker start and end date
+			var start = moment().subtract(6, 'days');
+			var end = moment(); //today
 			
 			$.ajax({
 				url: './token',
@@ -105,7 +109,7 @@
 
 						socket.on('connect', function () {
 							// Emit for CDR Data set to be called on page ready.
-							socket.emit('cdrtable-get-data', {"format": "json"});
+							socket.emit('cdrtable-get-data', {"format": "json", "start": start, "end": end});
 						});
 
 						// Gets the environment variable, used for setting site name.
@@ -130,14 +134,8 @@
 						});
 
 						// Receives the CDR data in CSV format
-						socket.on('cdrtable-csv', function (data) {
-							var csvString = data;
-							var a = document.createElement('a');
-							a.href = 'data:attachment/csv,' + encodeURIComponent(csvString);
-							a.target = '_blank';
-							a.download = 'cdr_info.csv';
-							document.body.appendChild(a);
-							a.click();
+						socket.on('cdrtable-csv', function (data) {	
+							downloadFile(data, 'cdr_info.csv');
 						});
 
 						// Handles Error conditions from CDR REST calls.
@@ -154,6 +152,28 @@
 					$('#message').text('An Error Occured.');
 				}
 			});
+
+			function downloadFile(data, fileName) {
+				var csvData = data;
+				var blob = new Blob([ csvData ], {
+					type : "application/csv;charset=utf-8;"
+				});
+
+				if (window.navigator.msSaveBlob) {
+					// FOR IE BROWSER
+					navigator.msSaveBlob(blob, fileName);
+				} else {
+					// FOR OTHER BROWSERS
+					var link = document.createElement("a");
+					var csvUrl = URL.createObjectURL(blob);
+					link.href = csvUrl;
+					link.style = "visibility:hidden";
+					link.download = fileName;
+					document.body.appendChild(link);
+					link.click();
+					document.body.removeChild(link);
+				}
+			}
 
 			// initialize the datatable
 			var datatable = $('#cdrtable').DataTable({
@@ -205,10 +225,6 @@
 			}
 
 			function DateRangePickerSetup() {
-				// sets the Date Range picker start and end date
-				var start = moment("2016-01-01");
-				var end = moment(); //today
-
 				// Call back funtion for setting report range <div> value
 				function cb(start, end) {
 					$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -225,7 +241,7 @@
 						'Last 30 Days': [moment().subtract(29, 'days'), moment()],
 						'This Month': [moment().startOf('month'), moment().endOf('month')],
 						'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-						'All Time': [start, end]
+						'All Time': [moment("2016-01-01"), end]
 					}
 				}, cb);
 
@@ -252,7 +268,10 @@
 
 				//click event for downloading CSV file
 				$('#cdrdownloadbtn').click(function () {
-					socket.emit('cdrtable-get-data', {"format": "csv"});
+					var picker = $('#reportrange').data('daterangepicker');
+					var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
+					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+					socket.emit('cdrtable-get-data', {"format": "csv", "start": startdate, "end": enddate});
 				});
 
 				DateRangePickerSetup();
