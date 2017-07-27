@@ -277,7 +277,6 @@ io.sockets.on('connection', function (socket) {
 
 	//Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
-
 		var url = decodeBase64(nconf.get('acr-cdr:url'));
 		var format = data.format;
 		if (data.start && data.end) {
