@@ -16,7 +16,7 @@
 					<div id="reportrange" class="dropdown-menu-left" >
 						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
 						<span></span> <b class="caret"></b>
-				</div>
+					</div>
 					<ol class="breadcrumb">
 						<li><a href="./dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
 						<li class="active">Management Dashboard</li>
@@ -26,9 +26,9 @@
 				<!-- Main content -->
 				<section class="content">
 					<!-- Page Content -->
+					<!-- Summary Boxes Row -->
 					<div class="row">
 						<div class="col-lg-3 col-xs-6">
-							<!-- small box -->
 							<div class="small-box bg-aqua">
 								<div class="inner" data-toggle="tooltip" title="Number of calls waiting in the queue">
 									<h3 ng-bind="summary.calls| shownum"></h3>
@@ -37,11 +37,9 @@
 								<div class="icon">
 									<i class="ion ion-ios-telephone"></i>
 								</div>
-								
 							</div>
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
-							<!-- small box -->
 							<div class="small-box bg-green">
 								<div class="inner" data-toggle="tooltip" title="Calls Handled – Number of calls completed">
 									<h3 ng-bind="summary.completed| shownum"></h3>
@@ -53,7 +51,6 @@
 							</div>
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
-							<!-- small box -->
 							<div class="small-box bg-yellow">
 								<div class="inner" data-toggle="tooltip" title="Average Hold Time (minutes:seconds) – Average call holding time in the queue">
 									<h3 ng-bind="summary.avgholdtime | shownum | minsectimeformat"></h3>
@@ -65,7 +62,6 @@
 							</div>
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
-							<!-- small box -->
 							<div class="small-box bg-red">
 								<div class="inner" data-toggle="tooltip" title="Calls Abandoned – Number of calls not answered">
 									<h3 ng-bind="summary.abandoned| shownum"></h3>
@@ -78,7 +74,7 @@
 						</div><!-- ./col -->
 					</div><!-- /.row -->
 
-					<!-- Charts -->
+					<!-- Charts Row -->
 					<div id="charts" class="row hidden" >
 						<div class="col-md-4">
 							<!-- Average Calls In Queue LINE CHART -->
