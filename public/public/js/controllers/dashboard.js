@@ -17,17 +17,18 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		socket.on('queue', function (data){
 			//console.log("Received socket emit for queues...");
 			//$scope.$apply(function() {
-				$scope.Queues = data.queues;
-				if (data.queues.length !== $scope.qNames.length) { 
-					//console.log("Push qNames socket........." );
-        			$scope.qNames = [];
-        			for (var i=0; i<data.queues.length; i++) {
-        				$scope.qNames.push(data.queues[i].queue);
-        				//console.log("Push qNames.........." + $scope.qNames[i]);
-        			}
-        		}
+			$scope.Queues = data.queues;
+			if (data.queues.length !== $scope.qNames.length) { 
+				//console.log("Push qNames socket........." );
+				$scope.qNames = [];
+				for (var i=0; i<data.queues.length; i++) {
+					$scope.qNames.push(data.queues[i].queue);
+					//console.log("Push qNames.........." + $scope.qNames[i]);
+				}
+			}
 			//});
-			});
+		});
+
 		function findAgent(scopeagents, dataagent) {
 			for (var i=0; i<scopeagents.length; i++) {
 				if (scopeagents[i].agent === dataagent.agent)
@@ -35,28 +36,30 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 			}
 			return null;
 		}
+
 		socket.on('agent-resp', function (data){
 			//console.log("Received agent data..." + JSON.stringify(data, null,2,true));					
-				//$scope.Agents = data.agents;
-				if (data.agents) {
-					for (var i=0; i<data.agents.length; i++) {
-						var a = findAgent($scope.Agents, data.agents[i]);
-						if (a) {
-							for (var prop in data.agents[i]) {
-								a[prop] = data.agents[i][prop];
-							}
-						}
-						else {
-							$scope.Agents.push(data.agents[i]);
+			//$scope.Agents = data.agents;
+			if (data.agents) {
+				for (var i=0; i<data.agents.length; i++) {
+					var a = findAgent($scope.Agents, data.agents[i]);
+					if (a) {
+						for (var prop in data.agents[i]) {
+							a[prop] = data.agents[i][prop];
 						}
 					}
+					else {
+						$scope.Agents.push(data.agents[i]);
+					}
 				}
-			});
+			}
+		});
+
 		socket.on('queue-resp', function (data){
 			//console.log("Received queue data..." + JSON.stringify(data, null,2,true));					
-				$scope.Queues = data.queues;
-				calculateSummary();
-			});
+			$scope.Queues = data.queues;
+			calculateSummary();
+		});
 		
 		socket.on('sipconf', function (data){
 			//console.log("Received sip conf data..." + JSON.stringify(data, null,2,true));
@@ -84,7 +87,7 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 			$scope.summary.completed = 0;
 			$scope.summary.holdtime = 0;
 			$scope.summary.abandoned = 0;
-			//$scope.summary.avgholdtime = 0;
+
 			for (var i=0; i<$scope.Queues.length; i++) {
 				$scope.summary.calls += Number($scope.Queues[i].calls);
 				
@@ -100,6 +103,7 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 				$scope.summary.avgholdtime = 0;
 			}
 		};
+
 		$scope.initData = function () {
 			   //$scope.getQueues();
 			   socket.emit('config', 'agent');
