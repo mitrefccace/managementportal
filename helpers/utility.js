@@ -1,13 +1,30 @@
 'use strict';
 
+var nconf = require('nconf');
+
+var cfile = 'config.json'; // Config file
+nconf.argv().env();
+nconf.file({ file: cfile });
+
+var clearText = false;
+if (typeof(nconf.get('clearText')) !== "undefined") {
+  console.log('clearText field is in config.json. assuming file is in clear text');
+  clearText = true;
+}
+
 /**
  * Function to decode the Base64 configuration file parameters.
  * @param {type} encodedString Base64 encoded string.
  * @returns {unresolved} Decoded readable string.
  */
 exports.decodeBase64 = function(encodedString) {
-	var decodedString = new Buffer(encodedString, 'base64');
-	return (decodedString.toString());
+	var decodedString = null;
+  if (clearText) {
+    decodedString = encodedString;
+  } else {
+    decodedString = new Buffer(encodedString, 'base64');
+  }
+  return (decodedString.toString());
 };
 
 /**

@@ -218,11 +218,9 @@ io.sockets.on('connection', function (socket) {
 
 		if (message === 'agent') {
 			socket.emit('agent-resp', { 'agents': Agents });
-
 			logger.debug('Sending agent resp');
 		} else if (message === 'queue') {
 			socket.emit('queue-resp', { 'queues': Queues });
-
 			logger.debug('Sending queue resp');
 		}
 	});
@@ -234,7 +232,6 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('message', function (message) {
 		logger.debug('Received message ' + message);
-
 		socket.broadcast.emit('message', message); // should be room only
 	});
 
