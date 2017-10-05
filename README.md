@@ -2,7 +2,7 @@
 
 # ACE Management Portal Project
 
-The Management Portal consists of two components, the Management and CDR dashboards. These dashboards present the manager with information about the operations of the call center and information about incoming calls.
+The ACE Management Portal consists of two components, the Management and Call Detail Record (CDR) dashboards. These dashboards present the manager with information about the operations of the call center and information about incoming calls.
 
 ### SSL Configuration
 1. ACE software uses SSL which requires a valid key and certificate
@@ -47,7 +47,7 @@ To install the management portal, follow the README.md file in the autoinstall f
     * _session:secretKey_  - Secret key used to sign the session ID.
     * _resave_ - Forces the session to be saved back to the session store.
     * _saveUninitialized_ - Forces a sessiion that is "uninitialized" to be saved to the store.
-    * _ maxAge_ - Time in ms to use when calculating the expiration datetime.
+    * _ maxAge_ - Time in ms to use when calculating the expiration datetime
 
 ### Accessing the Portal
 1. ACE Management Portal, go to: http://`<hostname:port>`/dashboard.html
