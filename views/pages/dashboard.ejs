@@ -30,7 +30,7 @@
 					<div class="row">
 						<div class="col-lg-3 col-xs-6">
 							<div class="small-box bg-aqua">
-								<div class="inner" data-toggle="tooltip" title="Number of calls waiting in the queue">
+								<div class="inner" data-toggle="tooltip" title="Calls Waiting - Number of calls waiting in all queues">
 									<h3 ng-bind="summary.calls| shownum"></h3>
 									<h4>Calls Waiting</h4>
 								</div>
@@ -41,7 +41,7 @@
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
 							<div class="small-box bg-green">
-								<div class="inner" data-toggle="tooltip" title="Calls Handled – Number of calls completed">
+								<div class="inner" data-toggle="tooltip" title="Calls Handled - Number of calls completed in all queues">
 									<h3 ng-bind="summary.completed| shownum"></h3>
 									<h4>Calls Handled</h4>
 								</div>
@@ -52,7 +52,7 @@
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
 							<div class="small-box bg-yellow">
-								<div class="inner" data-toggle="tooltip" title="Average Hold Time (minutes:seconds) – Average call holding time in the queue">
+								<div class="inner" data-toggle="tooltip" title="Average Hold Time (minutes:seconds) – Average call holding time in all queues">
 									<h3 ng-bind="summary.avgholdtime | shownum | minsectimeformat"></h3>
 									<h4>Average Hold Time (m:s)</h4>
 								</div>
@@ -63,7 +63,7 @@
 						</div><!-- ./col -->
 						<div class="col-lg-3 col-xs-6">
 							<div class="small-box bg-red">
-								<div class="inner" data-toggle="tooltip" title="Calls Abandoned – Number of calls not answered">
+								<div class="inner" data-toggle="tooltip" title="Calls Abandoned – Number of calls not answered in all queues">
 									<h3 ng-bind="summary.abandoned| shownum"></h3>
 									<h4>Calls Abandoned</h4>
 								</div>
