@@ -80,21 +80,13 @@
         "rolling" : true,
 		"maxAge": 3600000
 	},
-	"redis": {
-        "host": "host",
-        "port": 1000
+	"openam": {
+			"serverUrl": "https://server.name.com",
+	"path": "openam",
+			"privateIP": "127.0.0.1",
+			"domain": ".name.com",
+			"port": "8081"
 	},
-	"iam": {
-        "host": "host",
-        "port": 1000
-	},
-    "openam": {
-        "serverUrl": "https://server.name.com",
-		"path": "openam",
-        "privateIP": "127.0.0.1",
-        "domain": ".name.com",
-        "port": "8081"
-    },
 	"nginx": {
         "fqdn": "nginx.server.com",
         "path": "ManagementPortal" 
