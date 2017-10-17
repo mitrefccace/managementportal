@@ -171,6 +171,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
 		var confobj = {};
+		// ACE Direct
 		confobj.host = decodeBase64(nconf.get('asteriskAD:sip:host'));
 		confobj.realm = decodeBase64(nconf.get('asteriskAD:sip:realm'));
 		confobj.stun = decodeBase64(nconf.get('asteriskAD:sip:stun'));
@@ -178,6 +179,7 @@ io.sockets.on('connection', function (socket) {
 		confobj.channel = decodeBase64(nconf.get('asteriskAD:sip:channel'));
 		confobj.websocket = decodeBase64(nconf.get('asteriskAD:sip:websocket'));
 
+		// ACE Connect Lite
 		if (decodeBase64(nconf.get('environment')) === "ACL") {
 			confobj.host = decodeBase64(nconf.get('asterisk:sip:host'));
 			confobj.realm = decodeBase64(nconf.get('asterisk:sip:realm'));
@@ -208,7 +210,7 @@ io.sockets.on('connection', function (socket) {
 		sendResourceStatus();
 	});
 
-	//Manually get resource status
+	// Manually get resource status
 	socket.on('resource-status-update', function () {
 		sendResourceStatus();
 	});
@@ -272,7 +274,7 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('Request to leave room ' + room.toString() + ', room has ' + numClients + " client(s)");
 	});
 
-	//Socket for CDR table
+	// Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
 		var url = decodeBase64(nconf.get('acr-cdr:url'));
 		var format = data.format;
