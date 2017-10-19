@@ -1,13 +1,8 @@
 {
 	"debuglevel": "ERROR",
 	"environment": "AD",
-	"http": {
-		"port-dashboard": 1000
-	},
 	"https": {
-		"adport": 1000,
 		"port-dashboard": 1000,
-		"port-user": 1000,
 		"certificate": "path_to_cert",
 		"private_key": "path_to_key"
 	},

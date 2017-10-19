@@ -26,9 +26,12 @@ To install the management portal, follow the README.md file in the autoinstall f
 1. The ACE Direct configuration file is _config.json_. All values in the file are hashed using Base64 encoding for protection of sensitive information.
 1. Use the _Hashconfig_ tool to modify values in the config.json file. This tool is available in a separate repo.
 1. The _config.json_ file includes the following parameters:
+    * _clearText_ - The existence of this optional flag indicates that the config.json file is not encoded. Remove it if the file is encoded.
     * _debuglevel_ - The debug level (ALL | TRACE | DEBUG | INFO | WARN | ERROR | FATAL | OFF)
     * _environment_ - ACE Direct (AD) or ACE Connect Lite (ACL)
     * _https:port-dashboard_ - The port to use for ACE Management Portal
+    * _https:certificate_ - The path to the certificate file
+    * _https:private_key_ - The path to the private key file
     * _asterisk:sip:host_ - Hostname or IP address of the ACE Direct Asterisk
     * _asterisk:sip:websocket_ - Replace the hostname with the appropriate Asterisk hostname for ACE Direct
     * _asterisk:ami:id_ - Username for the ACE Direct Asterisk server
