@@ -26,27 +26,12 @@
 			"port": 10000
 		}
 	},
-	"asteriskAD": {
-		"sip": {
-			"host": "host",
-			"realm": "realm",
-			"stun": "[]",
-			"wsport": 1000,
-			"channel": "SIP",
-			"websocket": "wss://host:1000/ws"
-		},
-		"ami": {
-			"id": "user",
-			"passwd": "password",
-			"port": 1000
-		}
-	},
 	"acr-cdr": {
 		"url": "https://host:1000/path_to_cdr"
 	},
 	"dashboard": {
 		"queuesACL": "QueueName",
-		"queuesAD": "QueueName,QueueName",
+		"queues": "QueueName,QueueName",
 		"pollInterval": 8000
 	},
 	"vrscheck": {
@@ -75,22 +60,24 @@
 		"secretKey": "somekey",
 		"resave": true,
 		"saveUninitialized": true,
-        "secure": true,
-        "httpOnly": true,
-        "rolling" : true,
-		"maxAge": 3600000
+		"rolling" : true,
+		"cookie": {
+			"maxAge": 3600000,
+			"httpOnly": true,
+			"secure": true
+		}
 	},
 	"openam": {
-			"serverUrl": "https://server.name.com",
-	"path": "openam",
-			"privateIP": "127.0.0.1",
-			"domain": ".name.com",
-			"port": "8081"
+		"serverUrl": "https://server.name.com",
+		"path": "openam",
+		"privateIP": "127.0.0.1",
+		"domain": ".name.com",
+		"port": "8081"
 	},
 	"nginx": {
-        "fqdn": "nginx.server.com",
-        "path": "ManagementPortal" 
-    },
+		"fqdn": "nginx.server.com",
+		"path": "ManagementPortal" 
+	},
 	"mongodb": {
 		"connectionURI": "mongodb://localhost:27017/test"
 	}

@@ -63,9 +63,9 @@ app.use(session({
 	rolling: decodeBase64(nconf.get('session:rolling')),
 	saveUninitialized: decodeBase64(nconf.get('session:saveUninitialized')),
 	cookie: {
-		maxAge: parseFloat(decodeBase64(nconf.get('session:maxAge'))),
-		httpOnly: decodeBase64(nconf.get('session:httpOnly')),
-		secure: decodeBase64(nconf.get('session:secure'))
+		maxAge: parseFloat(decodeBase64(nconf.get('session:cookie:maxAge'))),
+		httpOnly: decodeBase64(nconf.get('session:cookie:httpOnly')),
+		secure: decodeBase64(nconf.get('session:cookie:secure'))
 	}
 }));
 // set the view engine to ejs
@@ -150,7 +150,7 @@ if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsS
 logger.info('Listen on port: ' + port);
 var queuenames = decodeBase64(nconf.get('dashboard:queuesACL'));
 if (decodeBase64(nconf.get('environment')) === "AD") {
-	queuenames = decodeBase64(nconf.get('dashboard:queuesAD'));
+	queuenames = decodeBase64(nconf.get('dashboard:queues'));
 }
 var pollInterval = parseInt(decodeBase64(nconf.get('dashboard:pollInterval')));
 var adUrl = decodeBase64(nconf.get('acedirect:url'));
@@ -162,7 +162,7 @@ logger.info('****** Restarting server-db  ****');
 logger.info('Asterisk queuename: ' + Asterisk_queuenames + ", Poll Interval: " + pollInterval);
 
 io.sockets.on('connection', function (socket) {
-	var token = socket.decoded_token;
+	//var token = socket.decoded_token;
 	socket.emit('environment', decodeBase64(nconf.get('environment')));
 	var numClients = 0;
 
@@ -171,29 +171,18 @@ io.sockets.on('connection', function (socket) {
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
 		var confobj = {};
-		// ACE Direct
-		confobj.host = decodeBase64(nconf.get('asteriskAD:sip:host'));
-		confobj.realm = decodeBase64(nconf.get('asteriskAD:sip:realm'));
-		confobj.stun = decodeBase64(nconf.get('asteriskAD:sip:stun'));
-		confobj.wsport = parseInt(decodeBase64(nconf.get('asteriskAD:sip:wsport')));
-		confobj.channel = decodeBase64(nconf.get('asteriskAD:sip:channel'));
-		confobj.websocket = decodeBase64(nconf.get('asteriskAD:sip:websocket'));
-
-		// ACE Connect Lite
-		if (decodeBase64(nconf.get('environment')) === "ACL") {
-			confobj.host = decodeBase64(nconf.get('asterisk:sip:host'));
-			confobj.realm = decodeBase64(nconf.get('asterisk:sip:realm'));
-			confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
-			confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:wsport')));
-			confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
-			confobj.websocket = decodeBase64(nconf.get('asterisk:sip:websocket'));
-		}
+		confobj.host = decodeBase64(nconf.get('asterisk:sip:host'));
+		confobj.realm = decodeBase64(nconf.get('asterisk:sip:realm'));
+		confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
+		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:wsport')));
+		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
+		confobj.websocket = decodeBase64(nconf.get('asterisk:sip:websocket'));
 
 		socket.emit('sipconf', confobj);
 
 		if (message === 'webuser') {
 			var qobj = {};
-			qobj.queues = decodeBase64(nconf.get('dashboard:queuesAD'));
+			qobj.queues = decodeBase64(nconf.get('dashboard:queues'));
 			if (decodeBase64(nconf.get('environment')) === "ACL") {
 				qobj.queues = decodeBase64(nconf.get('dashboard:queuesACL'));
 			}
@@ -353,7 +342,7 @@ io.sockets.on('connection', function (socket) {
 			//send to server
 			request({
 				url: adUrl + '/updatelightconfigs'
-			}, function (err, res, data) {
+			}, function (err) {
 				if (err) {
 					logger.error('Error: ' + err);
 				}
@@ -461,17 +450,11 @@ function checkConnection(hosts, callback) {
 function init_ami() {
 	if (ami === null) {
 		try {
-			if (decodeBase64(nconf.get('environment')) === "ACL") {
-				ami = new AsteriskManager(parseInt(decodeBase64(nconf.get('asterisk:ami:port'))),
-					decodeBase64(nconf.get('asterisk:sip:host')),
-					decodeBase64(nconf.get('asterisk:ami:id')),
-					decodeBase64(nconf.get('asterisk:ami:passwd')), true);
-			} else {
-				ami = new AsteriskManager(parseInt(decodeBase64(nconf.get('asteriskAD:ami:port'))),
-					decodeBase64(nconf.get('asteriskAD:sip:host')),
-					decodeBase64(nconf.get('asteriskAD:ami:id')),
-					decodeBase64(nconf.get('asteriskAD:ami:passwd')), true);
-			}
+			ami = new AsteriskManager(parseInt(decodeBase64(nconf.get('asterisk:ami:port'))),
+				decodeBase64(nconf.get('asterisk:sip:host')),
+				decodeBase64(nconf.get('asterisk:ami:id')),
+				decodeBase64(nconf.get('asterisk:ami:passwd')), true);
+
 			ami.keepConnected();
 			ami.on('managerevent', handle_manager_event);
 		} catch (exp) {
@@ -544,7 +527,7 @@ function findQueue(queue) {
  * @returns {undefined}
  */
 function amiaction(obj) {
-	ami.action(obj, function (err, res) {
+	ami.action(obj, function (err) {
 		if (err) {
 			logger.error('AMI amiaction error ');
 		}
@@ -559,7 +542,7 @@ function amiaction(obj) {
 function getTotalCallsTaken(m) {
 	var num = 0;
 	//printCallMap(m);
-	m.forEach(function (call, queue) {
+	m.forEach(function (call) {
 		num += call;
 	});
 	logger.debug("getTotalCallsTaken " + num);
@@ -699,9 +682,9 @@ function handle_manager_event(evt) {
 		case 'QueueSummary':
 			{
 				logger.debug(evt);
-				for (var i = 0; i < Asterisk_queuenames.length; i++) {
+				for (var j = 0; j < Asterisk_queuenames.length; j++) {
 					logger.debug("QueueSummary :" + evt.queue);
-					if (evt.queue === Asterisk_queuenames[i]) {
+					if (evt.queue === Asterisk_queuenames[j]) {
 						q = findQueue(evt.queue);
 						if (!q) {
 							q = {};
@@ -950,7 +933,7 @@ function getUserInfo(username, callback) {
  * @param {function} 'agent.shield(cookieShield)'
  * @param {type} param2 Not used
  */
-app.get('/resetAllCounters', agent.shield(cookieShield), function (req, res) {
+app.get('/resetAllCounters', agent.shield(cookieShield), function () {
 	logger.info("GET Call to reset counters");
 	resetAllCounters();
 	mapAgents();
