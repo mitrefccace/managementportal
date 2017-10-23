@@ -87,8 +87,7 @@
         <script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>  
 
 		<script type="text/javascript">
-			var socket;// = io.connect('http://' + window.location.host); // opens socket.io connection
-			var ENV = "";	// environment variable to control header text		
+			var socket;// = io.connect('http://' + window.location.host); // opens socket.io connection	
 			var toggle = true; // toggle boolean for CDR table
 
 			// sets the Date Range picker start and end date
@@ -111,16 +110,6 @@
 						socket.on('connect', function () {
 							// Emit for CDR Data set to be called on page ready.
 							socket.emit('cdrtable-get-data', {"format": "json", "start": start, "end": end});
-						});
-
-						// Gets the environment variable, used for setting site name.
-						socket.on('environment', function (data) {
-							ENV = data;
-							if (ENV === "AD") {
-								//$('#headername').html("ACE Direct");
-							} else if (ENV === "ACL") {
-								//$('#headername').html("ACE Connect Lite");
-							}
 						});
 
 						// Receives the CDR Table data.

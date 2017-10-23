@@ -1,6 +1,5 @@
 {
 	"debuglevel": "ERROR",
-	"environment": "AD",
 	"https": {
 		"port-dashboard": 1000,
 		"certificate": "path_to_cert",
@@ -25,14 +24,10 @@
 		"url": "https://host:1000/path_to_cdr"
 	},
 	"dashboard": {
-		"queuesACL": "QueueName",
 		"queues": "QueueName,QueueName",
 		"pollInterval": 8000
 	},
 	"vrscheck": {
-		"url": "https://host:1000"
-	},
-	"aceconnectlite": {
 		"url": "https://host:1000"
 	},
 	"acedirect": {
