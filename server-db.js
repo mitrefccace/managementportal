@@ -148,10 +148,7 @@ if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsS
 }
 
 logger.info('Listen on port: ' + port);
-var queuenames = decodeBase64(nconf.get('dashboard:queuesACL'));
-if (decodeBase64(nconf.get('environment')) === "AD") {
-	queuenames = decodeBase64(nconf.get('dashboard:queues'));
-}
+var queuenames = decodeBase64(nconf.get('dashboard:queues'));
 var pollInterval = parseInt(decodeBase64(nconf.get('dashboard:pollInterval')));
 var adUrl = decodeBase64(nconf.get('acedirect:url'));
 console.log("port number: " + port + ", poll interval:" + pollInterval);
@@ -162,10 +159,7 @@ logger.info('****** Restarting server-db  ****');
 logger.info('Asterisk queuename: ' + Asterisk_queuenames + ", Poll Interval: " + pollInterval);
 
 io.sockets.on('connection', function (socket) {
-	//var token = socket.decoded_token;
-	socket.emit('environment', decodeBase64(nconf.get('environment')));
 	var numClients = 0;
-
 	logger.info('io.socket connected, id: ' + socket.id);
 
 	socket.on('config', function (message) {
@@ -183,9 +177,6 @@ io.sockets.on('connection', function (socket) {
 		if (message === 'webuser') {
 			var qobj = {};
 			qobj.queues = decodeBase64(nconf.get('dashboard:queues'));
-			if (decodeBase64(nconf.get('environment')) === "ACL") {
-				qobj.queues = decodeBase64(nconf.get('dashboard:queuesACL'));
-			}
 			socket.emit('queueconf', qobj);
 			logger.debug('Message is webuser type');
 		}
@@ -378,13 +369,10 @@ setImmediate(initialize);
 function sendResourceStatus() {
 	var hostMap = new Map();
 	// list of resources to check for status 
-	hostMap.set("Asterisk", decodeBase64(nconf.get('asteriskAD:sip:websocket')));	
+	hostMap.set("Asterisk", decodeBase64(nconf.get('asterisk:sip:websocket')));	
 	hostMap.set("ACR-CDR", decodeBase64(nconf.get('acr-cdr:url')));
 	hostMap.set("VRS Lookup", decodeBase64(nconf.get('vrscheck:url')));
-	if (decodeBase64(nconf.get('environment')) === "ACL")
-		hostMap.set("ACE Connect Lite", decodeBase64(nconf.get('aceconnectlite:url')));
-	if (decodeBase64(nconf.get('environment')) === "AD")
-		hostMap.set("ACE Direct", decodeBase64(nconf.get('acedirect:url')));
+	hostMap.set("ACE Direct", decodeBase64(nconf.get('acedirect:url')));
 	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:url')));
 	hostMap.set("Agent Provider", decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))));
 

@@ -28,7 +28,6 @@ To install the management portal, follow the README.md file in the autoinstall f
 1. The _config.json_ file includes the following parameters:
     * _clearText_ - The existence of this optional flag indicates that the config.json file is not encoded. Remove it if the file is encoded.
     * _debuglevel_ - The debug level (ALL | TRACE | DEBUG | INFO | WARN | ERROR | FATAL | OFF)
-    * _environment_ - ACE Direct (AD) or ACE Connect Lite (ACL)
     * _https:port-dashboard_ - The port to use for ACE Management Portal
     * _https:certificate_ - The path to the certificate file
     * _https:private_key_ - The path to the private key file
@@ -39,11 +38,9 @@ To install the management portal, follow the README.md file in the autoinstall f
     * _asterisk:ami:port_ - Listen port number for the ACE Direct Asterisk server
     * _queues:complaint:number_ - Phone number associated with the complaints queue
     * _acr-cdr:url_ - Replace with the URL of the REST service to retrieve all CDR records
-    * _dashboard:queuesACL_ - Replace with the name of the queue used by ACE Connect Lite
     * _dashboard:queues_ - Replace with the name of the queues used by ACE Direct
     * _dashboard:pollInterval_ - Replace with the polling interval in ms
     * _vrscheck:url_ - Replace with the URL of the REST service that performs VRS checks
-    * _aceconnectlite:url_ - Replace with the URL of the ACE Connect Lite application
     * _acedirect:url_ - Replace with the URL of the ACE Direct application
     * _acedirect:zendesk_ - Replace with the URL of the Zendesk application
     * _agentservice:url_ - Replace with the URL of the REST service that performs agent validation
