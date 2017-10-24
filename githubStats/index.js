@@ -12,31 +12,7 @@ var express = require('express'),
 
 
 
-// //Connect nodejs to mysql database
-// var connection = mysql.createConnection({
-//     host:"localhost",
-//     user:"root",
-//     password:"Billiejean1",
-//     database:"githubStats"
-// });
-// connection.connect(function(err) {
-//   if (err) throw err;
-//   console.log("Connected!");
-//   connection.query("CREATE DATABASE IF NOT EXISTS githubStats", function (err, result) {
-//         if (err) throw err;
-//         var sql = "CREATE TABLE customers (name VARCHAR(255), address VARCHAR(255)";
-//     });
-// });
-//Create a schema for mysql database
-//set up database
 
-//Connect to github API
-    //loop
-        //get all of the information we want
-        //store this information to the mysql database
-            //check if the information already exists in the database
-                //if it does update it
-                //else put it in there
         
         
 
