@@ -20,7 +20,7 @@ if (typeof(nconf.get('clearText')) !== "undefined") {
 exports.decodeBase64 = function(encodedString) {
 	var decodedString = null;
   if (clearText) {
-    decodedString = encodedString;
+    return encodedString;
   } else {
     decodedString = new Buffer(encodedString, 'base64');
   }
