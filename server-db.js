@@ -734,6 +734,7 @@ function initialize() {
 	resetAllCounters();
 	setInterval(function () {
 		callAmiActions();
+		mapAgents();
 	}, pollInterval);
 }
 
@@ -766,8 +767,8 @@ function mapAgents() {
 					}
 				}
 				var usr = { "name": data.data[i].first_name + " " + data.data[i].last_name, "queues": queues };
-				if (AgentMap.has(ext))
-					AgentMap.delete(ext);
+				//if (AgentMap.has(ext))
+				//	AgentMap.delete(ext);
 				AgentMap.set(ext, usr);
 			}
 		}
