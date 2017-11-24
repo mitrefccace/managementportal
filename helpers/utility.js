@@ -4,12 +4,14 @@ var nconf = require('nconf');
 
 var cfile = 'config.json'; // Config file
 nconf.argv().env();
-nconf.file({ file: cfile });
+nconf.file({
+	file: cfile
+});
 
 var clearText = false;
-if (typeof(nconf.get('clearText')) !== "undefined") {
-  console.log('clearText field is in config.json. assuming file is in clear text');
-  clearText = true;
+if (typeof (nconf.get('clearText')) !== "undefined") {
+	console.log('clearText field is in config.json. assuming file is in clear text');
+	clearText = true;
 }
 
 /**
@@ -17,14 +19,14 @@ if (typeof(nconf.get('clearText')) !== "undefined") {
  * @param {type} encodedString Base64 encoded string.
  * @returns {unresolved} Decoded readable string.
  */
-exports.decodeBase64 = function(encodedString) {
+exports.decodeBase64 = function (encodedString) {
 	var decodedString = null;
-  if (clearText) {
-    return encodedString;
-  } else {
-    decodedString = new Buffer(encodedString, 'base64');
-  }
-  return (decodedString.toString());
+	if (clearText) {
+		decodedString = encodedString;
+	} else {
+		decodedString = new Buffer(encodedString, 'base64');
+	}
+	return (decodedString.toString());
 };
 
 /**
@@ -34,44 +36,37 @@ exports.decodeBase64 = function(encodedString) {
  * @param {color} the name of the color
  * @returns {return} the updated json object
  */
-exports.set_rgb_values = function(json_data, status, color) {
+exports.set_rgb_values = function (json_data, status, color) {
 	//json_data.statuses[status] gets you the fields of each specific status
-	if(color == "red") {
+	if (color == "red") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 0;
 		json_data.statuses[status].b = 0;
-	}
-	else if(color == "green") {
+	} else if (color == "green") {
 		json_data.statuses[status].r = 0;
 		json_data.statuses[status].g = 255;
 		json_data.statuses[status].b = 0;
-	}
-	else if(color == "blue") {
+	} else if (color == "blue") {
 		json_data.statuses[status].r = 0;
 		json_data.statuses[status].g = 0;
 		json_data.statuses[status].b = 255;
-	}
-	else if(color == "orange") {
+	} else if (color == "orange") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 50;
 		json_data.statuses[status].b = 0;
-	}
-	else if(color == "yellow") {
+	} else if (color == "yellow") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 255;
 		json_data.statuses[status].b = 0;
-	}
-	else if(color == "pink") {
+	} else if (color == "pink") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 0;
 		json_data.statuses[status].b = 255;
-	}
-	else if(color == "aqua") {
+	} else if (color == "aqua") {
 		json_data.statuses[status].r = 0;
 		json_data.statuses[status].g = 255;
 		json_data.statuses[status].b = 255;
-	}
-	else {
+	} else {
 		//color is white
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 255;
