@@ -329,12 +329,23 @@ io.sockets.on('connection', function (socket) {
 	// ######################################
 	// Videomail-specific socket.io events
 
+	function processFilter(filter){
+		if (filter == 'ALL'){
+			return('');
+		} else{
+			return('AND status = ' + filter);
+		}
+	}
+
 	//Retrieval of videomail records from the database	
 	socket.on("get-videomail", function (data) {
 		console.log('entered get-videomail');
 		console.log('test');
 		var sortBy = data.sortBy;
 		var filterFlag = processFilter(data.filter);
+		var sortStr = '';
+		var queryStr = '';
+
 		if (filterFlag) {
 			if (sortBy.includes('asc')) {
 				sortStr = sortBy.slice(0, sortBy.length - 4);
@@ -402,7 +413,7 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent changes the status
 	socket.on("videomail-status-change", function (data) {
 		console.log('updating MySQL entry');
-		queryStr = "UPDATE " + vmTable + " SET status = '" + data.status + "', processed = CURRENT_TIMESTAMP, processing_agent = manager, deleted = 0, deleted_time = NULL, deleted_by = NULL WHERE id = " + data.id;
+		var queryStr = "UPDATE " + vmTable + " SET status = '" + data.status + "', processed = CURRENT_TIMESTAMP, processing_agent = manager, deleted = 0, deleted_time = NULL, deleted_by = NULL WHERE id = " + data.id;
 		console.log(queryStr);
 		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
@@ -416,7 +427,7 @@ io.sockets.on('connection', function (socket) {
 	//changes the videomail status to READ if it was UNREAD before
 	socket.on("videomail-read-onclick", function (data) {
 		console.log('updating MySQL entry');
-		queryStr = "UPDATE " + vmTable + " SET status = 'READ', processed = CURRENT_TIMESTAMP, processing_agent = manager WHERE id = " + data.id;
+		var queryStr = "UPDATE " + vmTable + " SET status = 'READ', processed = CURRENT_TIMESTAMP, processing_agent = manager WHERE id = " + data.id;
 		console.log(queryStr);
 		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
@@ -431,7 +442,7 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent deletes the videomail. Keeps it in db but with a deleted flag
 	socket.on("videomail-deleted", function (data) {
 		console.log('updating MySQL entry');
-		queryStr = "UPDATE " + vmTable + " SET deleted_time = CURRENT_TIMESTAMP, deleted_by = manager, deleted = 1 WHERE id = " + data.id;
+		var queryStr = "UPDATE " + vmTable + " SET deleted_time = CURRENT_TIMESTAMP, deleted_by = manager, deleted = 1 WHERE id = " + data.id;
 		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
 				console.log('VIDEOMAIL-DELETE ERROR: ', err.code);
