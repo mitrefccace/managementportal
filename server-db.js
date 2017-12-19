@@ -396,7 +396,7 @@ io.sockets.on('connection', function (socket) {
 			} else {
 				console.log('Deleted old videomail');
 			}
-		}
+		});
 	});
 
 	//updates videomail records when the agent changes the status
