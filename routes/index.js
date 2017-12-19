@@ -87,6 +87,22 @@ router.get('/cdr', agent.shield(cookieShield), function (req, res) {
 });
 
 /**
+ * Handles a GET request for /videomail. Checks user has
+ * a valid session and displays videomail page.   
+ * 
+ * @param {string} '/videomail'
+ * @param {function} 'agent.shield(cookieShield)'
+ * @param {function} function(req, res)
+ */
+router.get('/videomail', agent.shield(cookieShield), function (req, res) {
+	if (req.session.role === 'Manager') {
+		res.render('pages/videomail');
+	} else {
+		res.redirect('./');
+	}
+});
+
+/**
  * Handles a GET request for /light. Checks user has
  * a valid session and displays light page.   
  * 
