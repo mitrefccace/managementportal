@@ -29,9 +29,88 @@
                   <h3 class="box-title">Videomail</h3>
                 </div><!-- /.box-header -->
                 <div class="box-body table-responsive" style="overflow:visible !important;">
-                  <!-- PUT VIDEOMAIL STUFF HERE -->
-                  <!-- PUT VIDEOMAIL STUFF HERE -->
-                  <!-- PUT VIDEOMAIL STUFF HERE -->
+                  <!-- Videomail Table -->
+                  <div class="form-group" style='height: 90vh; max-height:90vh; overflow-y:scroll;'>
+                    <label>Mailbox Messages</label>
+                    <button type="button" class="btn btn-default" onclick="getVideomailRecs();">
+                        <i id="refresh-icon" class="fa fa-refresh"></i>
+                    </button>
+                    <span id="videomail-filter-dropdown" class="dropdown dropdown-menu-left" style='float:right'>
+                        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                            <!--span><i id="status-icon" class="call-btn-icon fa fa-envelope"></i></span-->&nbsp;&nbsp;&nbsp;
+                            <span id="videomail-filter">Filter Messages
+                                <span>
+                                    <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li onclick="filterVideomail('ALL');">
+                                <a href="#">
+                                    <span>All</span>
+                                </a>
+                            </li>
+                            <li onclick="filterVideomail('UNREAD');">
+                                <a href="#">
+                                    <span>Unread</span>
+                                </a>
+                            </li>
+                            <li onclick="filterVideomail('READ');">
+                                <a href="#">
+                                    <span>Read</span>
+                                </a>
+                            </li>
+                            <li onclick="filterVideomail('IN PROGRESS');">
+                                <a href="#">
+                                    <span>In Progress</span>
+                                </a>
+                            </li>
+                            <li onclick="filterVideomail('CLOSED');">
+                                <a href="#">
+                                    <span>Closed</span>
+                                </a>
+                            </li>
+                        </ul>
+                        </span>
+                        <table class="table table-hover" id="Videomail_Table">
+                            <thead>
+                                <tr>
+                                    <th id="vmail-vrs-number">Videophone No.
+                                        <i id="video-id-sort" class="fa fa-sort"> </i>
+                                    </th>
+                                    <th id="vmail-date">Date
+                                        <i id="video-id-sort" class="fa fa-sort"> </i>
+                                    </th>
+                                    <th id="vmail-duration">Duration (sec)
+                                        <i id="video-id-sort" class="fa fa-sort"> </i>
+                                    </th>
+                                    <th id="vmail-status">Status
+                                        <i id="video-id-sort" class="fa fa-sort"> </i>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id='videomailTbody'>
+                            </tbody>
+                        </table>
+                </div>
+				
+				<!-- Videomail Retrieval Error Modal -->
+				<div id="videomailErrorModal" class="modal fade">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h2 class="modal-title">Videomail Retrieval Error</h2>
+							</div>
+							<div class="modal-body text-center">
+								<h4 class="modal-title" id="videomailErrorBody"></h4>
+
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				
                 </div><!-- /.box-body -->
               </div><!-- /.box -->
             </div>
