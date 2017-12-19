@@ -70,5 +70,15 @@
 	},
 	"mongodb": {
 		"connectionURI": "mongodb://localhost:27017/test"
-	}
+	},
+	"virtualagent": {
+        "mysql": {
+            "host": "0.0.0.0",
+            "user": "dbuser",
+            "password": "dbpass",
+            "database": "dbname",
+            "port": "0000",
+            "table": "tblname"
+        }
+    }
 }
