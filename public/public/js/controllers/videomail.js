@@ -3,10 +3,6 @@ var sortFlag = "id desc";
 var filter = "ALL";
 var telNumber;
 
-setInterval(function () {
-	busylight.light(this.agentStatus);
-}, 2000);
-
 $(document).ready(function () {
 	connect_socket();
 	$("[data-mask]").inputmask();
