@@ -27,6 +27,7 @@
     "datatables": "^1.10.12",
     "bootstrap-select": "^1.12.2",
     "flot-axislabels": "*",
-    "angular-moment-duration-format": "^0.1.0"
+    "angular-moment-duration-format": "^0.1.0",
+    "jwt-decode": "2.2.0"
   }
 }

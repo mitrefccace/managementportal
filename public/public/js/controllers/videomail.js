@@ -3,6 +3,9 @@ var sortFlag = "id desc";
 var filter = "ALL";
 var telNumber;
 
+var videomail_status_buttons = document.getElementById("videomail-status-buttons");
+var extensionMe;
+
 $(document).ready(function () {
 	connect_socket();
 	//$("[data-mask]").inputmask();
@@ -11,13 +14,13 @@ $(document).ready(function () {
 	//	cursor: "crosshair"
 	//});
 
-	clearScreen();
+	//clearScreen();
 
-	$.getJSON("./resources/licenses.json", function (data) {
-		$.each(data.license, function (i) {
-			$("#licModalBody").append("<h3>" + data.license[i].name + "<h3><pre>" + data.license[i].pre + "</pre>");
-		});
-	});
+	// $.getJSON("./resources/licenses.json", function (data) {
+	// 	$.each(data.license, function (i) {
+	// 		$("#licModalBody").append("<h3>" + data.license[i].name + "<h3><pre>" + data.license[i].pre + "</pre>");
+	// 	});
+	// });
 
 	/*if (window.addEventListener) {
 		var state = 0,
@@ -402,4 +405,11 @@ function enterFullscreen() {
   } else if (remoteView.webkitRequestFullscreen) {
     remoteView.webkitRequestFullscreen(); // Chrome and Safari
   }
+}
+
+function debugtxt(title, data) {
+	// var dt = new Date();
+	// var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+	// $('#dbgtxt').html('<span style="color:green">' + time + ": " + title + '</span><br>' + JSON.stringify(data) + '<br>----------------<br>' + $('#dbgtxt').html());
+	console.log(title + ' ' + JSON.stringify(data));
 }
