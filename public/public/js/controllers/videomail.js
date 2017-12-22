@@ -5,7 +5,7 @@ var telNumber;
 
 $(document).ready(function () {
 	connect_socket();
-	$("[data-mask]").inputmask();
+	//$("[data-mask]").inputmask();
 	//make boxes draggable
 	//$('.box').draggable({
 	//	cursor: "crosshair"
