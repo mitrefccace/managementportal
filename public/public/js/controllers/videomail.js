@@ -52,7 +52,7 @@ function connect_socket() {
 			console.log(JSON.stringify(data));
 			if (data.message === "success") {
 				socket = io.connect('https://' + window.location.host, {
-					path: '/ACEDirect/socket.io',
+					path: '/ManagementPortal/socket.io',
 					query: 'token=' + data.token,
 					forceNew: true
 				});
