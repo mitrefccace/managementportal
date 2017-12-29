@@ -62,34 +62,38 @@ function connect_socket() {
 					});
 					console.log('authenticated');
 
-					socket.emit("get_color_config");
+					//socket.emit("get_color_config");
 
 					//get the payload form the token
 					var payload = jwt_decode(data.token);
 					$('#loginModal').modal('hide');
+
 					$('#statusmsg').text(""); //clear status text
 					socket.emit('get-videomail',{
 						"sortBy": "id desc",
 						"filter": "ALL"
 					});
+
 					setInterval(function(){
 						socket.emit('get-videomail',{
 						"sortBy": sortFlag,
 						"filter": filter
 					}); }, 5000);
+
 					toggle_videomail_buttons(false);
 					console.log('Sent a get-videomail event');
-				}).on('got-videomail-recs',function(data){
+				})
+				.on('got-videomail-recs', function(data){
 					updateVideomailTable(data);
-				}).on('changed-status',function(){
+				})
+				.on('changed-status', function(){
 					getVideomailRecs();
-				}).on('videomail-retrieval-error',function(data){
+				})
+				.on('videomail-retrieval-error', function(data){
 					$('#videomailErrorBody').html('Unable to locate videomail with ID ' + data + '.');
 					$('#videomailErrorModal').modal('show');
 					stopVideomail();
 				});
-
-
 
 			} else {
 				//TODO: handle bad connections
@@ -101,7 +105,6 @@ function connect_socket() {
 		}
 	});
 }
-
 
 //####################################################################
 //Videomail functionality: mostly sending socket.io events to adserver

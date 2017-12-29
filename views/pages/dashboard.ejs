@@ -267,7 +267,7 @@
 							path: '/ManagementPortal/socket.io',
 							query: 'token=' + data.token,
 							forceNew: true
-						});		
+						});
 
 						socket.emit('register-manager', {"hello": "hello"});
 						socket.on('resource-status', function (data) {
