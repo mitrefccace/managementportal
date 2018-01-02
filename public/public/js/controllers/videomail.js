@@ -338,7 +338,6 @@ function videomailCallback(callbacknum){
 function videomail_status_change(id, videoStatus){
 	socket.emit('videomail-status-change', {
 		"id": id,
-		"extension": extensionMe,
 		"status": videoStatus
 	});
 	console.log('Emitted a socket videomail-status-change');
@@ -360,6 +359,7 @@ function videomail_deleted(id){
 		"extension": extensionMe
 	});
 	console.log('Emitted a socket videomail-deleted');
+	stopVideomail();			 
 }
 
 //Videomail play button functionality
