@@ -13,10 +13,10 @@
       <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
-          <h1>Videomail</h1>       
+          <h1>Videomail Dashboard</h1>       
           <ol class="breadcrumb">
             <li><a href="./dashboard"><i class="fa fa-dashboard"></i>Home</a></li>
-            <li class="active">Videomail</li>
+            <li class="active">Videomail Dashboard</li>
           </ol>
         </section>
 
@@ -24,7 +24,7 @@
         <section class="content">
           <div class="row">
             <div class="col-lg-12">
-				<div class="box col-lg-8 col-xs-12" id="VideoBox">
+				<div class="box col-lg-8 col-xs-12" id="VideoBox" hidden>
 					<div class="box-header with-border">
 						<i class="fa fa-video-camera"></i>
 						<h3 class="box-title">Video</h3>
@@ -80,19 +80,19 @@
 								  </ul>
 								</span>
 								<button id="videomail callback" class="btn btn-primary" type="button" onclick="videomailCallback(document.getElementById('callbacknum').getAttribute('name'))">Call Consumer</button>
-								<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Exit Videomail</button>
+								<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Videomail</button>
 							</div>
 						</div> 
-						<div class="alert alert-info" alert-dismissable id="outboundCallAlert" hidden>
+						<!--div class="alert alert-info" alert-dismissable id="outboundCallAlert" hidden>
 							<a class="close" onclick="$('#outboundCallAlert').hide();" style="text-decoration:none">×</a>
 							<strong>Calling...</strong>
-						</div>   
+						</div-->   
 					</div>
 				</div>
 			
               <div class="box">
                 <div class="box-header with-border">
-                  <h3 class="box-title">Videomail</h3>
+                  <h3 class="box-title">Videomail Inbox</h3>
                 </div><!-- /.box-header -->
                 <div class="box-body table-responsive" style="overflow:visible !important;">
                   <!-- Videomail Table -->
