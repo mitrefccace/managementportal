@@ -58,10 +58,11 @@
 											 <li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'READ')"><a href="#"><span>Read</span></a></li>
 											 <li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'IN PROGRESS')"><a href="#"><span>In Progress</span></a></li>
 											 <li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'CLOSED')"><a href="#"><span>Closed</span></a></li>
-											 <li onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))"><a href="#"><span>Deleted</span></a></li>
+											 
 										  </ul>
 										</span>
-										<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Videomail</button>
+										<button class="btn btn-danger" type="button" onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))">Permanently Delete</button>
+										<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Video</button>
 									</div>
 								</div> 
 							</div>
@@ -163,6 +164,13 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	
+	
+	<!-- Videomail hidden data -->
+	<div hidden>
+		<div id="videomailId"> </div>
+		<div id="callbacknum"> </div>   
 	</div>
 
     <!-- REQUIRED JS SCRIPTS -->
