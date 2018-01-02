@@ -268,6 +268,7 @@ function processFilter(filter){
 //More videomail functionality//Play the selected videomail
 function playVideomail(id, duration, vidStatus){
 	console.log('Playing video mail with id ' + id);
+	$('#videoBox').removeAttr('hidden');
 	remoteView.removeAttribute("autoplay");
 	remoteView.removeAttribute("poster");
 	remoteView.setAttribute("src",'./getVideomail?id='+id+'&ext='+extensionMe);
@@ -304,7 +305,8 @@ function toggle_videomail_buttons(make_visible){
 
 //Exit videomail view and return to call view
 function stopVideomail(){
-	console.log("Videomail view has been stopped, back to call view");
+	console.log("Videomail view has been stopped");
+	$('#videoBox').attr('hidden',true);
 	remoteView.setAttribute("src","");
 	remoteView.removeAttribute("src");
 	remoteView.removeAttribute("onended");
