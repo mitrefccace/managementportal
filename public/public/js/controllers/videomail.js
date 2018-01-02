@@ -2,6 +2,7 @@ var socket;
 var sortFlag = "id desc";
 var filter = "ALL";
 var telNumber;
+var remoteView = document.getElementById("remoteView");
 
 var videomail_status_buttons = document.getElementById("videomail-status-buttons");
 var extensionMe;
@@ -273,9 +274,9 @@ function processFilter(filter){
 function playVideomail(id, duration, vidStatus){
 	console.log('Playing video mail with id ' + id);
 	$('#videoBox').removeAttr('hidden');
-	remoteView.removeAttribute("autoplay");
+	//remoteView.removeAttribute("autoplay");
 	remoteView.removeAttribute("poster");
-	remoteView.setAttribute("src",'./getVideomail?id='+id+'&ext='+extensionMe);
+	remoteView.setAttribute("src",'./getVideomail?id='+id);
 	remoteView.setAttribute("onended", "change_play_button()");
 	toggle_videomail_buttons(true);
 	updateVideoTime(duration,"vmail-total-time");

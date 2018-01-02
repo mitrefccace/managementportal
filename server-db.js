@@ -1057,3 +1057,35 @@ app.get('/resetAllCounters', agent.shield(cookieShield), function () {
 	resetAllCounters();
 	mapAgents();
 });
+
+/**
+ * Handles a GET request for /getVideoamil to retrieve the videomail file
+ * @param {string} '/getVideomail'
+ * @param {function} function(req, res)
+ */
+app.get('/getVideomail', function (req, res) {
+	console.log("/getVideomail");
+	var videoId = req.query.id;
+	console.log("id: " + videoId);
+	//var agentExt = req.query.ext;
+	//Wrap in mysql query	
+	dbConnection.query('SELECT video_filepath AS filepath, video_filename AS filename FROM videomail WHERE id = ?', videoId, function (err, result) {
+		if (err) {
+			console.log('GET VIDEOMAIL ERROR: ', err.code);
+		} else {
+			var videoFile = result[0].filepath + result[0].filename;
+			try {
+				var stat = fs.statSync(videoFile);
+				res.writeHead(200, {
+					'Content-Type': 'video/webm',
+					'Content-Length': stat.size
+				});
+				var readStream = fs.createReadStream(videoFile);
+				readStream.pipe(res);
+			} catch (err) {
+				console.log(err);
+				io.to('my room').emit('videomail-retrieval-error', videoId);
+			}
+		}
+	});
+});   
