@@ -69,6 +69,10 @@ function connect_socket() {
 					$('#loginModal').modal('hide');
 
 					$('#statusmsg').text(""); //clear status text
+					
+					socket.emit('register-manager', {
+						"hello": "hello"
+					});
 					socket.emit('get-videomail',{
 						"sortBy": "id desc",
 						"filter": "ALL"
