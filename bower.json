@@ -22,7 +22,7 @@
     "bootstrap-select": "1.12.2",
     "bootstrap-toggle": "2.2.2",
     "datatables": "1.10.15",
-    "datatables-bootstrap3": "1.0.0",
+    "datatables-bootstrap3": "*",
     "datatables.net": "1.10.15",
     "flot-axislabels": "*",
     "Ionicons": "ionicons#2.0.1",
