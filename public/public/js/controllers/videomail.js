@@ -98,8 +98,16 @@ function connect_socket() {
 					$('#videomailErrorBody').html('Unable to locate videomail with ID ' + data + '.');
 					$('#videomailErrorModal').modal('show');
 					stopVideomail();
-				});
-
+				})
+				.on('videomail-status', function (data) {
+						$.plot("#videomailStatusPieChart", data, {
+							series: {
+									pie: {
+											show: true
+									}
+							}
+						});
+					});
 			} else {
 				//TODO: handle bad connections
 			}
@@ -208,7 +216,7 @@ function sortButtonToggle(buttonid){
 
 //Update the records in the videomail table
 function updateVideomailTable(data){
-	console.log("Refreshing videomail");
+	//console.log("Refreshing videomail");
 	$("#videomailTbody").html("");
 	var table;
 	var row;
@@ -286,7 +294,7 @@ function playVideomail(id, duration, vidStatus){
 }
 
 //Update the time progress in the videomail seekbar
-function updateVideoTime(time,elementId){
+function updateVideoTime(time, elementId){
   var minutes = Math.floor(time / 60);
 	var seconds = Math.round(time - minutes * 60);
 	var timeStr = "";

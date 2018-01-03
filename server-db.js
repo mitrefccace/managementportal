@@ -368,9 +368,20 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
-				//io.to(Number(data.extension)).emit('got-videomail-recs', result);
 				logger.debug(result);
 				io.to('my room').emit('got-videomail-recs', result);
+			}
+		});
+
+		// Get videomail status summary
+		queryStr = "SELECT status AS 'label', COUNT(*) AS 'data' FROM " + vmTable + " GROUP BY status;";
+		logger.debug(queryStr);
+		dbConnection.query(queryStr, function (err, result) {
+			if (err) {
+				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
+			} else {
+				logger.debug('Videomail Status Summary ' + JSON.stringify(result));
+				io.to('my room').emit('videomail-status', result);
 			}
 		});
 
@@ -394,7 +405,6 @@ io.sockets.on('connection', function (socket) {
 				logger.error('VIDEOMAIL-STATUS-CHANGE ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				//io.to(Number(data.extension)).emit('changed-status', result);
 				io.to('my room').emit('changed-status', result);
 			}
 		});
@@ -410,7 +420,6 @@ io.sockets.on('connection', function (socket) {
 				logger.error('VIDEOMAIL-READ ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				//io.to(Number(data.extension)).emit('changed-status', result);
 				io.to('my room').emit('changed-status', result);
 			}
 		});
@@ -425,7 +434,6 @@ io.sockets.on('connection', function (socket) {
 				logger.error('VIDEOMAIL-DELETE ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				//io.to(Number(data.extension)).emit('changed-status', result);
 				io.to('my room').emit('changed-status', result);
 			}
 		});
