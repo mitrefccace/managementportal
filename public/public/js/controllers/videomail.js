@@ -75,7 +75,7 @@ function connect_socket() {
 						"hello": "hello"
 					});
 					socket.emit('get-videomail',{
-						"sortBy": "id desc",
+						"sortBy": sortFlag,
 						"filter": "ALL"
 					});
 
@@ -160,7 +160,6 @@ $('#vmail-vrs-number').on('click',function(){
 		sortFlag = "callbacknumber desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -174,7 +173,6 @@ $('#vmail-date').on('click',function(){
 		sortFlag = "unix_timestamp(received) desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -188,7 +186,6 @@ $('#vmail-duration').on('click',function(){
 		sortFlag = "video_duration desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -202,7 +199,6 @@ $('#vmail-status').on('click',function(){
 		sortFlag = "status desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});

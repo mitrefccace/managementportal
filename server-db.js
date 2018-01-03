@@ -25,6 +25,8 @@ var tcpp = require('tcp-ping');
 var url = require('url');
 var mysql = require('mysql');
 
+var sortStr = '';
+var queryStr = '';				 
 
 var port = null; // set the port
 var ami = null; // Asterisk AMI 
