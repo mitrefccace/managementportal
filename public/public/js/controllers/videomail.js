@@ -100,16 +100,6 @@ function connect_socket() {
 					stopVideomail();
 				})
 				.on('videomail-status', function (data) {
-<<<<<<< HEAD
-						$.plot("#videomailStatusPieChart", data, {
-							series: {
-									pie: {
-											show: true
-									}
-							}
-						});
-					});
-=======
 					$.plot("#videomailStatusPieChart", data, {
 						series: {
 							pie: {
@@ -125,7 +115,6 @@ function connect_socket() {
 						 legend: {show: true}
 					});
 				});
->>>>>>> dd54fb7719d32af635527aaf8cedb6add76ef187
 			} else {
 				//TODO: handle bad connections
 			}
