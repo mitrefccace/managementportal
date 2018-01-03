@@ -264,18 +264,9 @@ function updateVideomailTable(data){
 function filterVideomail(mailFilter){
 	filter = mailFilter;
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
-}
-
-function processFilter(filter){
-	if (filter == 'ALL'){
-		return('');
-	} else{
-		return('AND status = ' + filter);
-	}
 }
 
 //More videomail functionality//Play the selected videomail

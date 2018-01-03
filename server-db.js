@@ -333,7 +333,7 @@ io.sockets.on('connection', function (socket) {
 		if (filter == 'ALL'){
 			return('');
 		} else{
-			return('AND status = ' + filter);
+			return ("'" + filter + "'");
 		}
 	}
 
