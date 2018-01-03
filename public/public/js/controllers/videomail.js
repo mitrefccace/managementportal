@@ -100,14 +100,21 @@ function connect_socket() {
 					stopVideomail();
 				})
 				.on('videomail-status', function (data) {
-						$.plot("#videomailStatusPieChart", data, {
-							series: {
-									pie: {
-											show: true
+					$.plot("#videomailStatusPieChart", data, {
+						series: {
+							pie: {
+								show: true,
+								label: {
+									show: true,
+									formatter: function(label, series){
+										return(series.data[0][1]);
 									}
-							}
-						});
+								}
+						 	}
+						 },        
+						 legend: {show: true}
 					});
+				});
 			} else {
 				//TODO: handle bad connections
 			}
