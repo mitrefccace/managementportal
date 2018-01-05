@@ -196,7 +196,7 @@ io.sockets.on('connection', function (socket) {
 		confobj.host = decodeBase64(nconf.get('asterisk:sip:private_ip'));
 		confobj.realm = decodeBase64(nconf.get('asterisk:sip:private_ip'));
 		confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
-		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:wsport')));
+		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:ws_port')));
 		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
 		confobj.websocket = decodeBase64(nconf.get('asterisk:sip:websocket'));
 
