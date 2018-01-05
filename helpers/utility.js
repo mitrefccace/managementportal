@@ -2,7 +2,7 @@
 
 var nconf = require('nconf');
 
-var cfile = 'config.json'; // Config file
+var cfile = '../dat/config.json'; // Config file
 nconf.argv().env();
 nconf.file({
 	file: cfile
