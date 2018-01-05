@@ -25,6 +25,8 @@ var tcpp = require('tcp-ping');
 var url = require('url');
 var mysql = require('mysql');
 
+var sortStr = '';
+var queryStr = '';				 
 
 var port = null; // set the port
 var ami = null; // Asterisk AMI
@@ -335,7 +337,7 @@ io.sockets.on('connection', function (socket) {
 		if (filter == 'ALL'){
 			return('');
 		} else{
-			return('AND status = ' + filter);
+			return ("'" + filter + "'");
 		}
 	}
 
@@ -351,18 +353,18 @@ io.sockets.on('connection', function (socket) {
 		if (filterFlag) {
 			if (sortBy.includes('asc')) {
 				sortStr = sortBy.slice(0, sortBy.length - 4);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE deleted = 0 and status = " + filterFlag + " ORDER BY " + sortStr + " asc";
+				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE status = " + filterFlag + " ORDER BY " + sortStr + " asc";
 			} else if (sortBy.includes('desc')) {
 				sortStr = sortBy.slice(0, sortBy.length - 5);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE deleted = 0 and status = " + filterFlag + " ORDER BY " + sortStr + " desc";
+				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE status = " + filterFlag + " ORDER BY " + sortStr + " desc";
 			}
 		} else {
 			if (sortBy.includes('asc')) {
 				sortStr = sortBy.slice(0, sortBy.length - 4);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE deleted = 0 ORDER BY " + sortStr + " asc";
+				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " ORDER BY " + sortStr + " asc";
 			} else if (sortBy.includes('desc')) {
 				sortStr = sortBy.slice(0, sortBy.length - 5);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE deleted = 0 ORDER BY " + sortStr + " desc";
+				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " ORDER BY " + sortStr + " desc";
 			}
 		}
 		logger.debug(queryStr);
@@ -370,9 +372,20 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
-				//io.to(Number(data.extension)).emit('got-videomail-recs', result);
 				logger.debug(result);
 				io.to('my room').emit('got-videomail-recs', result);
+			}
+		});
+
+		// Get videomail status summary
+		queryStr = "SELECT status AS 'label', COUNT(*) AS 'data' FROM " + vmTable + " GROUP BY status;";
+		logger.debug(queryStr);
+		dbConnection.query(queryStr, function (err, result) {
+			if (err) {
+				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
+			} else {
+				logger.debug('Videomail Status Summary ' + JSON.stringify(result));
+				io.to('my room').emit('videomail-status', result);
 			}
 		});
 
@@ -389,29 +402,28 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent changes the status
 	socket.on("videomail-status-change", function (data) {
 		logger.debug('updating MySQL entry');
-		var queryStr = "UPDATE " + vmTable + " SET status = '" + data.status + "', processed = CURRENT_TIMESTAMP, processing_agent = manager, deleted = 0, deleted_time = NULL, deleted_by = NULL WHERE id = " + data.id;
+		var queryStr = "UPDATE " + vmTable + " SET status = '" + data.status + "', processed = CURRENT_TIMESTAMP, processing_agent = 'manager', deleted = 0, deleted_time = NULL, deleted_by = NULL WHERE id = " + data.id;
 		logger.debug(queryStr);
 		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
 				logger.error('VIDEOMAIL-STATUS-CHANGE ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				//io.to(Number(data.extension)).emit('changed-status', result);
-				io.to('my room').emit('changed-status', result);			}
+				io.to('my room').emit('changed-status', result);
+			}
 		});
 	});
 
 	//changes the videomail status to READ if it was UNREAD before
 	socket.on("videomail-read-onclick", function (data) {
 		logger.debug('updating MySQL entry');
-		var queryStr = "UPDATE " + vmTable + " SET status = 'READ', processed = CURRENT_TIMESTAMP, processing_agent = manager WHERE id = " + data.id;
+		var queryStr = "UPDATE " + vmTable + " SET status = 'READ', processed = CURRENT_TIMESTAMP, processing_agent = 'manager' WHERE id = " + data.id;
 		logger.debug(queryStr);
 		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
 				logger.error('VIDEOMAIL-READ ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				//io.to(Number(data.extension)).emit('changed-status', result);
 				io.to('my room').emit('changed-status', result);
 			}
 		});
@@ -420,13 +432,12 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent deletes the videomail. Keeps it in db but with a deleted flag
 	socket.on("videomail-deleted", function (data) {
 		logger.debug('updating MySQL entry');
-		var queryStr = "UPDATE " + vmTable + " SET deleted_time = CURRENT_TIMESTAMP, deleted_by = manager, deleted = 1 WHERE id = " + data.id;
+		var queryStr = "DELETE FROM " + vmTable + " WHERE id = " + data.id;
 		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
 				logger.error('VIDEOMAIL-DELETE ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				//io.to(Number(data.extension)).emit('changed-status', result);
 				io.to('my room').emit('changed-status', result);
 			}
 		});

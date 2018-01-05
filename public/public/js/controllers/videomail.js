@@ -75,7 +75,7 @@ function connect_socket() {
 						"hello": "hello"
 					});
 					socket.emit('get-videomail',{
-						"sortBy": "id desc",
+						"sortBy": sortFlag,
 						"filter": "ALL"
 					});
 
@@ -98,8 +98,23 @@ function connect_socket() {
 					$('#videomailErrorBody').html('Unable to locate videomail with ID ' + data + '.');
 					$('#videomailErrorModal').modal('show');
 					stopVideomail();
+				})
+				.on('videomail-status', function (data) {
+					$.plot("#videomailStatusPieChart", data, {
+						series: {
+							pie: {
+								show: true,
+								label: {
+									show: true,
+									formatter: function(label, series){
+										return(series.data[0][1]);
+									}
+								}
+						 	}
+						 },        
+						 legend: {show: true}
+					});
 				});
-
 			} else {
 				//TODO: handle bad connections
 			}
@@ -145,7 +160,6 @@ $('#vmail-vrs-number').on('click',function(){
 		sortFlag = "callbacknumber desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -159,7 +173,6 @@ $('#vmail-date').on('click',function(){
 		sortFlag = "unix_timestamp(received) desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -173,7 +186,6 @@ $('#vmail-duration').on('click',function(){
 		sortFlag = "video_duration desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -187,7 +199,6 @@ $('#vmail-status').on('click',function(){
 		sortFlag = "status desc";
 	}
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
@@ -208,7 +219,7 @@ function sortButtonToggle(buttonid){
 
 //Update the records in the videomail table
 function updateVideomailTable(data){
-	console.log("Refreshing videomail");
+	//console.log("Refreshing videomail");
 	$("#videomailTbody").html("");
 	var table;
 	var row;
@@ -256,18 +267,9 @@ function updateVideomailTable(data){
 function filterVideomail(mailFilter){
 	filter = mailFilter;
 	socket.emit('get-videomail',{
-		"extension": extensionMe,
 		"sortBy": sortFlag,
 		"filter": filter
 	});
-}
-
-function processFilter(filter){
-	if (filter == 'ALL'){
-		return('');
-	} else{
-		return('AND status = ' + filter);
-	}
 }
 
 //More videomail functionality//Play the selected videomail
@@ -286,7 +288,7 @@ function playVideomail(id, duration, vidStatus){
 }
 
 //Update the time progress in the videomail seekbar
-function updateVideoTime(time,elementId){
+function updateVideoTime(time, elementId){
   var minutes = Math.floor(time / 60);
 	var seconds = Math.round(time - minutes * 60);
 	var timeStr = "";
@@ -338,7 +340,6 @@ function videomailCallback(callbacknum){
 function videomail_status_change(id, videoStatus){
 	socket.emit('videomail-status-change', {
 		"id": id,
-		"extension": extensionMe,
 		"status": videoStatus
 	});
 	console.log('Emitted a socket videomail-status-change');
@@ -360,6 +361,7 @@ function videomail_deleted(id){
 		"extension": extensionMe
 	});
 	console.log('Emitted a socket videomail-deleted');
+	stopVideomail();			 
 }
 
 //Videomail play button functionality

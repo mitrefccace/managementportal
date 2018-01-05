@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body class="hold-transition skin-purple sidebar-mini" ng-app="acrcsr-dashboard">
+	<div class="wrapper">
+		<% include ../partials/header %>
+			<% include ../partials/sidebar %>
+				<!-- Content Wrapper. Contains page content -->
+				<div class="content-wrapper" ng-controller="dashboardController">
+					<!-- Content Header (Page header) -->
+					<section class="content-header">
+						<h1>System Health</h1>
+						<ol class="breadcrumb">
+							<li>
+								<a href="./dashboard">
+									<i class="fa fa-dashboard"></i> Home</a>
+							</li>
+							<li class="active">System Health</li>
+						</ol>
+					</section>
+
+					<!-- Main content -->
+					<section class="content">
+						<div id="health_acedirect" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>ACE Direct</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_aserver" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>AServer</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_asterisk" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>Asterisk</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_cdrserver" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>CDR Server</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_managementportal" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>Mgmt. Portal</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_nginx" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>NGINX</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_openam" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>OpenAM</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_userver" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>UServer</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_virtualagent" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>Virtual Agent</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+						<div id="health_zendesk" class="col-lg-3 col-xs-3">
+							<div class="statusColor small-box bg-yellow">
+								<div class="inner">
+									<h3 class=''>ZenDesk</h3>
+								</div>
+								<div class="icon">
+									<i class='statusIcon fa fa-spin fa-refresh'></i>
+								</div>
+								<div class="statusText small-box-footer">Pending
+								</div>
+							</div>
+						</div>
+
+					</section>
+					<!-- /.content -->
+				</div>
+				<!-- /.content-wrapper -->
+				<% include ../partials/footer %>
+	</div>
+	<!-- ./wrapper -->
+
+	<!-- REQUIRED JS SCRIPTS -->
+
+	<script type="text/javascript">
+		$("#sidebarsystemhealth").addClass("active");
+		var acedirectTimer, aserverTimer, asteriskTimer,
+			cdrserverTimer, managementportalTimer, nginxTimer,
+			openamTimer, userverTimer, virtualagentTimer,
+			zendeskTimer, socket;
+
+		$.ajax({
+			url: './token',
+			type: 'GET',
+			dataType: 'json',
+			success: function (data) {
+				if (data.message === "success") {
+					socket = io.connect('https://' + window.location.host, {
+						path: '/ManagementPortal/socket.io',
+						query: 'token=' + data.token,
+						forceNew: true
+					});
+
+					socket.emit('server-health-tests');
+					socket.on('server-health-result', function (data) {
+						switch (data.resource) {
+							case 'acedirect':
+								clearTimeout(acedirectTimer);
+								updateResource('#health_acedirect', data.result)
+								break;
+							case 'aserver':
+								clearTimeout(aserverTimer);
+								updateResource('#health_aserver', data.result)
+								break;
+							case 'asterisk':
+								clearTimeout(asteriskTimer);
+								updateResource('#health_asterisk', data.result)
+								break;
+							case 'cdrserver':
+								clearTimeout(cdrserverTimer);
+								updateResource('#health_cdrserver', data.result)
+								break;
+							case 'managementportal':
+								clearTimeout(managementportalTimer);
+								updateResource('#health_managementportal', data.result)
+								break;
+							case 'nginx':
+								clearTimeout(nginxTimer);
+								updateResource('#health_nginx', data.result)
+								break;
+							case 'openam':
+								clearTimeout(openamTimer);
+								updateResource('#health_openam', data.result)
+								break;
+							case 'userver':
+								clearTimeout(userverTimer);
+								updateResource('#health_userver', data.result)
+								break;
+							case 'virtualagent':
+								clearTimeout(virtualagentTimer);
+								updateResource('#health_virtualagent', data.result)
+								break;
+							case 'zendesk':
+								clearTimeout(zendeskTimer);
+								updateResource('#health_zendesk', data.result)
+								break;
+						}
+					});
+				}
+			}
+		});
+
+
+
+		startFailTimers();
+
+		function startFailTimers() {
+			var timeout = 3000;
+			var status = 'fail'
+			acedirectTimer = setTimeout(function () {
+				updateResource('#health_acedirect', status)
+			}, timeout);
+			aserverTimer = setTimeout(function () {
+				updateResource('#health_aserver', status)
+			}, timeout);
+			asteriskTimer = setTimeout(function () {
+				updateResource('#health_asterisk', status)
+			}, timeout);
+			cdrserverTimer = setTimeout(function () {
+				updateResource('#health_cdrserver', status)
+			}, timeout);
+			managementportalTimer = setTimeout(function () {
+				updateResource('#health_managementportal', status)
+			}, timeout);
+			nginxTimer = setTimeout(function () {
+				updateResource('#health_nginx', status)
+			}, timeout);
+			openamTimer = setTimeout(function () {
+				updateResource('#health_openam', status)
+			}, timeout);
+			userverTimer = setTimeout(function () {
+				updateResource('#health_userver', status)
+			}, timeout);
+			virtualagentTimer = setTimeout(function () {
+				updateResource('#health_virtualagent', status)
+			}, timeout);
+			zendeskTimer = setTimeout(function () {
+				updateResource('#health_zendesk', status)
+			}, timeout);
+		}
+
+		function updateResource(resource, status) {
+			$(resource).find(".statusIcon").removeClass('fa-spin fa-refresh fa-check-circle fa-times-circle');
+			$(resource).find(".statusColor").removeClass('bg-yellow bg-red bg-green');
+
+			var statusText = 'Fail';
+			var statusIcon = 'fa-times-circle';
+			var statusColor = 'bg-red';
+
+			switch (status) {
+				case 'pass':
+					statusText = 'Pass';
+					statusIcon = 'fa-check-circle';
+					statusColor = 'bg-green';
+					break;
+				case 'fail':
+					statusText = 'Fail';
+					statusIcon = 'fa-times-circle';
+					statusColor = 'bg-red';
+					break;
+				case 'pending':
+					statusText = 'Pending';
+					statusIcon = 'fa-refresh fa-spin';
+					statusColor = 'bg-yellow';
+					break;
+				default:
+					statusText = 'Fail';
+					statusIcon = 'fa-times-circle';
+					statusColor = 'bg-red';
+					break;
+			}
+
+			$(resource).find(".statusText").html(statusText)
+			$(resource).find(".statusIcon").addClass(statusIcon)
+			$(resource).find(".statusColor").addClass(statusColor)
+		}
+	</script>
+</body>
+
+</html>

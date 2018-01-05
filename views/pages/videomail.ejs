@@ -58,16 +58,35 @@
 											 <li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'READ')"><a href="#"><span>Read</span></a></li>
 											 <li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'IN PROGRESS')"><a href="#"><span>In Progress</span></a></li>
 											 <li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'CLOSED')"><a href="#"><span>Closed</span></a></li>
-											 <li onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))"><a href="#"><span>Deleted</span></a></li>
+											 
 										  </ul>
 										</span>
-										<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Videomail</button>
+										<button class="btn btn-danger" type="button" onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))">Permanently Delete</button>
+										<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Video</button>
 									</div>
 								</div> 
 							</div>
 						</div>
 					</div>
 				</div>
+
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="box" id="videomail-status">
+							<div class="box-header with-border">
+								<h3 class="box-title">Videomail Status</h3>
+								<div class="box-tools pull-right">
+									<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+									</button>
+								</div>
+							</div>
+							<div class="box-body col-lg-4">
+								<div id="videomailStatusPieChart" style="height:200px"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="box">
@@ -113,6 +132,11 @@
 													<span>Closed</span>
 												</a>
 											</li>
+											<li onclick="filterVideomail('MARKED FOR DELETION');">
+												<a href="#">
+													<span>Marked for Deletion</span>
+												</a>
+											</li>													 
 										</ul>
 									</span>
 									<table class="table table-hover" id="Videomail_Table">
@@ -164,6 +188,13 @@
 			</div>
 		</div>
 	</div>
+	
+	
+	<!-- Videomail hidden data -->
+	<div hidden>
+		<div id="videomailId"> </div>
+		<div id="callbacknum"> </div>   
+	</div>
 
     <!-- REQUIRED JS SCRIPTS -->
     <!--bootstrap-select-->
@@ -172,11 +203,23 @@
     <script type="text/javascript" src="./bower_components/jwt-decode/build/jwt-decode.min.js"></script>
     <script type="text/javascript" src="public/js/controllers/videomail.js"></script>
 
+		<!-- flot -->
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
+		<script type="text/javascript" src="./bower_components/flot-axislabels/jquery.flot.axislabels.js"></script>
+		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.pie.min.js"></script>
+
     <script type="text/javascript">
       $(document).ready(function () {
         $("#sidebarvideomail").addClass("active");
-
       });
+
+			// Label formatter for flot pie chart
+			function labelFormatter(label, series) {
+				return "<div style='font-size:10pt; text-align:center; padding:2px; color:black;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+			};
+
     </script>
   </body>
 </html>
