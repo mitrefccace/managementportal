@@ -26,7 +26,7 @@ var url = require('url');
 var mysql = require('mysql');
 
 var sortStr = '';
-var queryStr = '';				 
+var queryStr = '';
 
 var port = null; // set the port
 var ami = null; // Asterisk AMI
@@ -52,7 +52,7 @@ var credentials = {
 };
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
+	serverUrl : 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
 	privateIP: decodeBase64(nconf.get('openam:private_ip')),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
