@@ -932,7 +932,7 @@ function mapAgents() {
  * @returns {undefined} Not used
  */
 function getAgentsFromProvider(callback) {
-	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + "/getallagentrecs";
+	var url = 'https://' + decodeBase64(nconf.get('user_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + "/getallagentrecs";
 	request({
 		url: url,
 		json: true
