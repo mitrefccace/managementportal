@@ -12,8 +12,8 @@ var url = require('url');
 var router  = express.Router();
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : decodeBase64(nconf.get('openam:serverUrl')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
-	privateIP: decodeBase64(nconf.get('openam:privateIP')),
+	serverUrl : 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
+	privateIP: decodeBase64(nconf.get('openam:private_ip')),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
   } 
@@ -130,8 +130,8 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
 		var token = jwt.sign(
 			{ id: req.session.agent_id },
-			new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))),
-			{ expiresIn: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))) });
+			new Buffer(decodeBase64(nconf.get('web_security:json_web_token:secret_key')), decodeBase64(nconf.get('web_security:json_web_token:encoding'))),
+			{ expiresIn: parseInt(decodeBase64(nconf.get('web_security:json_web_token:timeout'))) });
 		res.status(200).json({ message: "success", token: token });
 	} else {
 		req.session.destroy(function (err) {
@@ -150,9 +150,9 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 router.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + decodeBase64(nconf.get('openam:privateIP'))+ ':' + decodeBase64(nconf.get('openam:port')) + '/json/sessions/?_action-logout',
+		url: 'https://' + decodeBase64(nconf.get('openam:private_ip'))+ ':' + decodeBase64(nconf.get('openam:port')) + '/json/sessions/?_action-logout',
 		headers: {
-			'host' : url.parse(decodeBase64(nconf.get('openam:serverUrl'))).hostname,
+			'host' : url.parse('https://' + decodeBase64(nconf.get('openam:fqdn'))).hostname,
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}
@@ -160,9 +160,11 @@ router.get('/logout', function (req, res) {
 		if (error) {
 			logger.error("logout ERROR: " + error);
 		} else {
+            var domaintemp = decodeBase64(nconf.get('openam:fqdn'));
+            var n1 = domaintemp.indexOf(".");
 			res.cookie('iPlanetDirectoryPro', 'cookievalue', { 
 				maxAge: 0, 
-				domain: decodeBase64(nconf.get('openam:domain')), 
+				domain: domaintemp.substring(n1+1), 
 				path: "/", 
 				value: "" });
 			req.session.destroy(function (err) {
