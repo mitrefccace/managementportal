@@ -9,7 +9,7 @@ nconf.file({
 });
 
 var clearText = false;
-if (typeof (nconf.get('clearText')) !== "undefined") {
+if (typeof (nconf.get('common:cleartext')) !== "undefined") {
 	console.log('clearText field is in config.json. assuming file is in clear text');
 	clearText = true;
 }
