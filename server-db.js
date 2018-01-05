@@ -134,7 +134,7 @@ setInterval(function () {
 var mongodbUriEncoded = nconf.get('database_servers:mongodb:connection_uri');
 var db;
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
-	var mongodbUri = decodeBase64('database_servers:mongodb:connection_uri');
+	var mongodbUri = decodeBase64(nconf.get('database_servers:mongodb:connection_uri'));
 	// Initialize connection once
 	MongoClient.connect(mongodbUri, function(err, database) {
 		if(err) throw err;
