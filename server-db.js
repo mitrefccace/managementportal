@@ -1052,7 +1052,7 @@ app.use('/', require('./routes'));
  * @returns {undefined} Not used
  */
 function getUserInfo(username, callback) {
-	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + '/getagentrec/' + username;
+	var url = 'https://' + decodeBase64(nconf.get('agent_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + '/getagentrec/' + username;
 	request({
 		url: url,
 		json: true
