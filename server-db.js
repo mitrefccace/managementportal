@@ -590,7 +590,7 @@ function init_ami() {
 	if (ami === null) {
 		try {
 			ami = new AsteriskManager(parseInt(decodeBase64(nconf.get('asterisk:ami:port'))),
-				decodeBase64(nconf.get('asterisk:sip:public')),
+				decodeBase64(nconf.get('asterisk:sip:private_ip')),
 				decodeBase64(nconf.get('asterisk:ami:id')),
 				decodeBase64(nconf.get('asterisk:ami:passwd')), true);
 
