@@ -195,10 +195,11 @@ io.sockets.on('connection', function (socket) {
 		var confobj = {};
 		confobj.host = decodeBase64(nconf.get('asterisk:sip:private_ip'));
 		confobj.realm = decodeBase64(nconf.get('asterisk:sip:private_ip'));
-		confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
+		//confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
+		confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun')) + ":" + decodeBase64(nconf.get('asterisk:sip:stun_port'));
 		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:ws_port')));
 		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
-		confobj.websocket = decodeBase64(nconf.get('asterisk:sip:websocket'));
+		confobj.websocket = "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws";
 
 		socket.emit('sipconf', confobj);
 
@@ -512,7 +513,7 @@ setImmediate(initialize);
 function sendResourceStatus() {
 	var hostMap = new Map();
 	// list of resources to check for status
-	hostMap.set("Asterisk", decodeBase64(nconf.get('asterisk:sip:websocket')));
+	hostMap.set("Asterisk", "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws");
 	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
 	hostMap.set("ACR-CDR", 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port')));
 	hostMap.set("VRS Lookup", 'https://' + decodeBase64(nconf.get('user_service:ip')) + ':' + decodeBase64(nconf.get('user_service:port')) );
