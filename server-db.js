@@ -524,7 +524,7 @@ function sendResourceStatus() {
 	// hostMap.set("ACE Direct", decodeBase64(nconf.get('ace_direct:url')));
 	hostMap.set("ACE Direct", 'https://' + decodeBase64(nconf.get('common:fqdn')) + ':' + decodeBase64(nconf.get('ace_direct:https_listen_port')));
 
-	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:url')));
+	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:protocol')) + '://' + decodeBase64(nconf.get('zendesk:private_ip')) + ':' + decodeBase64(nconf.get('zendesk:port')) + '/api/v2' );
 	hostMap.set("Agent Provider", decodeBase64(nconf.get('agent_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))));
 
 	checkConnection(hostMap, function (data) {
