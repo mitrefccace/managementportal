@@ -27,7 +27,7 @@ var mysql = require('mysql');
 
 
 var port = null; // set the port
-var ami = null; // Asterisk AMI 
+var ami = null; // Asterisk AMI
 var Queues = []; // Associative array
 var Agents = []; // Associative array
 var AgentMap = new Map(); //associate extension to agent database record;
@@ -35,39 +35,39 @@ var Asterisk_queuenames = [];
 
 var app = express(); // create our app w/ express
 
-//Required for REST calls to self signed certificate servers 
+//Required for REST calls to self signed certificate servers
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-var cfile = 'config.json'; // Config file
+var cfile = '../dat/config.json'; // Config file
 nconf.argv().env();
 nconf.file({ file: cfile });
 console.log('Config file: ' + cfile);
 logger.info('Config file: ' + cfile);
 
 var credentials = {
-	key: fs.readFileSync(decodeBase64(nconf.get('https:private_key'))),
-	cert: fs.readFileSync(decodeBase64(nconf.get('https:certificate')))
+	key: fs.readFileSync(decodeBase64(nconf.get('common:https:private_key'))),
+	cert: fs.readFileSync(decodeBase64(nconf.get('common:https:certificate')))
 };
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : decodeBase64(nconf.get('openam:serverUrl')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
-	privateIP: decodeBase64(nconf.get('openam:privateIP')),
+	serverUrl : decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
+	privateIP: decodeBase64(nconf.get('openam:private_ip')),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
-  } 
+  }
 });
 var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
 
 app.use(cookieParser()); // must use cookieParser before expressSession
 app.use(session({
-	secret: decodeBase64(nconf.get('session:secretKey')),
-	resave: decodeBase64(nconf.get('session:resave')),
-	rolling: decodeBase64(nconf.get('session:rolling')),
-	saveUninitialized: decodeBase64(nconf.get('session:saveUninitialized')),
+	secret: decodeBase64(nconf.get('web_security:session:secret_key')),
+	resave: decodeBase64(nconf.get('web_security:session:resave')),
+	rolling: decodeBase64(nconf.get('web_security:session:rolling')),
+	saveUninitialized: decodeBase64(nconf.get('web_security:session:save_uninitialized')),
 	cookie: {
-		maxAge: parseFloat(decodeBase64(nconf.get('session:cookie:maxAge'))),
-		httpOnly: decodeBase64(nconf.get('session:cookie:httpOnly')),
-		secure: decodeBase64(nconf.get('session:cookie:secure'))
+		maxAge: parseFloat(decodeBase64(nconf.get('web_security:session:max_age'))),
+		httpOnly: decodeBase64(nconf.get('web_security:session:http_only')),
+		secure: decodeBase64(nconf.get('web_security:session:secure'))
 	}
 }));
 // set the view engine to ejs
@@ -88,8 +88,8 @@ nconf.defaults({// if the port is not defined in the cocnfig.json file, default 
 });
 
 var fqdn = '';
-if (nconf.get('nginx:fqdn')) {
-	fqdn = decodeBase64(nconf.get('nginx:fqdn'));
+if (nconf.get('common:fqdn')) {
+	fqdn = decodeBase64(nconf.get('common:fqdn'));
 } else {
 	fqdn = shell.exec('hostname -f', {
 		silent: true
@@ -98,19 +98,19 @@ if (nconf.get('nginx:fqdn')) {
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
-port = parseInt(decodeBase64(nconf.get('https:port-dashboard')));
+port = parseInt(decodeBase64(nconf.get('management_portal:https_listen_port')));
 
 var httpsServer = https.createServer(credentials, app);
 
 var io = require('socket.io')(httpsServer, { cookie: false });
 io.set('origins', fqdnUrl);
 
-var dbHost = decodeBase64(nconf.get('virtualagent:mysql:host'));
-var dbUser = decodeBase64(nconf.get('virtualagent:mysql:user'));
-var dbPassword = decodeBase64(nconf.get('virtualagent:mysql:password'));
-var dbName = decodeBase64(nconf.get('virtualagent:mysql:database'));
-var dbPort = parseInt(decodeBase64(nconf.get('virtualagent:mysql:port')));
-var vmTable = decodeBase64(nconf.get('virtualagent:mysql:table'));
+var dbHost = decodeBase64(nconf.get('database_servers:mysql:host'));
+var dbUser = decodeBase64(nconf.get('database_servers:mysql:user'));
+var dbPassword = decodeBase64(nconf.get('database_servers:mysql:password'));
+var dbName = decodeBase64(nconf.get('database_servers:mysql:videomail_database_name'));
+var dbPort = parseInt(decodeBase64(nconf.get('database_servers:mysql:port')));
+var vmTable = decodeBase64(nconf.get('database_servers:mysql:videomail_table_name'));
 
 // Create MySQL connection and connect to the database
 var dbConnection = mysql.createConnection({
@@ -129,7 +129,7 @@ setInterval(function () {
 }, 60000);
 
 // MongoDB Connection URI
-var mongodbUriEncoded = nconf.get('mongodb:connectionURI');
+var mongodbUriEncoded = nconf.get('database_servers:mongodb:connection_uri');
 var db;
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = decodeBase64(mongodbUriEncoded);
@@ -155,9 +155,9 @@ else {
 // Validates the token, if valid go to connection.
 // If token is not valid, no connection will be established.
 io.use(socketioJwt.authorize({
-	secret: new Buffer(decodeBase64(nconf.get('jsonwebtoken:secretkey')), decodeBase64(nconf.get('jsonwebtoken:encoding'))),
-	timeout: parseInt(decodeBase64(nconf.get('jsonwebtoken:timeout'))), // seconds to send the authentication message
-	handshake: decodeBase64(nconf.get('jsonwebtoken:handshake'))
+	secret: new Buffer(decodeBase64(nconf.get('web_security:json_web_token:secret_key')), decodeBase64(nconf.get('web_security:json_web_token:encoding'))),
+	timeout: parseInt(decodeBase64(nconf.get('web_security:json_web_token:timeout'))), // seconds to send the authentication message
+	handshake: decodeBase64(nconf.get('web_security:json_web_token:handshake'))
 }));
 
 //light status config requirement: copy dat/color_config.json to ~/dat if not already there
@@ -173,9 +173,10 @@ if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsS
 }
 
 logger.info('Listen on port: ' + port);
-var queuenames = decodeBase64(nconf.get('dashboard:queues'));
-var pollInterval = parseInt(decodeBase64(nconf.get('dashboard:pollInterval')));
-var adUrl = decodeBase64(nconf.get('acedirect:url'));
+var queuenames = decodeBase64(nconf.get('management_portal:queues'));
+var pollInterval = parseInt(decodeBase64(nconf.get('management_portal:poll_interval')));
+// var adUrl = decodeBase64(nconf.get('acedirect:url'));
+var adUrl = 'https://' + decodeBase64(nconf.get('common:private_ip'));
 console.log("port number: " + port + ", poll interval:" + pollInterval);
 
 Asterisk_queuenames = queuenames.split(",");
@@ -190,8 +191,8 @@ io.sockets.on('connection', function (socket) {
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
 		var confobj = {};
-		confobj.host = decodeBase64(nconf.get('asterisk:sip:host'));
-		confobj.realm = decodeBase64(nconf.get('asterisk:sip:realm'));
+		confobj.host = decodeBase64(nconf.get('asterisk:sip:private_ip'));
+		confobj.realm = decodeBase64(nconf.get('asterisk:sip:private_ip'));
 		confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
 		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:wsport')));
 		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
@@ -201,7 +202,7 @@ io.sockets.on('connection', function (socket) {
 
 		if (message === 'webuser') {
 			var qobj = {};
-			qobj.queues = decodeBase64(nconf.get('dashboard:queues'));
+			qobj.queues = decodeBase64(nconf.get('management_portal:queues'));
 			socket.emit('queueconf', qobj);
 			logger.debug('Message is webuser type');
 		}
@@ -281,7 +282,8 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
-		var url = decodeBase64(nconf.get('acr-cdr:url'));
+		//var url = decodeBase64(nconf.get('acr-cdr:url'));
+		var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
 		var format = data.format;
 		if (data.start && data.end) {
 			url += '?start=' + data.start + '&end=' + data.end;
@@ -337,7 +339,7 @@ io.sockets.on('connection', function (socket) {
 		}
 	}
 
-	//Retrieval of videomail records from the database	
+	//Retrieval of videomail records from the database
 	socket.on("get-videomail", function (data) {
 		logger.debug('entered get-videomail');
 		logger.debug('test');
@@ -429,7 +431,7 @@ io.sockets.on('connection', function (socket) {
 			}
 		});
 	});
-	
+
 	// Socket for Light Configuration
 	//read color_config.json file for light configuration
 	socket.on("get_color_config", function(){
@@ -438,10 +440,10 @@ io.sockets.on('connection', function (socket) {
 			var file_path = os.homedir() + '/dat/color_config.json';
 			var data = fs.readFileSync(file_path,'utf8');
 			socket.emit("html_setup", data);
-		} 
+		}
 		catch (ex) {
 			logger.error('Error: ' + ex);
-		} 
+		}
 	});
 
 	//on light color config submit update current color_config.json file
@@ -458,7 +460,7 @@ io.sockets.on('connection', function (socket) {
 				json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
 				json_data = set_rgb_values(json_data, status, color_and_action[0]);
 			}
-			fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8'); 
+			fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8');
 
 			//send to server
 			request({
@@ -468,10 +470,10 @@ io.sockets.on('connection', function (socket) {
 					logger.error('Error: ' + err);
 				}
 			});
-		} 
+		}
 		catch (ex) {
 			logger.error('Error: ' + ex);
-		} 
+		}
 	});
 
 	//sends the default_color_config.json data back to the management portal
@@ -480,11 +482,11 @@ io.sockets.on('connection', function (socket) {
 			var default_color_config = os.homedir() + '/dat/default_color_config.json';
 			var data = fs.readFileSync(default_color_config,'utf8');
 			socket.emit("update-colors",data);
-		} 
+		}
 		catch (ex) {
 			logger.error('Error: ' + ex);
 			console.log('Error: ' + ex);
-		} 
+		}
 	});
 });
 
@@ -498,13 +500,20 @@ setImmediate(initialize);
  */
 function sendResourceStatus() {
 	var hostMap = new Map();
-	// list of resources to check for status 
-	hostMap.set("Asterisk", decodeBase64(nconf.get('asterisk:sip:websocket')));	
-	hostMap.set("ACR-CDR", decodeBase64(nconf.get('acr-cdr:url')));
-	hostMap.set("VRS Lookup", decodeBase64(nconf.get('vrscheck:url')));
-	hostMap.set("ACE Direct", decodeBase64(nconf.get('acedirect:url')));
+	// list of resources to check for status
+	hostMap.set("Asterisk", decodeBase64(nconf.get('asterisk:sip:websocket')));
+	hostMap.set("ACR-CDR", decodeBase64(nconf.get('acr_cdr:url')));
+	// var url = 'https://' + decodeBase64(nconf.get('asterisk:sip:public')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
+	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
+
+	// hostMap.set("VRS Lookup", decodeBase64(nconf.get('vrs_check:url')));
+	hostMap.set("VRS Lookup", 'https://' + decodeBase64(nconf.get('user_service:ip')) + ':' + decodeBase64(nconf.get('user_service:port')) );
+
+	// hostMap.set("ACE Direct", decodeBase64(nconf.get('ace_direct:url')));
+	hostMap.set("ACE Direct", 'https://' + decodeBase64(nconf.get('common:fqdn')) + ':' + decodeBase64(nconf.get('ace_direct:https_listen_port')));
+
 	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:url')));
-	hostMap.set("Agent Provider", decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))));
+	hostMap.set("Agent Provider", decodeBase64(nconf.get('agent_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))));
 
 	checkConnection(hostMap, function (data) {
 		io.to('my room').emit('resource-status', data);
@@ -553,7 +562,7 @@ function checkConnection(hosts, callback) {
 						}
 						return 0;
 					});
-					// Callback with results of resource status probes  
+					// Callback with results of resource status probes
 					callback({ resources: results, timestamp: new Date().getTime() });
 				}
 			}
@@ -569,7 +578,7 @@ function init_ami() {
 	if (ami === null) {
 		try {
 			ami = new AsteriskManager(parseInt(decodeBase64(nconf.get('asterisk:ami:port'))),
-				decodeBase64(nconf.get('asterisk:sip:host')),
+				decodeBase64(nconf.get('asterisk:sip:public')),
 				decodeBase64(nconf.get('asterisk:ami:id')),
 				decodeBase64(nconf.get('asterisk:ami:passwd')), true);
 
@@ -589,7 +598,7 @@ init_ami();
 /**
  * Send message to the dashboard
  * @param {type} evt Asterisk Event type
- * @param {type} message Asterisk message 
+ * @param {type} message Asterisk message
  * @returns {undefined} Not used
  */
 function sendEmit(evt, message) {
@@ -601,8 +610,8 @@ function sendEmit(evt, message) {
 }
 
 /**
- * Find the agent information 
- * @param {type} agent 
+ * Find the agent information
+ * @param {type} agent
  * @returns {unresolved} Not used
  */
 function findAgent(agent) { // find agent by name e.g. JSSIP/30001
@@ -616,7 +625,7 @@ function findAgent(agent) { // find agent by name e.g. JSSIP/30001
 }
 
 /**
- * Set all agent status as Logoff. 
+ * Set all agent status as Logoff.
  * @returns {undefined} Not used
  */
 function setAgentsLogOff() {
@@ -854,7 +863,7 @@ function handle_manager_event(evt) {
 }
 
 /**
- * Server-db initialziation 
+ * Server-db initialziation
  * @returns {undefined} Not used
  */
 function initialize() {
@@ -911,7 +920,7 @@ function mapAgents() {
  * @returns {undefined} Not used
  */
 function getAgentsFromProvider(callback) {
-	var url = decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))) + "/getallagentrecs";
+	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + "/getallagentrecs";
 	request({
 		url: url,
 		json: true
@@ -945,7 +954,7 @@ app.use(function (err, req, res, next) {
 
 /**
  * Handles all GET request to server
- * determines if user can procede or   
+ * determines if user can procede or
  * before openam cookie shield is enforced
  */
 app.use(function (req, res, next) {
@@ -953,9 +962,9 @@ app.use(function (req, res, next) {
 		return next();
 	} else if (req.path === '/logout') {
 		return next();
-	} else if (req.session.data) {		
+	} else if (req.session.data) {
 	 	if (req.session.data.uid) {
-			 if (req.session.role) 
+			 if (req.session.role)
 				return next(); //user is logged in go to next()
 
 			var username = req.session.data.uid;
@@ -974,7 +983,7 @@ app.use(function (req, res, next) {
 	}
 });
 
-/**  
+/**
  * Get Call for Agent Assistance
  * @param {type} param1 Extension
  * @param {type} param2 Response
@@ -996,9 +1005,9 @@ app.use('/agentassist', function (req, res) {
 app.use('/', require('./routes'));
 
 /**
- * Calls the RESTful service running on the provider host to verify the agent 
- * username and password.  
- * 
+ * Calls the RESTful service running on the provider host to verify the agent
+ * username and password.
+ *
  * @param {type} username Agent username
  * @param {type} password Agent password
  * @param {type} callback Returns retrieved JSON
@@ -1022,16 +1031,16 @@ app.use('/', require('./routes'));
 // }
 
 /**
- * Calls the RESTful service running on the provider host to verify the agent 
- * username and password.  
- * 
+ * Calls the RESTful service running on the provider host to verify the agent
+ * username and password.
+ *
  * @param {type} username Agent username
  * @param {type} password Agent password
  * @param {type} callback Returns retrieved JSON
  * @returns {undefined} Not used
  */
 function getUserInfo(username, callback) {
-	var url = decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))) + '/getagentrec/' + username;
+	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + '/getagentrec/' + username;
 	request({
 		url: url,
 		json: true
@@ -1068,7 +1077,7 @@ app.get('/getVideomail', function (req, res) {
 	var videoId = req.query.id;
 	console.log("id: " + videoId);
 	//var agentExt = req.query.ext;
-	//Wrap in mysql query	
+	//Wrap in mysql query
 	dbConnection.query('SELECT video_filepath AS filepath, video_filename AS filename FROM videomail WHERE id = ?', videoId, function (err, result) {
 		if (err) {
 			console.log('GET VIDEOMAIL ERROR: ', err.code);
@@ -1088,4 +1097,4 @@ app.get('/getVideomail', function (req, res) {
 			}
 		}
 	});
-});   
+});
