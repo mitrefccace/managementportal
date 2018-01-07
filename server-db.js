@@ -90,8 +90,8 @@ nconf.defaults({// if the port is not defined in the cocnfig.json file, default 
 });
 
 var fqdn = '';
-if (nconf.get('common:fqdn')) {
-	fqdn = decodeBase64(nconf.get('common:fqdn'));
+if (nconf.get('nginx:fqdn')) {
+	fqdn = decodeBase64(nconf.get('nginx:fqdn'));
 } else {
 	fqdn = shell.exec('hostname -f', {
 		silent: true
