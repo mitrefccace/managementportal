@@ -1,3 +1,5 @@
+'use strict';
+
 //var socket = io.connect();
 var dbController = angular.module('dashboardModule', ['csrService', 'angularDurationFormat'])
 		.controller('dashboardController', function($scope, $http, $window, socket) {

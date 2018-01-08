@@ -373,7 +373,7 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
-				logger.debug(result);
+				//logger.debug(result);
 				io.to('my room').emit('got-videomail-recs', result);
 			}
 		});
@@ -385,7 +385,7 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
-				logger.debug('Videomail Status Summary ' + JSON.stringify(result));
+				//logger.debug('Videomail Status Summary ' + JSON.stringify(result));
 				io.to('my room').emit('videomail-status', result);
 			}
 		});
@@ -395,7 +395,7 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error('DELETE-OLD-VIDEOMAIL ERROR: ', err.code);
 			} else {
-				logger.debug('Deleted old videomail');
+				//logger.debug('Deleted old videomail');
 			}
 		});
 	});

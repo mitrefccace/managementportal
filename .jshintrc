@@ -2,5 +2,12 @@
     "node": true,
     "nonstandard": true,
     "esversion": 6,
-    "unused":true
+    "unused": true,
+    "browser" : true,
+    "globals": {
+        "$": false,
+        "jQuery": false,
+        "angular": false,
+        "moment": false
+    }
 }

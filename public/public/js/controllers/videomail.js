@@ -1,3 +1,5 @@
+'use strict';
+
 var socket;
 var sortFlag = "id desc";
 var filter = "ALL";
@@ -246,9 +248,9 @@ function updateVideomailTable(data){
 		receivedCell = row.insertCell(1);
 		durationCell = row.insertCell(2);
 		statusCell = row.insertCell(3);
-		filepathCell = row.insertCell(4);
+		var filepathCell = row.insertCell(4);
 		filepathCell.setAttribute('hidden', true);
-		idCell = row.insertCell(5);
+		var idCell = row.insertCell(5);
 		idCell.setAttribute('hidden',true);
 		filepathCell.innerHTML = vidFilepath + vidFilename;
 		idCell.innerHTML = vidId;
@@ -396,7 +398,6 @@ seekBar.addEventListener("change", function() {
 });
 
 // Update the seek bar as the video plays
-
 remoteView.addEventListener("timeupdate", function() {
   // Calculate the slider value
   var value = (100 / remoteView.duration) * remoteView.currentTime;
