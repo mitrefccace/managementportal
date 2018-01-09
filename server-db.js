@@ -25,9 +25,6 @@ var tcpp = require('tcp-ping');
 var url = require('url');
 var mysql = require('mysql');
 
-var sortStr = '';
-var queryStr = '';
-
 var port = null; // set the port
 var ami = null; // Asterisk AMI
 var Queues = []; // Associative array
@@ -374,7 +371,7 @@ io.sockets.on('connection', function (socket) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
 				//logger.debug(result);
-				io.to('my room').emit('got-videomail-recs', result);
+				io.to(socket.id).emit('got-videomail-recs', result);
 			}
 		});
 
@@ -386,7 +383,7 @@ io.sockets.on('connection', function (socket) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
 				//logger.debug('Videomail Status Summary ' + JSON.stringify(result));
-				io.to('my room').emit('videomail-status', result);
+				io.to(socket.id).emit('videomail-status', result);
 			}
 		});
 
@@ -410,7 +407,7 @@ io.sockets.on('connection', function (socket) {
 				logger.error('VIDEOMAIL-STATUS-CHANGE ERROR: ', err.code);
 			} else {
 				logger.debug(result);
-				io.to('my room').emit('changed-status', result);
+				io.to(socket.id).emit('changed-status', result);
 			}
 		});
 	});
@@ -1082,6 +1079,7 @@ app.get('/resetAllCounters', agent.shield(cookieShield), function () {
 app.get('/getVideomail', function (req, res) {
 	console.log("/getVideomail");
 	var videoId = req.query.id;
+	var agent = req.query.agent;						 
 	console.log("id: " + videoId);
 	//var agentExt = req.query.ext;
 	//Wrap in mysql query
@@ -1089,8 +1087,8 @@ app.get('/getVideomail', function (req, res) {
 		if (err) {
 			console.log('GET VIDEOMAIL ERROR: ', err.code);
 		} else {
-			var videoFile = result[0].filepath + result[0].filename;
 			try {
+				var videoFile = result[0].filepath + result[0].filename;		
 				var stat = fs.statSync(videoFile);
 				res.writeHead(200, {
 					'Content-Type': 'video/webm',
@@ -1100,7 +1098,7 @@ app.get('/getVideomail', function (req, res) {
 				readStream.pipe(res);
 			} catch (err) {
 				console.log(err);
-				io.to('my room').emit('videomail-retrieval-error', videoId);
+				io.to(agent).emit('videomail-retrieval-error', videoId);
 			}
 		}
 	});

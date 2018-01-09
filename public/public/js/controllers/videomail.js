@@ -147,10 +147,10 @@ $('#Videomail_Table tbody').on('click', 'tr', function () {
     }).get();
 
     console.log('Click event for playing video');
-    console.log('vidId: ' + tableData[5] );
-    $("#videomailId").attr("name",tableData[5]);
+    console.log('vidId: ' + tableData[6] );
+    $("#videomailId").attr("name",tableData[6]);
 	$("#callbacknum").attr("name",tableData[0]);
-    playVideomail(tableData[5], tableData[2], tableData[3]);//vidId, vidDuration vidStatus);
+    playVideomail(tableData[6], tableData[2], tableData[3]);//vidId, vidDuration vidStatus);
 });
 
 //Sorting the videomail table
@@ -206,6 +206,19 @@ $('#vmail-status').on('click',function(){
 	});
 });
 
+$('#vmail-agent').on('click', function(){
+	var sort = sortButtonToggle($(this).children("i"));
+	if (sort == "asc") {
+		sortFlag = "processing_agent asc";
+	} else if (sort == "desc") {
+		sortFlag = "processing_agent desc";
+	}
+	socket.emit('get-videomail',{
+		"sortBy": sortFlag,
+		"filter": filter
+	});
+});
+
 function sortButtonToggle(buttonid){
 	if ($(buttonid).attr("class")=='fa fa-sort'){
 		$(buttonid).addClass('fa-sort-asc').removeClass('fa-sort');
@@ -229,6 +242,7 @@ function updateVideomailTable(data){
 	var receivedCell;
 	var durationCell;
 	var statusCell;
+	var agentCell;
 	for(var i=0; i<data.length; i++){
 		var vidId = data[i].id;
 		var vidNumber = data[i].callbacknumber;
@@ -239,6 +253,7 @@ function updateVideomailTable(data){
 		}
 		var vidReceived = data[i].received;
 		var vidDuration = data[i].video_duration;
+		var vidAgent = data[i].processing_agent;								  
 		var vidStatus = data[i].status;
 		var vidFilepath = data[i].video_filepath;
 		var vidFilename = data[i].video_filename;
@@ -247,16 +262,18 @@ function updateVideomailTable(data){
 		numberCell = row.insertCell(0);
 		receivedCell = row.insertCell(1);
 		durationCell = row.insertCell(2);
-		statusCell = row.insertCell(3);
-		var filepathCell = row.insertCell(4);
+		agentCell = row.insertCell(3);
+		statusCell = row.insertCell(4);
+		var filepathCell = row.insertCell(5);
 		filepathCell.setAttribute('hidden', true);
-		var idCell = row.insertCell(5);
+		var idCell = row.insertCell(6);
 		idCell.setAttribute('hidden',true);
 		filepathCell.innerHTML = vidFilepath + vidFilename;
 		idCell.innerHTML = vidId;
 		numberCell.innerHTML = vidNumber;
 		receivedCell.innerHTML = vidReceived;
 		durationCell.innerHTML = vidDuration;
+		agentCell.innerHTML = vidAgent;						 
 
     if (vidStatus === 'UNREAD')
       statusCell.innerHTML = '<span style="font-weight:bold">' + vidStatus+ '</span>';
@@ -280,7 +297,7 @@ function playVideomail(id, duration, vidStatus){
 	$('#videoBox').removeAttr('hidden');
 	//remoteView.removeAttribute("autoplay");
 	remoteView.removeAttribute("poster");
-	remoteView.setAttribute("src",'./getVideomail?id='+id);
+	remoteView.setAttribute("src",'./getVideomail?id='+id+'&agent='+socket.id);
 	remoteView.setAttribute("onended", "change_play_button()");
 	toggle_videomail_buttons(true);
 	updateVideoTime(duration,"vmail-total-time");
