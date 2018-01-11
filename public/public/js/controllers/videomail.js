@@ -3,7 +3,6 @@
 var socket;
 var sortFlag = "id desc";
 var filter = "ALL";
-var telNumber;
 var remoteView = document.getElementById("remoteView");
 
 var videomail_status_buttons = document.getElementById("videomail-status-buttons");
@@ -11,34 +10,6 @@ var extensionMe;
 
 $(document).ready(function () {
 	connect_socket();
-	//$("[data-mask]").inputmask();
-	//make boxes draggable
-	//$('.box').draggable({
-	//	cursor: "crosshair"
-	//});
-
-	//clearScreen();
-
-	// $.getJSON("./resources/licenses.json", function (data) {
-	// 	$.each(data.license, function (i) {
-	// 		$("#licModalBody").append("<h3>" + data.license[i].name + "<h3><pre>" + data.license[i].pre + "</pre>");
-	// 	});
-	// });
-
-	/*if (window.addEventListener) {
-		var state = 0,
-			theCode = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
-		window.addEventListener("keydown", function (e) {
-			if (e.keyCode === theCode[state]) {
-				state++;
-			} else {
-				state = 0;
-			}
-			if (state === 10) {
-				$("#debugtab").show();
-			}
-		}, true);
-	}*/
 });
 
 function connect_socket() {
@@ -64,8 +35,6 @@ function connect_socket() {
 						"no": "data"
 					});
 					console.log('authenticated');
-
-					//socket.emit("get_color_config");
 
 					//get the payload form the token
 					var payload = jwt_decode(data.token);
@@ -243,6 +212,7 @@ function updateVideomailTable(data){
 	var durationCell;
 	var statusCell;
 	var agentCell;
+
 	for(var i=0; i<data.length; i++){
 		var vidId = data[i].id;
 		var vidNumber = data[i].callbacknumber;
@@ -258,6 +228,7 @@ function updateVideomailTable(data){
 		var vidFilepath = data[i].video_filepath;
 		var vidFilename = data[i].video_filename;
 		table = document.getElementById("videomailTbody");
+
 		row = table.insertRow(table.length);
 		numberCell = row.insertCell(0);
 		receivedCell = row.insertCell(1);
@@ -268,6 +239,7 @@ function updateVideomailTable(data){
 		filepathCell.setAttribute('hidden', true);
 		var idCell = row.insertCell(6);
 		idCell.setAttribute('hidden',true);
+		
 		filepathCell.innerHTML = vidFilepath + vidFilename;
 		idCell.innerHTML = vidId;
 		numberCell.innerHTML = vidNumber;
@@ -438,8 +410,5 @@ function enterFullscreen() {
 }
 
 function debugtxt(title, data) {
-	// var dt = new Date();
-	// var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
-	// $('#dbgtxt').html('<span style="color:green">' + time + ": " + title + '</span><br>' + JSON.stringify(data) + '<br>----------------<br>' + $('#dbgtxt').html());
 	console.log(title + ' ' + JSON.stringify(data));
 }

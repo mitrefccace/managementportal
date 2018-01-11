@@ -375,7 +375,7 @@ io.sockets.on('connection', function (socket) {
 			}
 		});
 
-		// Get videomail status summary
+		// Get videomail status summary for pie chart
 		queryStr = "SELECT status AS 'label', COUNT(*) AS 'data' FROM " + vmTable + " GROUP BY status;";
 		logger.debug(queryStr);
 		dbConnection.query(queryStr, function (err, result) {
@@ -386,6 +386,8 @@ io.sockets.on('connection', function (socket) {
 				io.to(socket.id).emit('videomail-status', result);
 			}
 		});
+		// Additional status chart idea. Bar chart x-axis hour of day 0-23, y-axis number of videomails in each hour
+		// select extract(hour from received) as theHour, count(*) as numberOfItems from videomail group by extract(hour from received);
 
 		queryStr = "DELETE FROM " + vmTable + " WHERE TIMESTAMPDIFF(DAY, deleted_time, CURRENT_TIMESTAMP) >= 14;";
 		dbConnection.query(queryStr, function(err, result) {
@@ -1081,7 +1083,7 @@ app.get('/getVideomail', function (req, res) {
 	var videoId = req.query.id;
 	var agent = req.query.agent;						 
 	console.log("id: " + videoId);
-	//var agentExt = req.query.ext;
+
 	//Wrap in mysql query
 	dbConnection.query('SELECT video_filepath AS filepath, video_filename AS filename FROM videomail WHERE id = ?', videoId, function (err, result) {
 		if (err) {
