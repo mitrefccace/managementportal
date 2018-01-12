@@ -84,7 +84,7 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 			}
 		});
 		
-		calculateSummary = function () {
+		var calculateSummary = function () {
 			$scope.summary.calls = 0;
 			$scope.summary.completed = 0;
 			$scope.summary.holdtime = 0;
