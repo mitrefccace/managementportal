@@ -283,7 +283,7 @@ io.sockets.on('connection', function (socket) {
 	// Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
 		//var url = decodeBase64(nconf.get('acr-cdr:url'));
-		var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
+		var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port')) + "/getallcdrrecs";
 		var format = data.format;
 		if (data.start && data.end) {
 			url += '?start=' + data.start + '&end=' + data.end;
