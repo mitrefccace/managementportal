@@ -1,271 +1,340 @@
 <!DOCTYPE html>
 
 <html>
-	<head>
-		<% include ../partials/head %>
-	</head>
-    <body class="hold-transition skin-purple sidebar-mini">
-        <div class="wrapper">         
-			<!-- Main Header -->
-			<% include ../partials/header %>
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body class="hold-transition skin-purple sidebar-mini">
+	<div class="wrapper">
+		<!-- Main Header -->
+		<% include ../partials/header %>
 			<% include ../partials/sidebar %>
-            <!-- Content Wrapper. Contains page content -->
-            <div class="content-wrapper">
-                <!-- Content Header (Page header) -->
-                <section class="content-header">
-                    <h1>CDR Dashboard</h1>       
+				<!-- Content Wrapper. Contains page content -->
+				<div class="content-wrapper">
+					<!-- Content Header (Page header) -->
+					<section class="content-header">
+						<h1>CDR Dashboard</h1>
 
-                    <div id="reportrange" class="dropdown-menu-left">
-						<div data-toggle="tooltip" data-placement="left" title="Select Date Range – The user can select a date range for the report. Predefined values are Today, Yesterday, Last 7 days, Last 30 days, This Month, Last Month, All Time (January 1st 2016 to Today), and Custom Range. Default selection is 'Last 7 days'">
-                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-                        <span></span> <b class="caret"></b>
+						<div id="reportrange" class="dropdown-menu-left">
+							<div data-toggle="tooltip" data-placement="left" title="Select Date Range – The user can select a date range for the report. Predefined values are Today, Yesterday, Last 7 days, Last 30 days, This Month, Last Month, All Time (January 1st 2016 to Today), and Custom Range. Default selection is 'Last 7 days'">
+								<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+								<span></span>
+								<b class="caret"></b>
+							</div>
 						</div>
-                    </div>
 
-                    <ol class="breadcrumb">
-                        <li><a href="./dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
-                        <li class="active">CDR Dashboard</li>
-                    </ol>
-                </section>
+						<ol class="breadcrumb">
+							<li>
+								<a href="./dashboard">
+									<i class="fa fa-dashboard"></i> Home</a>
+							</li>
+							<li class="active">CDR Dashboard</li>
+						</ol>
+					</section>
 
-                <!-- Main content -->
-                <section class="content">
-                    <!-- CDR Table -->
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="box">
-                                <div class="box-header with-border">
-                                    <h3 class="box-title">Call Detail Records</h3>
+					<!-- Main content -->
+					<section class="content">
+						<!-- CDR Table -->
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="box">
+									<div class="box-header with-border">
+										<h3 class="box-title">Call Detail Records</h3>
 
-                                    <div class="box-tools pull-right">
-                                        <button class="btn btn-box-tool" id="toggle" data-toggle="tooltip" data-placement="left" title="Show/Hide Columns – This action expands the table to include the following columns: Caller ID Text, Destination Channel, Disposition, AMA Flags, Account Code, User Field, Unique ID, Linked ID, Sequence, and Peer Account."><i class="fa fa-toggle-off"></i></button>     
-                                        <button class="btn btn-box-tool" id="cdrdownloadbtn" data-toggle="tooltip" data-placement="left" title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range."><i class="fa fa-download"></i></button>
-                                    </div>
-                                </div><!-- /.box-header -->
-                                <div id="cdrtablediv" class="box-body table-responsive" style="overflow-x: scroll" >
-                                    <table id="cdrtable" class="table table-bordered table-hover" cellspacing="0" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-center" data-toggle="tooltip" title="The start datetime of the call. Default format: 2016-09-07T09:35:41Z dashboard formats the date to 2016/09/07 09:35:41 pm (adjusted for timezone).">Call Date</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The full caller ID, including the name, of the calling party. This field is set automatically and is read-only.">Caller ID Text</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The calling party’s caller ID number. It is set automatically and is read-only.">Source</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The destination extension for the call. This field is set automatically and is read-only.">Destination</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The destination context for the call. This field is set automatically and is read-only.">Destination Context</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The calling party’s channel. This field is set automatically and is read-only.">Channel</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The called party’s channel. This field is set automatically and is read-only.">Destination Channel</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The last dialplan application that was executed. This field is set automatically and is read-only.">Last Application</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The arguments passed to the lastapp. This field is set automatically and is read-only.">Last Data</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The number of seconds between the start and end times for the call. This field is set automatically and is read-only.">Duration Seconds</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The number of seconds between the answer and end times for the call. This field is set automatically and is read-only.">Billable Seconds</th>
-                                                <th class="text-center" data-toggle="tooltip" title="An indication of what happened to the call. This may be NO ANSWER, FAILED, BUSY, ANSWERED, or UNKNOWN.">Disposition</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The Automatic Message Accounting (AMA) flag associated with this call. This may be one of the following: OMIT, BILLING, DOCUMENTATION, or Unknown.">AMA Flags</th>
-                                                <th class="text-center" data-toggle="tooltip" title="An account ID. This field is user defined and is empty by default.">Account Code</th>
-                                                <th class="text-center" data-toggle="tooltip" title="A general-purpose user field. This field is empty by default and can be set to a user-defined string.">User Field</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The unique ID for the src channel. This field is set automatically and is read-only.">Unique ID</th>
-                                                <th class="text-center" data-toggle="tooltip" title="A unique identifier that unites multiple CDR records.">Linked ID</th>
-                                                <th class="text-center" data-toggle="tooltip" title="A numeric value that, combined with uniqueid and linkedid, can be used to uniquely identify a single CDR record.">Sequence</th>
-                                                <th class="text-center" data-toggle="tooltip" title="The account code of the called party’s channel.">Peer Account</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div><!-- /.box-body -->
-                            </div><!-- /.box -->
-                        </div>
-                    </div><!-- ./CDR Table -->
-                    <div id="csv"></div>
-                </section><!-- /.content -->
-            </div><!-- /.content - wrapper -->
-			<% include ../partials/footer %>
-        </div><!-- ./wrapper -->
+										<div class="box-tools pull-right">
+											<button class="btn btn-box-tool" id="toggle" data-toggle="tooltip" data-placement="left" title="Show/Hide Columns – This action expands the table to include the following columns: Caller ID Text, Destination Channel, Disposition, AMA Flags, Account Code, User Field, Unique ID, Linked ID, Sequence, and Peer Account.">
+												<i class="fa fa-toggle-off"></i>
+											</button>
+											<button class="btn btn-box-tool" id="cdrdownloadbtn" data-toggle="tooltip" data-placement="left" title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range.">
+												<i class="fa fa-download"></i>
+											</button>
+										</div>
+									</div>
+									<!-- /.box-header -->
+									<div id="cdrtablediv" class="box-body table-responsive" style="overflow-x: scroll">
+										<table id="cdrtable" class="table table-bordered table-hover" cellspacing="0" width="100%">
+											<thead>
+												<tr>
+													<th class="text-center" data-toggle="tooltip" title="The start datetime of the call. Default format: 2016-09-07T09:35:41Z dashboard formats the date to 2016/09/07 09:35:41 pm (adjusted for timezone).">Call Date</th>
+													<th class="text-center" data-toggle="tooltip" title="The full caller ID, including the name, of the calling party. This field is set automatically and is read-only.">Caller ID Text</th>
+													<th class="text-center" data-toggle="tooltip" title="The calling party’s caller ID number. It is set automatically and is read-only.">Source</th>
+													<th class="text-center" data-toggle="tooltip" title="The destination extension for the call. This field is set automatically and is read-only.">Destination</th>
+													<th class="text-center" data-toggle="tooltip" title="The destination context for the call. This field is set automatically and is read-only.">Destination Context</th>
+													<th class="text-center" data-toggle="tooltip" title="The calling party’s channel. This field is set automatically and is read-only.">Channel</th>
+													<th class="text-center" data-toggle="tooltip" title="The called party’s channel. This field is set automatically and is read-only.">Destination Channel</th>
+													<th class="text-center" data-toggle="tooltip" title="The last dialplan application that was executed. This field is set automatically and is read-only.">Last Application</th>
+													<th class="text-center" data-toggle="tooltip" title="The arguments passed to the lastapp. This field is set automatically and is read-only.">Last Data</th>
+													<th class="text-center" data-toggle="tooltip" title="The number of seconds between the start and end times for the call. This field is set automatically and is read-only.">Duration Seconds</th>
+													<th class="text-center" data-toggle="tooltip" title="The number of seconds between the answer and end times for the call. This field is set automatically and is read-only.">Billable Seconds</th>
+													<th class="text-center" data-toggle="tooltip" title="An indication of what happened to the call. This may be NO ANSWER, FAILED, BUSY, ANSWERED, or UNKNOWN.">Disposition</th>
+													<th class="text-center" data-toggle="tooltip" title="The Automatic Message Accounting (AMA) flag associated with this call. This may be one of the following: OMIT, BILLING, DOCUMENTATION, or Unknown.">AMA Flags</th>
+													<th class="text-center" data-toggle="tooltip" title="An account ID. This field is user defined and is empty by default.">Account Code</th>
+													<th class="text-center" data-toggle="tooltip" title="A general-purpose user field. This field is empty by default and can be set to a user-defined string.">User Field</th>
+													<th class="text-center" data-toggle="tooltip" title="The unique ID for the src channel. This field is set automatically and is read-only.">Unique ID</th>
+													<th class="text-center" data-toggle="tooltip" title="A unique identifier that unites multiple CDR records.">Linked ID</th>
+													<th class="text-center" data-toggle="tooltip" title="A numeric value that, combined with uniqueid and linkedid, can be used to uniquely identify a single CDR record.">Sequence</th>
+													<th class="text-center" data-toggle="tooltip" title="The account code of the called party’s channel.">Peer Account</th>
+												</tr>
+											</thead>
+										</table>
+									</div>
+									<!-- /.box-body -->
+								</div>
+								<!-- /.box -->
+							</div>
+						</div>
+						<!-- ./CDR Table -->
+						<div id="csv"></div>
+					</section>
+					<!-- /.content -->
+				</div>
+				<!-- /.content - wrapper -->
+				<% include ../partials/footer %>
+	</div>
+	<!-- ./wrapper -->
 
-		<!-- REQUIRED JS SCRIPTS -->
-		<!-- DataTables 1.10.12 -->
-		<script type="text/javascript" src="./bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-		<!-- Datatables-Bootstrap3 - ->
+	<!-- REQUIRED JS SCRIPTS -->
+	<!-- DataTables 1.10.12 -->
+	<script type="text/javascript" src="./bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+	<!-- Datatables-Bootstrap3 - ->
         <script type="text/javascript" src="./bower_components/datatables-bootstrap3/BS3/assets/js/datatables.js"></script>
 		<!-- DateRangePicker -->
-        <script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>  
+	<script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 
-		<script type="text/javascript">
-			var socket;// = io.connect('http://' + window.location.host); // opens socket.io connection	
-			var toggle = true; // toggle boolean for CDR table
+	<script type="text/javascript">
+		var socket; // = io.connect('http://' + window.location.host); // opens socket.io connection	
+		var toggle = true; // toggle boolean for CDR table
 
-			// sets the Date Range picker start and end date
-			var start = moment().subtract(6, 'days');
-			var end = moment(); //today
-			
-			$.ajax({
-				url: './token',
-				type: 'GET',
-				dataType: 'json',
-				success: function (data) {
-					//alert(JSON.stringify(data));
-					if (data.message === "success") {
-						socket = io.connect('https://' + window.location.host, {
-							path: '/ManagementPortal/socket.io',
-							query: 'token=' + data.token,
-							forceNew: true
+		// sets the Date Range picker start and end date
+		var start = moment().subtract(6, 'days');
+		var end = moment(); //today
+
+		$.ajax({
+			url: './token',
+			type: 'GET',
+			dataType: 'json',
+			success: function (data) {
+				//alert(JSON.stringify(data));
+				if (data.message === "success") {
+					socket = io.connect('https://' + window.location.host, {
+						path: '/ManagementPortal/socket.io',
+						query: 'token=' + data.token,
+						forceNew: true
+					});
+
+					socket.on('connect', function () {
+						// Emit for CDR Data set to be called on page ready.
+						socket.emit('cdrtable-get-data', {
+							"format": "json",
+							"start": start,
+							"end": end
 						});
+					});
 
-						socket.on('connect', function () {
-							// Emit for CDR Data set to be called on page ready.
-							socket.emit('cdrtable-get-data', {"format": "json", "start": start, "end": end});
-						});
+					// Receives the CDR Table data.
+					socket.on('cdrtable-data', function (data) {
+						if (data.message === "Success") {
+							$('#cdrtable').dataTable().fnClearTable();
+							$('#cdrtable').dataTable().fnAddData(data.data);
+							$('#cdrtable').resize();
+						} else {
+							$(".dataTables_empty").html("CDR's do not exist.");
+						}
+					});
 
-						// Receives the CDR Table data.
-						socket.on('cdrtable-data', function (data) {
-							if (data.message === "Success") {
-								$('#cdrtable').dataTable().fnClearTable();
-								$('#cdrtable').dataTable().fnAddData(data.data);
-								$('#cdrtable').resize();
-							} else {
-								$(".dataTables_empty").html("CDR's do not exist.");
-							}
-						});
+					// Receives the CDR data in CSV format
+					socket.on('cdrtable-csv', function (data) {
+						downloadFile(data, 'cdr_info.csv');
+					});
 
-						// Receives the CDR data in CSV format
-						socket.on('cdrtable-csv', function (data) {	
-							downloadFile(data, 'cdr_info.csv');
-						});
+					// Handles Error conditions from CDR REST calls.
+					socket.on('cdrtable-error', function (data) {
+						$(".dataTables_empty").css("color", "red").html(data.message);
+					});
 
-						// Handles Error conditions from CDR REST calls.
-						socket.on('cdrtable-error', function (data) {
-							$(".dataTables_empty").css("color", "red").html(data.message);
-						});
+				} else {
+					$('#message').text(data.message);
+				}
+			},
+			error: function (xhr, status, error) {
+				console.log('Error');
+				$('#message').text('An Error Occured.');
+			}
+		});
 
-					} else {
-						$('#message').text(data.message);
+		function downloadFile(data, fileName) {
+			var csvData = data;
+			var blob = new Blob([csvData], {
+				type: "application/csv;charset=utf-8;"
+			});
+
+			if (window.navigator.msSaveBlob) {
+				// FOR IE BROWSER
+				navigator.msSaveBlob(blob, fileName);
+			} else {
+				// FOR OTHER BROWSERS
+				var link = document.createElement("a");
+				var csvUrl = URL.createObjectURL(blob);
+				link.href = csvUrl;
+				link.style = "visibility:hidden";
+				link.download = fileName;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			}
+		}
+
+		// initialize the datatable
+		var datatable = $('#cdrtable').DataTable({
+			"columns": [{
+					"data": "calldate",
+					"render": function (value) {
+						return moment(value).local().format('YYYY/MM/DD hh:mm:ss a');
 					}
 				},
-				error: function (xhr, status, error) {
-					console.log('Error');
-					$('#message').text('An Error Occured.');
+				{
+					"data": "clid"
+				},
+				{
+					"data": "src"
+				},
+				{
+					"data": "dst"
+				},
+				{
+					"data": "dcontext"
+				},
+				{
+					"data": "channel"
+				},
+				{
+					"data": "dstchannel"
+				},
+				{
+					"data": "lastapp"
+				},
+				{
+					"data": "lastdata"
+				},
+				{
+					"data": "duration"
+				},
+				{
+					"data": "billsec"
+				},
+				{
+					"data": "disposition"
+				},
+				{
+					"data": "amaflags"
+				},
+				{
+					"data": "accountcode"
+				},
+				{
+					"data": "userfield"
+				},
+				{
+					"data": "uniqueid"
+				},
+				{
+					"data": "linkedid"
+				},
+				{
+					"data": "sequence"
+				},
+				{
+					"data": "peeraccount"
 				}
+			],
+			"order": [
+				[0, "desc"]
+			]
+		});
+
+		//Toggles the table to display or hide extra columns
+		function toggleTable() {
+			toggle = !toggle;
+			if (toggle) {
+				$('#toggle').html('<i class="fa fa-toggle-on"></i>');
+			} else {
+				$('#toggle').html('<i class="fa fa-toggle-off"></i>');
+			}
+			datatable.column(1).visible(toggle);
+			datatable.column(6).visible(toggle);
+			datatable.column(11).visible(toggle);
+			datatable.column(12).visible(toggle);
+			datatable.column(13).visible(toggle);
+			datatable.column(14).visible(toggle);
+			datatable.column(15).visible(toggle);
+			datatable.column(16).visible(toggle);
+			datatable.column(17).visible(toggle);
+			datatable.column(18).visible(toggle);
+		}
+
+		function DateRangePickerSetup() {
+			// Call back funtion for setting report range <div> value
+			function cb(start, end) {
+				$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+			}
+
+			// controls for the date range picker
+			$('#reportrange').daterangepicker({
+				startDate: start,
+				endDate: end,
+				ranges: {
+					'Today': [moment(), moment()],
+					'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+					'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+					'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+					'This Month': [moment().startOf('month'), moment().endOf('month')],
+					'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+					'All Time': [moment("2016-01-01"), end]
+				}
+			}, cb);
+
+			// sets initial value for report range <div>
+			cb(start, end);
+
+			// Click event for new date range selected
+			$('#reportrange').on('apply.daterangepicker', function (evt, picker) {
+				var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
+				var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+				socket.emit('cdrtable-get-data', {
+					"format": "json",
+					"start": startdate,
+					"end": enddate
+				});
+			});
+		}
+
+		$(document).ready(function () {
+			$("#sidebarcdr").addClass("active");
+			toggleTable(); // hide extra columns on initial load
+
+			//click event for the toggle button on the CDR table
+			$('#toggle').on('click', function (e) {
+				e.preventDefault();
+				toggleTable();
 			});
 
-			function downloadFile(data, fileName) {
-				var csvData = data;
-				var blob = new Blob([ csvData ], {
-					type : "application/csv;charset=utf-8;"
+			//click event for downloading CSV file
+			$('#cdrdownloadbtn').click(function () {
+				var picker = $('#reportrange').data('daterangepicker');
+				var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
+				var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+				socket.emit('cdrtable-get-data', {
+					"format": "csv",
+					"start": startdate,
+					"end": enddate
 				});
-
-				if (window.navigator.msSaveBlob) {
-					// FOR IE BROWSER
-					navigator.msSaveBlob(blob, fileName);
-				} else {
-					// FOR OTHER BROWSERS
-					var link = document.createElement("a");
-					var csvUrl = URL.createObjectURL(blob);
-					link.href = csvUrl;
-					link.style = "visibility:hidden";
-					link.download = fileName;
-					document.body.appendChild(link);
-					link.click();
-					document.body.removeChild(link);
-				}
-			}
-
-			// initialize the datatable
-			var datatable = $('#cdrtable').DataTable({
-				"columns": [
-					{"data": "calldate",
-						"render": function (value) {
-							return moment(value).local().format('YYYY/MM/DD hh:mm:ss a');
-						}
-					},
-					{"data": "clid"},
-					{"data": "src"},
-					{"data": "dst"},
-					{"data": "dcontext"},
-					{"data": "channel"},
-					{"data": "dstchannel"},
-					{"data": "lastapp"},
-					{"data": "lastdata"},
-					{"data": "duration"},
-					{"data": "billsec"},
-					{"data": "disposition"},
-					{"data": "amaflags"},
-					{"data": "accountcode"},
-					{"data": "userfield"},
-					{"data": "uniqueid"},
-					{"data": "linkedid"},
-					{"data": "sequence"},
-					{"data": "peeraccount"}
-				]
 			});
 
-			//Toggles the table to display or hide extra columns
-			function toggleTable() {
-				toggle = !toggle;
-				if (toggle) {
-					$('#toggle').html('<i class="fa fa-toggle-on"></i>');
-				} else {
-					$('#toggle').html('<i class="fa fa-toggle-off"></i>');
-				}
-				datatable.column(1).visible(toggle);
-				datatable.column(6).visible(toggle);
-				datatable.column(11).visible(toggle);
-				datatable.column(12).visible(toggle);
-				datatable.column(13).visible(toggle);
-				datatable.column(14).visible(toggle);
-				datatable.column(15).visible(toggle);
-				datatable.column(16).visible(toggle);
-				datatable.column(17).visible(toggle);
-				datatable.column(18).visible(toggle);
-			}
+			DateRangePickerSetup();
+		});
+	</script>
+</body>
 
-			function DateRangePickerSetup() {
-				// Call back funtion for setting report range <div> value
-				function cb(start, end) {
-					$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-				}
-
-				// controls for the date range picker
-				$('#reportrange').daterangepicker({
-					startDate: start,
-					endDate: end,
-					ranges: {
-						'Today': [moment(), moment()],
-						'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-						'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-						'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-						'This Month': [moment().startOf('month'), moment().endOf('month')],
-						'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-						'All Time': [moment("2016-01-01"), end]
-					}
-				}, cb);
-
-				// sets initial value for report range <div>
-				cb(start, end);
-
-				// Click event for new date range selected
-				$('#reportrange').on('apply.daterangepicker', function (evt, picker) {
-					var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
-					socket.emit('cdrtable-get-data', {"format": "json", "start": startdate, "end": enddate});
-				});
-			}
-
-			$(document).ready(function () {
-				$("#sidebarcdr").addClass("active");
-				toggleTable(); // hide extra columns on initial load
-
-				//click event for the toggle button on the CDR table
-				$('#toggle').on('click', function (e) {
-					e.preventDefault();
-					toggleTable();
-				});
-
-				//click event for downloading CSV file
-				$('#cdrdownloadbtn').click(function () {
-					var picker = $('#reportrange').data('daterangepicker');
-					var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-					var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
-					socket.emit('cdrtable-get-data', {"format": "csv", "start": startdate, "end": enddate});
-				});
-
-				DateRangePickerSetup();
-			});			
-        </script>
-    </body>
 </html>
