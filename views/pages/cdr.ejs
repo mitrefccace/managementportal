@@ -190,8 +190,11 @@
 		var datatable = $('#cdrtable').DataTable({
 			"columns": [{
 					"data": "calldate",
-					"render": function (value) {
-						return moment(value).local().format('YYYY/MM/DD HH:mm:ss a');
+					"render": function (data, type, full, meta) {
+						if (type == "display") {
+							return moment(data).local().format('YYYY/MM/DD hh:mm:ss a');
+						}
+						return data;
 					}
 				},
 				{
