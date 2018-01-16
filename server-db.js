@@ -107,7 +107,7 @@ io.set('origins', fqdnUrl);
 var dbHost = decodeBase64(nconf.get('database_servers:mysql:host'));
 var dbUser = decodeBase64(nconf.get('database_servers:mysql:user'));
 var dbPassword = decodeBase64(nconf.get('database_servers:mysql:password'));
-var dbName = decodeBase64(nconf.get('database_servers:mysql:database_name'));
+var dbName = decodeBase64(nconf.get('database_servers:mysql:ad_database_name'));
 var dbPort = parseInt(decodeBase64(nconf.get('database_servers:mysql:port')));
 var vmTable = "videomail";
 
