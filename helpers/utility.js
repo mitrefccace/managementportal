@@ -8,8 +8,10 @@ nconf.file({
 	file: cfile
 });
 
+//the presence of a populated cleartext field indicates that the file is unencoded
+//remove cleartext or set it to "" to idicate that the file is encoded
 var clearText = false;
-if (typeof (nconf.get('common:cleartext')) !== "undefined") {
+if (typeof (nconf.get('common:cleartext')) !== "undefined"  && nconf.get('common:cleartext') !== "" ) {
 	console.log('clearText field is in config.json. assuming file is in clear text');
 	clearText = true;
 }
