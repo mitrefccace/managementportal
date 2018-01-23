@@ -294,7 +294,7 @@ io.sockets.on('connection', function (socket) {
 			}
 		});
 	}).on("hours-of-operation-update", function (data) {
-		io.to(socket.id).emit("hours-of-operation-update-response", hourData)
+		//io.to(socket.id).emit("hours-of-operation-update-response", hourData)
 	});
 
 	// Socket for CDR table
