@@ -320,7 +320,7 @@ io.sockets.on('connection', function (socket) {
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded'
 				},
-				body: data,
+				form: data,
 				json: true
 			}, function (error, response, data) {
 				if (error) {
