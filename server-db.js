@@ -318,13 +318,12 @@ io.sockets.on('connection', function (socket) {
 				method: 'POST',
 				url: decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours",
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/x-www-form-urlencoded'
 				},
 				body: data,
-				json: true
 			}, function (error, response, data) {
 				if (error) {
-					logger.error("Aserver error: " + err);
+					logger.error("Aserver error: " + error);
 				} else {
 					io.to(socket.id).emit("hours-of-operation-update-response", data)
 				}
