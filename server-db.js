@@ -313,21 +313,24 @@ io.sockets.on('connection', function (socket) {
 		});
 	}).on("hours-of-operation-update", function (data) {
 		if (data.start && data.end) {
+			var requestJson = {};
+			requestJson.start = data.start;
+			requestJson.end = data.end;
 			request({
-				method: 'POST',
-				url: decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours",
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'Content-Length': Buffer.byteLength(data),
-				},
-				form: data,
-				json: true
+					method: 'POST',
+					url: decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours",
+					headers: {
+							'Content-Type': 'application/json'
+					},
+					body: requestJson,
+					json: true
 			}, function (error, response, data) {
-				if (error) {
-					logger.error("Aserver error: " + error);
-				} else {
-					io.to(socket.id).emit("hours-of-operation-update-response", data)
-				}
+					if (error) {
+							logger.error("Aserver error: " + error);
+					} else {
+						
+							io.to(socket.id).emit("hours-of-operation-update-response", data)
+					}
 			});
 		}
 	});
