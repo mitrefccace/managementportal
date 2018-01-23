@@ -318,9 +318,10 @@ io.sockets.on('connection', function (socket) {
 				method: 'POST',
 				url: decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours",
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded'
+					'Content-Type': 'application/json'
 				},
 				body: data,
+				json: true
 			}, function (error, response, data) {
 				if (error) {
 					logger.error("Aserver error: " + error);
