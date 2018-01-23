@@ -119,6 +119,22 @@ router.get('/light', agent.shield(cookieShield), function (req, res) {
 });
 
 /**
+ * Handles a GET request for /hours. Checks user has
+ * a valid session and displays Hours page.   
+ * 
+ * @param {string} '/hours'
+ * @param {function} 'agent.shield(cookieShield)'
+ * @param {function} function(req, res)
+ */
+router.get('/hours', agent.shield(cookieShield), function (req, res) {
+	if (req.session.role === 'Manager') {
+		res.render('pages/hours');
+	} else {
+		res.redirect('./');
+	}
+});
+
+/**
  * Handles a GET request for token and returnes a valid JWT token
  * for Manager's with a valid session.
  * 
