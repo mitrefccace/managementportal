@@ -39,7 +39,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var cfile = '../dat/config.json'; // Config file
 nconf.argv().env();
-nconf.file({ file: cfile });
+nconf.file({
+	file: cfile
+});
 console.log('Config file: ' + cfile);
 logger.info('Config file: ' + cfile);
 
@@ -49,13 +51,18 @@ var credentials = {
 };
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
+	serverUrl: 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' + decodeBase64(nconf.get('openam:path')),
 	privateIP: decodeBase64(nconf.get('openam:private_ip')),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
-  }
+	}
 });
-var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: false, noRedirect: false, passThrough: false });
+var cookieShield = new openamAgent.CookieShield({
+	getProfiles: false,
+	cdsso: false,
+	noRedirect: false,
+	passThrough: false
+});
 
 app.use(cookieParser()); // must use cookieParser before expressSession
 app.use(session({
@@ -72,12 +79,18 @@ app.use(session({
 // set the view engine to ejs
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
-app.use(bodyParser.urlencoded({ 'extended': 'true' })); // parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({
+	'extended': 'true'
+})); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json
-app.use(bodyParser.json({ type: 'application/vnd.api+json' })); // parse application/vnd.api+json as json
-app.use(csrf({ cookie: false }));
+app.use(bodyParser.json({
+	type: 'application/vnd.api+json'
+})); // parse application/vnd.api+json as json
+app.use(csrf({
+	cookie: false
+}));
 
-nconf.defaults({// if the port is not defined in the cocnfig.json file, default it to 8080
+nconf.defaults({ // if the port is not defined in the cocnfig.json file, default it to 8080
 	dashboard: {
 		'pollInterval': 10000
 	},
@@ -101,7 +114,9 @@ port = parseInt(decodeBase64(nconf.get('management_portal:https_listen_port')));
 
 var httpsServer = https.createServer(credentials, app);
 
-var io = require('socket.io')(httpsServer, { cookie: false });
+var io = require('socket.io')(httpsServer, {
+	cookie: false
+});
 io.set('origins', fqdnUrl);
 
 var dbHost = decodeBase64(nconf.get('database_servers:mysql:host'));
@@ -133,8 +148,8 @@ var db;
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = decodeBase64(nconf.get('database_servers:mongodb:connection_uri'));
 	// Initialize connection once
-	MongoClient.connect(mongodbUri, function(err, database) {
-		if(err) throw err;
+	MongoClient.connect(mongodbUri, function (err, database) {
+		if (err) throw err;
 
 		console.log('MongoDB Connection Successful');
 		db = database;
@@ -143,8 +158,7 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 		httpsServer.listen(port);
 		console.log('https web server listening on ' + port);
 	});
-}
-else {
+} else {
 	console.log('Missing MongoDB Connection URI in config');
 
 	httpsServer.listen(port);
@@ -162,13 +176,13 @@ io.use(socketioJwt.authorize({
 //light status config requirement: copy dat/color_config.json to ~/dat if not already there
 var color_config_file_path = os.homedir() + '/dat';
 if (!fs.existsSync(color_config_file_path)) { //make sure dir existsSync
-  fs.mkdirSync(color_config_file_path, '0775');
+	fs.mkdirSync(color_config_file_path, '0775');
 }
-if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsSync(color_config_file_path + '/default_color_config.json') ) {
-  // copy it from dat
-  logger.info('copying default color config file to ~/dat since it does not exist...');
-  fs.createReadStream('dat/color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/color_config.json'));
-  fs.createReadStream('dat/default_color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/default_color_config.json'));
+if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsSync(color_config_file_path + '/default_color_config.json')) {
+	// copy it from dat
+	logger.info('copying default color config file to ~/dat since it does not exist...');
+	fs.createReadStream('dat/color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/color_config.json'));
+	fs.createReadStream('dat/default_color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/default_color_config.json'));
 }
 
 logger.info('Listen on port: ' + port);
@@ -225,10 +239,14 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('Received AMI request: ' + message);
 
 		if (message === 'agent') {
-			socket.emit('agent-resp', { 'agents': Agents });
+			socket.emit('agent-resp', {
+				'agents': Agents
+			});
 			logger.debug('Sending agent resp');
 		} else if (message === 'queue') {
-			socket.emit('queue-resp', { 'queues': Queues });
+			socket.emit('queue-resp', {
+				'queues': Queues
+			});
 			logger.debug('Sending queue resp');
 		}
 	});
@@ -295,6 +313,23 @@ io.sockets.on('connection', function (socket) {
 		});
 	}).on("hours-of-operation-update", function (data) {
 		//io.to(socket.id).emit("hours-of-operation-update-response", hourData)
+		if (data.start && data.end) {
+			request({
+				method: 'POST',
+				url: decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: data,
+				json: true
+			}, function (error, response, data) {
+				if (error) {
+					logger.error("Aserver error: " + err);
+				} else {
+					io.to(socket.id).emit("hours-of-operation-update-response", data)
+				}
+			});
+		}
 	});
 
 	// Socket for CDR table
@@ -312,7 +347,9 @@ io.sockets.on('connection', function (socket) {
 			json: true
 		}, function (err, res, cdrdata) {
 			if (err) {
-				io.to(socket.id).emit('cdrtable-error', { "message": "Error Accessing Data Records" });
+				io.to(socket.id).emit('cdrtable-error', {
+					"message": "Error Accessing Data Records"
+				});
 			} else if (format === 'csv') {
 				//csv field values
 				var csvFields = ['calldate', 'clid', 'src',
@@ -321,9 +358,13 @@ io.sockets.on('connection', function (socket) {
 					'duration', 'billsec', 'disposition',
 					'amaflags', 'accountcode', 'userfield',
 					'uniqueid', 'linkedid', 'sequence',
-					'peeraccount'];
+					'peeraccount'
+				];
 				// Converts JSON object to a CSV file.
-				var csv = json2csv({ 'data': cdrdata.data, 'fields': csvFields });
+				var csv = json2csv({
+					'data': cdrdata.data,
+					'fields': csvFields
+				});
 				//returns CSV of Call Data Records
 				io.to(socket.id).emit('cdrtable-csv', csv);
 			} else {
@@ -339,7 +380,7 @@ io.sockets.on('connection', function (socket) {
 			// Eventually store them in redis.
 			var metricsStartDate = new Date(data.start);
 			var metricsEndDate = new Date(data.end);
-			metrics.createMetrics(db, Agents, metricsStartDate.getTime(), metricsEndDate.getTime(), function(metrics) {
+			metrics.createMetrics(db, Agents, metricsStartDate.getTime(), metricsEndDate.getTime(), function (metrics) {
 				io.to('my room').emit('metrics', metrics);
 			});
 		}
@@ -348,10 +389,10 @@ io.sockets.on('connection', function (socket) {
 	// ######################################
 	// Videomail-specific socket.io events
 
-	function processFilter(filter){
-		if (filter == 'ALL'){
-			return('');
-		} else{
+	function processFilter(filter) {
+		if (filter == 'ALL') {
+			return ('');
+		} else {
 			return ("'" + filter + "'");
 		}
 	}
@@ -407,7 +448,7 @@ io.sockets.on('connection', function (socket) {
 		// select extract(hour from received) as theHour, count(*) as numberOfItems from videomail group by extract(hour from received);
 
 		queryStr = "DELETE FROM " + vmTable + " WHERE TIMESTAMPDIFF(DAY, deleted_time, CURRENT_TIMESTAMP) >= 14;";
-		dbConnection.query(queryStr, function(err, result) {
+		dbConnection.query(queryStr, function (err, result) {
 			if (err) {
 				logger.error('DELETE-OLD-VIDEOMAIL ERROR: ', err.code);
 			} else {
@@ -462,33 +503,31 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for Light Configuration
 	//read color_config.json file for light configuration
-	socket.on("get_color_config", function(){
+	socket.on("get_color_config", function () {
 		try {
 			//send json file to client
 			var file_path = os.homedir() + '/dat/color_config.json';
-			var data = fs.readFileSync(file_path,'utf8');
+			var data = fs.readFileSync(file_path, 'utf8');
 			socket.emit("html_setup", data);
-		}
-		catch (ex) {
+		} catch (ex) {
 			logger.error('Error: ' + ex);
 		}
 	});
 
 	//on light color config submit update current color_config.json file
-	socket.on('submit', function(form_data){
+	socket.on('submit', function (form_data) {
 		try {
 			var file_path = os.homedir() + '/dat/color_config.json';
-			var data = fs.readFileSync(file_path,'utf8');
+			var data = fs.readFileSync(file_path, 'utf8');
 			var json_data = JSON.parse(data);
-			for(var status in json_data.statuses)
-			{
+			for (var status in json_data.statuses) {
 				var color_and_action = form_data[status].split('_'); //color_and_action[0] = color, color_and_action[1] = "blinking" or "solid"
 				json_data.statuses[status].color = color_and_action[0].toLowerCase();
 				json_data.statuses[status].stop = (color_and_action[0] == "off") ? true : false;
 				json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
 				json_data = set_rgb_values(json_data, status, color_and_action[0]);
 			}
-			fs.writeFile(file_path, JSON.stringify(json_data, null, 2) , 'utf-8');
+			fs.writeFile(file_path, JSON.stringify(json_data, null, 2), 'utf-8');
 
 			//send to server
 			request({
@@ -498,20 +537,18 @@ io.sockets.on('connection', function (socket) {
 					logger.error('Error: ' + err);
 				}
 			});
-		}
-		catch (ex) {
+		} catch (ex) {
 			logger.error('Error: ' + ex);
 		}
 	});
 
 	//sends the default_color_config.json data back to the management portal
-	socket.on('reset-color-config', function(){
+	socket.on('reset-color-config', function () {
 		try {
 			var default_color_config = os.homedir() + '/dat/default_color_config.json';
-			var data = fs.readFileSync(default_color_config,'utf8');
-			socket.emit("update-colors",data);
-		}
-		catch (ex) {
+			var data = fs.readFileSync(default_color_config, 'utf8');
+			socket.emit("update-colors", data);
+		} catch (ex) {
 			logger.error('Error: ' + ex);
 			console.log('Error: ' + ex);
 		}
@@ -532,10 +569,10 @@ function sendResourceStatus() {
 	hostMap.set("Asterisk", "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws");
 	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
 	hostMap.set("ACR-CDR", 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port')));
-	hostMap.set("VRS Lookup", 'https://' + decodeBase64(nconf.get('user_service:ip')) + ':' + decodeBase64(nconf.get('user_service:port')) );
+	hostMap.set("VRS Lookup", 'https://' + decodeBase64(nconf.get('user_service:ip')) + ':' + decodeBase64(nconf.get('user_service:port')));
 	hostMap.set("ACE Direct", 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('ace_direct:https_listen_port')));
 
-	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:protocol')) + '://' + decodeBase64(nconf.get('zendesk:private_ip')) + ':' + decodeBase64(nconf.get('zendesk:port')) + '/api/v2' );
+	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:protocol')) + '://' + decodeBase64(nconf.get('zendesk:private_ip')) + ':' + decodeBase64(nconf.get('zendesk:port')) + '/api/v2');
 	hostMap.set("Agent Provider", 'https://' + decodeBase64(nconf.get('agent_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))));
 
 	checkConnection(hostMap, function (data) {
@@ -544,7 +581,7 @@ function sendResourceStatus() {
 
 	var metricsStartDate = 1497916801000;
 	var metricsEndDate = 1498003200000;
-	metrics.createMetrics(db, Agents, metricsStartDate, metricsEndDate, function(data) {
+	metrics.createMetrics(db, Agents, metricsStartDate, metricsEndDate, function (data) {
 		io.to('my room').emit('metrics', data);
 	});
 }
@@ -568,10 +605,16 @@ function checkConnection(hosts, callback) {
 		// tests if each address is online
 		tcpp.probe(hostname, port, function (err, isAlive) {
 			if (err) {
-				callback({ error: "An Error Occurred" });
+				callback({
+					error: "An Error Occurred"
+				});
 			} else {
 				// push results to result arrary
-				results.push({ "name": name, "host": host, "status": isAlive });
+				results.push({
+					"name": name,
+					"host": host,
+					"status": isAlive
+				});
 				if (results.length === requests) {
 					//Sort Request by name
 					results.sort(function (a, b) {
@@ -586,7 +629,10 @@ function checkConnection(hosts, callback) {
 						return 0;
 					});
 					// Callback with results of resource status probes
-					callback({ resources: results, timestamp: new Date().getTime() });
+					callback({
+						resources: results,
+						timestamp: new Date().getTime()
+					});
 				}
 			}
 		});
@@ -756,7 +802,7 @@ function handle_manager_event(evt) {
 						logger.debug("AMI event Agent not in AgentMap");
 					}
 				} else {
-					logger.debug("Existing agent");  // status always set to AGENT_LOGGEDOFF. Do not use this field
+					logger.debug("Existing agent"); // status always set to AGENT_LOGGEDOFF. Do not use this field
 
 				}
 				break;
@@ -856,22 +902,30 @@ function handle_manager_event(evt) {
 		case 'QueueStatusComplete': // ready to send to the portal
 			{
 				logger.debug("QueueStatusComplete received");
-				sendEmit('queue-resp', { 'queues': Queues });
-				sendEmit('agent-resp', { 'agents': Agents });
+				sendEmit('queue-resp', {
+					'queues': Queues
+				});
+				sendEmit('agent-resp', {
+					'agents': Agents
+				});
 				break;
 			}
 		case 'QueueMemberRemoved':
 			{
 				// set all Agent status to logoff, but do not send a emit, wait for amiaction. Continue to issue an amiaction
 				setAgentsLogOff();
-				amiaction({ 'action': 'QueueStatus' });
+				amiaction({
+					'action': 'QueueStatus'
+				});
 				break;
 			}
 		case 'AgentLogin':
 		case 'AgentLogoff':
 		case 'QueueMemberAdded':
 			{
-				amiaction({ 'action': 'QueueStatus' });
+				amiaction({
+					'action': 'QueueStatus'
+				});
 				break;
 			}
 		case 'QueueStatus':
@@ -905,10 +959,17 @@ function initialize() {
  * @returns {undefined} Not used
  */
 function callAmiActions() {
-	amiaction({ 'action': 'Agents' });
-	amiaction({ 'action': 'QueueSummary' });
+	amiaction({
+		'action': 'Agents'
+	});
+	amiaction({
+		'action': 'QueueSummary'
+	});
 	for (var i = 0; i < Queues.length; i++) {
-		amiaction({ 'action': 'QueueStatus', 'Queue': Queues[i].queue });
+		amiaction({
+			'action': 'QueueStatus',
+			'Queue': Queues[i].queue
+		});
 	}
 }
 
@@ -928,7 +989,10 @@ function mapAgents() {
 						queues += ", " + data.data[i].queue2_name;
 					}
 				}
-				var usr = { "name": data.data[i].first_name + " " + data.data[i].last_name, "queues": queues };
+				var usr = {
+					"name": data.data[i].first_name + " " + data.data[i].last_name,
+					"queues": queues
+				};
 				//if (AgentMap.has(ext))
 				//	AgentMap.delete(ext);
 				AgentMap.set(ext, usr);
@@ -950,7 +1014,9 @@ function getAgentsFromProvider(callback) {
 	}, function (err, res, data) {
 		if (err) {
 			logger.error("getAgentsFromProvider ERROR  ");
-			data = { "message": "failed" };
+			data = {
+				"message": "failed"
+			};
 		} else {
 			callback(data);
 		}
@@ -964,7 +1030,11 @@ function getAgentsFromProvider(callback) {
  */
 function resetAllCounters() {
 	for (var i = 0; i < Asterisk_queuenames.length; i++) {
-		amiaction({ 'action': 'QueueReset' }, { 'Queue': Asterisk_queuenames[i] });
+		amiaction({
+			'action': 'QueueReset'
+		}, {
+			'Queue': Asterisk_queuenames[i]
+		});
 		logger.log(Asterisk_queuenames[i]);
 	}
 }
@@ -972,7 +1042,9 @@ function resetAllCounters() {
 app.use(function (err, req, res, next) {
 	if (err.code !== 'EBADCSRFTOKEN') return next(err);
 	// handle CSRF token errors here
-	res.status(200).json({ "message": "Form has been tampered" });
+	res.status(200).json({
+		"message": "Form has been tampered"
+	});
 });
 
 /**
@@ -981,13 +1053,13 @@ app.use(function (err, req, res, next) {
  * before openam cookie shield is enforced
  */
 app.use(function (req, res, next) {
-	if (req.path === '/ManagementPortal'|| req.path === '/agentassist') {
+	if (req.path === '/ManagementPortal' || req.path === '/agentassist') {
 		return next();
 	} else if (req.path === '/logout') {
 		return next();
 	} else if (req.session.data) {
-	 	if (req.session.data.uid) {
-			 if (req.session.role)
+		if (req.session.data.uid) {
+			if (req.session.role)
 				return next(); //user is logged in go to next()
 
 			var username = req.session.data.uid;
@@ -1015,9 +1087,13 @@ app.use('/agentassist', function (req, res) {
 	logger.info("Agent Assistance");
 	if (req.query.extension) {
 		sendEmit("agent-request", req.query.extension);
-		res.send({ 'message': 'Success' });
+		res.send({
+			'message': 'Success'
+		});
 	} else {
-		res.send({ 'message': 'Error' });
+		res.send({
+			'message': 'Error'
+		});
 	}
 });
 
@@ -1070,7 +1146,9 @@ function getUserInfo(username, callback) {
 	}, function (error, response, data) {
 		if (error) {
 			logger.error("login ERROR: " + error);
-			data = { "message": "failed" };
+			data = {
+				"message": "failed"
+			};
 		} else {
 			logger.info("Agent Verify: " + data.message);
 		}
@@ -1098,7 +1176,7 @@ app.get('/resetAllCounters', agent.shield(cookieShield), function () {
 app.get('/getVideomail', function (req, res) {
 	console.log("/getVideomail");
 	var videoId = req.query.id;
-	var agent = req.query.agent;						 
+	var agent = req.query.agent;
 	console.log("id: " + videoId);
 
 	//Wrap in mysql query
@@ -1107,7 +1185,7 @@ app.get('/getVideomail', function (req, res) {
 			console.log('GET VIDEOMAIL ERROR: ', err.code);
 		} else {
 			try {
-				var videoFile = result[0].filepath + result[0].filename;		
+				var videoFile = result[0].filepath + result[0].filename;
 				var stat = fs.statSync(videoFile);
 				res.writeHead(200, {
 					'Content-Type': 'video/webm',
