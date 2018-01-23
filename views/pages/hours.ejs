@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body class="hold-transition skin-purple sidebar-mini" ng-app="acrcsr-dashboard">
+	<div class="wrapper">
+		<% include ../partials/header %>
+			<% include ../partials/sidebar %>
+				<!-- Content Wrapper. Contains page content -->
+				<div class="content-wrapper" ng-controller="dashboardController">
+					<!-- Content Header (Page header) -->
+					<section class="content-header">
+						<h1>Hours of Operation</h1>
+						<ol class="breadcrumb">
+							<li>
+								<a href="./dashboard">
+									<i class="fa fa-dashboard"></i> Home</a>
+							</li>
+							<li class="active">Hours of Operation</li>
+						</ol>
+					</section>
+
+					<!-- Main content -->
+					<section class="content">
+						<h2 class="page-header text-center">The call center is currently
+							<b id="opStatus" class="label bg-red"></b>
+						</h2>
+						<div class="row">
+							<div class="col-lg-6">
+								<div class="box">
+									<div class="box-header with-border">
+										<h3 class="box-title">Operating Hours</h3>
+									</div>
+									<div class="box-body">
+										<div class="table-responsive">
+											<table class="table">
+												<tbody>
+													<tr>
+														<th>Current Local Time:</th>
+														<td>
+															<div id='current_local'></div>
+														</td>
+													</tr>
+													<tr>
+														<th>Open:</th>
+														<td>
+															<input type='text' class="form-control timepicker" id="start_time" />
+														</td>
+													</tr>
+													<tr>
+														<th>Close:</th>
+														<td>
+															<input type='text' class="form-control timepicker" id="end_time" />
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+									<div class="box-footer">
+										<button id="updateBtn" type="submit" class="btn btn-primary" onclick="updateHoursOfOperation()">Update</button>
+										<span id="updateMessage" hidden>
+											<i class="fa fa-check text-green" aria-hidden="true"></i> Call center hours have been updated.
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="box">
+									<div class="box-header with-border">
+										<h3 class="box-title">Time zones</h3>
+									</div>
+									<div class="box-body">
+										<img class="img-responsive" src="./images/US-Timezones.png" alt="Timezones">
+									</div>
+									<div class="box-footer">
+										<div class="row">
+											<div class="col-xs-3 text-center" style="border-right: 1px solid #f4f4f4">
+												<div>PST</div>
+												<div id='current_pst'></div>
+											</div>
+											<!-- ./col -->
+											<div class="col-xs-3 text-center" style="border-right: 1px solid #f4f4f4">
+												<div>MST</div>
+												<div id='current_mst'></div>
+											</div>
+											<!-- ./col -->
+											<div class="col-xs-3 text-center">
+												<div>CST</div>
+												<div id='current_cst'></div>
+											</div>
+											<!-- ./col -->
+											<div class="col-xs-3 text-center">
+												<div>EST</div>
+												<div id='current_est'></div>
+											</div>
+											<!-- ./col -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+					</section>
+					<!-- /.content -->
+				</div>
+				<!-- /.content-wrapper -->
+				<% include ../partials/footer %>
+	</div>
+	<!-- ./wrapper -->
+
+
+	<script type="text/javascript">
+		$("#sidebaroperatinghours").addClass("active");
+		var socket = null;
+
+		var updateTime = function () {
+			var timeFormat = 'h:mm A';
+			$('#current_local').html(moment().format(timeFormat))
+			$('#current_est').html(moment().utcOffset(-5).format(timeFormat))
+			$('#current_cst').html(moment().utcOffset(-6).format(timeFormat))
+			$('#current_mst').html(moment().utcOffset(-7).format(timeFormat))
+			$('#current_pst').html(moment().utcOffset(-8).format(timeFormat))
+		};
+
+		updateTime();
+		setInterval(updateTime, 1000);
+
+		function updateHoursOfOperation() {
+			$('#updateBtn').attr("disabled", "disabled");
+
+			var data = {};
+			data.start = formatTimeToUTC($("#start_time").val());
+			data.end = formatTimeToUTC($("#end_time").val());
+
+			setTimeout(function () {
+
+
+			}, 3000)
+
+			socket.emit('hours-of-operation-update', data);
+		}
+
+
+		var setOperatingHours = function (data) {
+			$("#start_time").wickedpicker({
+				now: formatTime(data.start)
+			});
+
+			$("#end_time").wickedpicker({
+				now: formatTime(data.end)
+			});
+		}
+
+		var setOperatingStatus = function (isOpen) {
+			if (isOpen) {
+				$('#opStatus').html('Open').addClass('bg-green').removeClass('bg-red');
+			} else {
+				$('#opStatus').html('Closed').addClass('bg-red').removeClass('bg-green');
+			}
+		}
+
+		function formatTime(timeStr) {
+			var d = new Date();
+			d.setUTCHours(timeStr.split(':')[0]);
+			var mins = timeStr.split(':')[1];
+			mins = mins.substring(0, 3);
+			d.setUTCMinutes(mins);
+
+			return d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes()
+		}
+
+		function formatTimeToUTC(timeStr) {
+			var d = new Date();
+			var hours = timeStr.split(':')[0]
+			var mins = (timeStr.split(':')[1]).substring(0, 3);
+			var ampm = (timeStr.split(':')[1]).slice(-2);
+			if (ampm == 'PM')
+				hours = parseInt(hours) + 12;
+
+			d.setHours(hours);
+			d.setMinutes(mins);
+
+			return d.getUTCHours() + ':' + (d.getUTCMinutes() < 10 ? '0' : '') + d.getUTCMinutes()
+		}
+
+		$.ajax({
+			url: './token',
+			type: 'GET',
+			dataType: 'json',
+			success: function (data) {
+				if (data.message === "success") {
+					socket = io.connect('https://' + window.location.host, {
+						path: '/ManagementPortal/socket.io',
+						query: 'token=' + data.token,
+						forceNew: true
+					});
+					socket.emit('hours-of-operation');
+					socket.on("hours-of-operation-response", function (data) {
+						setOperatingHours(data);
+						setOperatingStatus(data.isOpen);
+					}).on("hours-of-operation-update-response", function (data) {
+						$('#updateBtn').removeAttr('disabled');
+						$('#updateMessage').show();
+						$('#updateMessage').fadeOut(2000);
+						socket.emit('hours-of-operation');
+					});
+				}
+			},
+			error: function (xhr, status, error) {
+				console.log('Error');
+				$('#message').text('An Error Occured.');
+			}
+		});
+	</script>
+</body>
+
+</html>
