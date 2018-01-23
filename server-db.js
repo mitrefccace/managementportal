@@ -280,6 +280,23 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('Request to leave room ' + room.toString() + ', room has ' + numClients + " client(s)");
 	});
 
+	// Socket for Operating Status
+	socket.on('hours-of-operation', function (data) {
+		var url = decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours";
+		request({
+			url: url,
+			json: true
+		}, function (err, res, hourData) {
+			if (err) {
+				logger.error("Aserver error: " + err);
+			} else {
+				io.to(socket.id).emit("hours-of-operation-response", hourData)
+			}
+		});
+	}).on("hours-of-operation-update", function (data) {
+		io.to(socket.id).emit("hours-of-operation-update-response", hourData)
+	});
+
 	// Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
 		//var url = decodeBase64(nconf.get('acr-cdr:url'));
