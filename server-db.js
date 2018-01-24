@@ -50,6 +50,10 @@ var credentials = {
 	cert: fs.readFileSync(decodeBase64(nconf.get('common:https:certificate')))
 };
 
+//get the ACE Direct version
+var version = decodeBase64(nconf.get('common:version'));
+logger.info("This is ACE Direct v" + version + ".");
+
 var agent = new openamAgent.PolicyAgent({
 	serverUrl: 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' + decodeBase64(nconf.get('openam:path')),
 	privateIP: decodeBase64(nconf.get('openam:private_ip')),
@@ -211,6 +215,7 @@ io.sockets.on('connection', function (socket) {
 		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:ws_port')));
 		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
 		confobj.websocket = "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws";
+		confobj.version = version;
 
 		socket.emit('sipconf', confobj);
 

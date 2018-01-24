@@ -1,6 +1,7 @@
 'use strict';
 
 //var socket = io.connect();
+var version = '0.0';
 var dbController = angular.module('dashboardModule', ['csrService', 'angularDurationFormat'])
 		.controller('dashboardController', function($scope, $http, $window, socket) {
 	
@@ -66,6 +67,8 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		socket.on('sipconf', function (data){
 			//console.log("Received sip conf data..." + JSON.stringify(data, null,2,true));
 			$window.sipconf = data; // so the data can be accessed by non-angular javascript under the window element
+           version = data.version;
+           console.log("VERSION: " + version);
 		});
 		socket.on('queueconf', function (data){
 			//console.log("Received queue conf data..." + JSON.stringify(data, null,2,true));	
