@@ -273,7 +273,7 @@
 			let tStart = $("#start_time").val();
 			let tEnd = $("#end_time").val();
 
-			if (typeof tStart != 'undefined' && typeof tEnd != 'undefined') {
+			if (tStart != "" && tEnd != "") {
 
 				let sTimeUTC = formatTimeToUTC(tStart)
 				let eTimeUTC = formatTimeToUTC(tEnd)
@@ -283,8 +283,8 @@
 				let ehour = eTimeUTC.split(':')[0]
 				let emin = eTimeUTC.split(':')[1]
 
-				var openUtc = moment.utc().hour(shour).minutes(smin);
-				var closeUtc = moment.utc().hour(ehour).minutes(emin);
+				let openUtc = moment.utc().hour(shour).minutes(smin);
+				let closeUtc = moment.utc().hour(ehour).minutes(emin);
 
 
 				$('#opHrsEST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -5), getTimezoneAdjustment(closeUtc, -5)));
