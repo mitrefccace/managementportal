@@ -261,39 +261,42 @@
 				$('#message').text('An Error Occured.');
 			}
 		});
-/*
-		setOperatingStatus(false);
-		setOperatingHours({
-			start: '14:00',
-			end: '21:30'
-		});
-		*/
+		/*
+				setOperatingStatus(false);
+				setOperatingHours({
+					start: '14:00',
+					end: '21:30'
+				});
+				*/
 
 		$(".timepicker").change(function () {
 			let tStart = $("#start_time").val();
 			let tEnd = $("#end_time").val();
 
-			let sTimeUTC = formatTimeToUTC(tStart)
-			let eTimeUTC = formatTimeToUTC(tEnd)
+			if (typeof tStart != 'undefined' && typeof tEnd != 'undefined') {
 
-			let shour = sTimeUTC.split(':')[0]
-			let smin = sTimeUTC.split(':')[1]
-			let ehour = eTimeUTC.split(':')[0]
-			let emin = eTimeUTC.split(':')[1]
+				let sTimeUTC = formatTimeToUTC(tStart)
+				let eTimeUTC = formatTimeToUTC(tEnd)
 
-			var openUtc = moment.utc().hour(shour).minutes(smin);
-			var closeUtc = moment.utc().hour(ehour).minutes(emin);
+				let shour = sTimeUTC.split(':')[0]
+				let smin = sTimeUTC.split(':')[1]
+				let ehour = eTimeUTC.split(':')[0]
+				let emin = eTimeUTC.split(':')[1]
+
+				var openUtc = moment.utc().hour(shour).minutes(smin);
+				var closeUtc = moment.utc().hour(ehour).minutes(emin);
 
 
-			$('#opHrsEST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -5), getTimezoneAdjustment(closeUtc, -5)));
-			$('#opHrsCST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -6), getTimezoneAdjustment(closeUtc, -6)));
-			$('#opHrsMST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -7), getTimezoneAdjustment(closeUtc, -7)));
-			$('#opHrsPST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -8), getTimezoneAdjustment(closeUtc, -8)));
+				$('#opHrsEST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -5), getTimezoneAdjustment(closeUtc, -5)));
+				$('#opHrsCST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -6), getTimezoneAdjustment(closeUtc, -6)));
+				$('#opHrsMST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -7), getTimezoneAdjustment(closeUtc, -7)));
+				$('#opHrsPST').html(formatTimeRange(getTimezoneAdjustment(openUtc, -8), getTimezoneAdjustment(closeUtc, -8)));
 
-			$('#opHrsESTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -5), getTimezoneAdjustment(closeUtc, -5)));
-			$('#opHrsCSTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -6), getTimezoneAdjustment(closeUtc, -6)));
-			$('#opHrsMSTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -7), getTimezoneAdjustment(closeUtc, -7)));
-			$('#opHrsPSTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -8), getTimezoneAdjustment(closeUtc, -8)));
+				$('#opHrsESTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -5), getTimezoneAdjustment(closeUtc, -5)));
+				$('#opHrsCSTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -6), getTimezoneAdjustment(closeUtc, -6)));
+				$('#opHrsMSTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -7), getTimezoneAdjustment(closeUtc, -7)));
+				$('#opHrsPSTs').html(formatTimeRange(getTimezoneAdjustment(openUtc, -8), getTimezoneAdjustment(closeUtc, -8)));
+			}
 
 		});
 
