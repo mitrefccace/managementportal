@@ -489,6 +489,11 @@
                                 setup_html(data);
                              }); 
 
+                            //update version in footer
+                            socket.on('adversion', function (data) {
+                              $('#ad-version').text(data.version);
+                            });
+
                             //updates the colors shown on the page (does not resave them, just changes the display)
                             socket.on("update-colors", function(data){
                                 document.getElementById("form_table").innerHTML="";

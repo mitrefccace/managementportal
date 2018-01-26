@@ -205,6 +205,9 @@ io.sockets.on('connection', function (socket) {
 	var numClients = 0;
 	logger.info('io.socket connected, id: ' + socket.id);
 
+    //emit AD version to clients
+    socket.emit('adversion', {"version":version});
+
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
 		var confobj = {};
@@ -215,7 +218,6 @@ io.sockets.on('connection', function (socket) {
 		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:ws_port')));
 		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
 		confobj.websocket = "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws";
-		confobj.version = version;
 
 		socket.emit('sipconf', confobj);
 

@@ -124,6 +124,11 @@
 						forceNew: true
 					});
 
+                    //update the version in the footer
+                    socket.on('adversion', function (data) {
+                      $('#ad-version').text(data.version);
+                    });
+
 					socket.on('connect', function () {
 						// Emit for CDR Data set to be called on page ready.
 						socket.emit('cdrtable-get-data', {
