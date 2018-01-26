@@ -205,6 +205,9 @@ io.sockets.on('connection', function (socket) {
 	var numClients = 0;
 	logger.info('io.socket connected, id: ' + socket.id);
 
+    //emit AD version to clients
+    socket.emit('adversion', {"version":version});
+
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
 		var confobj = {};
