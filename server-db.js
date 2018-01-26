@@ -218,7 +218,6 @@ io.sockets.on('connection', function (socket) {
 		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:ws_port')));
 		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
 		confobj.websocket = "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws";
-		confobj.version = version;
 
 		socket.emit('sipconf', confobj);
 

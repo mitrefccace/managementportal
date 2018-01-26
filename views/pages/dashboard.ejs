@@ -269,6 +269,11 @@
 							forceNew: true
 						});
 
+                        //update AD version for dashboard
+                        socket.on('adversion', function (data) {
+                          $('#ad-version').text(data.version);
+                        });
+
 						socket.emit('register-manager', {"hello": "hello"});
 						socket.on('resource-status', function (data) {
 							$('#statusRefreshIcon').removeClass('fa-spin');
