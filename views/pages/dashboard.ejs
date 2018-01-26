@@ -269,9 +269,10 @@
 							forceNew: true
 						});
 
-                        //update AD version for dashboard
+                        //update AD version, year for dashboard
                         socket.on('adversion', function (data) {
                           $('#ad-version').text(data.version);
+                          $('#ad-year').text(data.year);
                         });
 
 						socket.emit('register-manager', {"hello": "hello"});

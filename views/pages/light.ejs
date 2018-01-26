@@ -492,6 +492,7 @@
                             //update version in footer
                             socket.on('adversion', function (data) {
                               $('#ad-version').text(data.version);
+                              $('#ad-year').text(data.year);
                             });
 
                             //updates the colors shown on the page (does not resave them, just changes the display)

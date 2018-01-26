@@ -52,7 +52,8 @@ var credentials = {
 
 //get the ACE Direct version
 var version = decodeBase64(nconf.get('common:version'));
-logger.info("This is ACE Direct v" + version + ".");
+var year = decodeBase64(nconf.get('common:year'));
+logger.info("This is ACE Direct v" + version + ", Copyright " + year + ".");
 
 var agent = new openamAgent.PolicyAgent({
 	serverUrl: 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' + decodeBase64(nconf.get('openam:path')),
@@ -205,8 +206,8 @@ io.sockets.on('connection', function (socket) {
 	var numClients = 0;
 	logger.info('io.socket connected, id: ' + socket.id);
 
-    //emit AD version to clients
-    socket.emit('adversion', {"version":version});
+    //emit AD version, year to clients
+    socket.emit('adversion', {"version":version,"year":year});
 
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);

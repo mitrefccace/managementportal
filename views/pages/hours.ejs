@@ -252,6 +252,13 @@
 						forceNew: true
 					});
 					socket.emit('hours-of-operation');
+
+                    //update version,hours in footer
+                    socket.on('adversion', function (data) {
+                      $('#ad-version').text(data.version);
+                      $('#ad-year').text(data.year);
+                    });
+
 					socket.on("hours-of-operation-response", function (data) {
 						setOperatingHours(data);
 						setOperatingStatus(data.isOpen);
