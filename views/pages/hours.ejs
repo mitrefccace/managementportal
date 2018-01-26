@@ -268,20 +268,8 @@
 				$('#message').text('An Error Occured.');
 			}
 		});
-		/*
-				setOperatingStatus(false);
-				setOperatingHours({
-					start: '14:00',
-					end: '21:30'
-				});
-				*/
 
-		$("#hello").attr('disabled', 'disabled')
-		$("#check").change(function () {
-			$("#hello").removeAttr('disabled');
-		})
-
-		$(".atimepicker").change(function () {
+		$(".timepicker").change(function () {
 			let tStart = $("#start_time").val();
 			let tEnd = $("#end_time").val();
 
