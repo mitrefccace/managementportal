@@ -231,7 +231,7 @@
 			var hours = timeStr.split(':')[0]
 			var mins = (timeStr.split(':')[1]).substring(0, 3);
 			var ampm = (timeStr.split(':')[1]).slice(-2);
-			if (ampm == 'PM')
+			 if ((ampm == 'PM' && parseInt(hours) != 12)||(ampm == 'AM' && parseInt(hours) == 12))
 				hours = parseInt(hours) + 12;
 
 			d.setHours(hours);
