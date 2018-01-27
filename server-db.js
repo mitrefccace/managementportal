@@ -4,7 +4,7 @@ var AsteriskManager = require('asterisk-manager');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
 var csrf = require('csurf');
-var decodeBase64 = require('./helpers/utility').decodeBase64;
+var getConfigVal = require('./helpers/utility').getConfigVal;
 var express = require('express');
 var fs = require('fs');
 var https = require('https');
@@ -46,18 +46,18 @@ console.log('Config file: ' + cfile);
 logger.info('Config file: ' + cfile);
 
 var credentials = {
-	key: fs.readFileSync(decodeBase64(nconf.get('common:https:private_key'))),
-	cert: fs.readFileSync(decodeBase64(nconf.get('common:https:certificate')))
+	key: fs.readFileSync(getConfigVal('common:https:private_key')),
+	cert: fs.readFileSync(getConfigVal('common:https:certificate'))
 };
 
 //get the ACE Direct version
-var version = decodeBase64(nconf.get('common:version'));
-var year = decodeBase64(nconf.get('common:year'));
+var version = getConfigVal('common:version');
+var year = getConfigVal('common:year');
 logger.info("This is ACE Direct v" + version + ", Copyright " + year + ".");
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl: 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' + decodeBase64(nconf.get('openam:path')),
-	privateIP: decodeBase64(nconf.get('openam:private_ip')),
+	serverUrl: 'https://' + getConfigVal('openam:fqdn') + ":" + getConfigVal('openam:port') + '/' + getConfigVal('openam:path'),
+	privateIP: getConfigVal('openam:private_ip'),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
 	}
@@ -71,14 +71,14 @@ var cookieShield = new openamAgent.CookieShield({
 
 app.use(cookieParser()); // must use cookieParser before expressSession
 app.use(session({
-	secret: decodeBase64(nconf.get('web_security:session:secret_key')),
-	resave: decodeBase64(nconf.get('web_security:session:resave')),
-	rolling: decodeBase64(nconf.get('web_security:session:rolling')),
-	saveUninitialized: decodeBase64(nconf.get('web_security:session:save_uninitialized')),
+	secret: getConfigVal('web_security:session:secret_key'),
+	resave: getConfigVal('web_security:session:resave'),
+	rolling: getConfigVal('web_security:session:rolling'),
+	saveUninitialized: getConfigVal('web_security:session:save_uninitialized'),
 	cookie: {
-		maxAge: parseFloat(decodeBase64(nconf.get('web_security:session:max_age'))),
-		httpOnly: decodeBase64(nconf.get('web_security:session:http_only')),
-		secure: decodeBase64(nconf.get('web_security:session:secure'))
+		maxAge: parseFloat(getConfigVal('web_security:session:max_age')),
+		httpOnly: getConfigVal('web_security:session:http_only'),
+		secure: getConfigVal('web_security:session:secure')
 	}
 }));
 // set the view engine to ejs
@@ -106,7 +106,7 @@ nconf.defaults({ // if the port is not defined in the cocnfig.json file, default
 
 var fqdn = '';
 if (nconf.get('nginx:fqdn')) {
-	fqdn = decodeBase64(nconf.get('nginx:fqdn'));
+	fqdn = getConfigVal('nginx:fqdn');
 } else {
 	fqdn = shell.exec('hostname -f', {
 		silent: true
@@ -115,7 +115,7 @@ if (nconf.get('nginx:fqdn')) {
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
 
-port = parseInt(decodeBase64(nconf.get('management_portal:https_listen_port')));
+port = parseInt(getConfigVal('management_portal:https_listen_port'));
 
 var httpsServer = https.createServer(credentials, app);
 
@@ -124,11 +124,11 @@ var io = require('socket.io')(httpsServer, {
 });
 io.set('origins', fqdnUrl);
 
-var dbHost = decodeBase64(nconf.get('database_servers:mysql:host'));
-var dbUser = decodeBase64(nconf.get('database_servers:mysql:user'));
-var dbPassword = decodeBase64(nconf.get('database_servers:mysql:password'));
-var dbName = decodeBase64(nconf.get('database_servers:mysql:ad_database_name'));
-var dbPort = parseInt(decodeBase64(nconf.get('database_servers:mysql:port')));
+var dbHost = getConfigVal('database_servers:mysql:host');
+var dbUser = getConfigVal('database_servers:mysql:user');
+var dbPassword = getConfigVal('database_servers:mysql:password');
+var dbName = getConfigVal('database_servers:mysql:ad_database_name');
+var dbPort = parseInt(getConfigVal('database_servers:mysql:port'));
 var vmTable = "videomail";
 
 // Create MySQL connection and connect to the database
@@ -151,7 +151,7 @@ setInterval(function () {
 var mongodbUriEncoded = nconf.get('database_servers:mongodb:connection_uri');
 var db;
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
-	var mongodbUri = decodeBase64(nconf.get('database_servers:mongodb:connection_uri'));
+	var mongodbUri = getConfigVal('database_servers:mongodb:connection_uri');
 	// Initialize connection once
 	MongoClient.connect(mongodbUri, function (err, database) {
 		if (err) throw err;
@@ -173,9 +173,9 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 // Validates the token, if valid go to connection.
 // If token is not valid, no connection will be established.
 io.use(socketioJwt.authorize({
-	secret: new Buffer(decodeBase64(nconf.get('web_security:json_web_token:secret_key')), decodeBase64(nconf.get('web_security:json_web_token:encoding'))),
-	timeout: parseInt(decodeBase64(nconf.get('web_security:json_web_token:timeout'))), // seconds to send the authentication message
-	handshake: decodeBase64(nconf.get('web_security:json_web_token:handshake'))
+	secret: new Buffer(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
+	timeout: parseInt(getConfigVal('web_security:json_web_token:timeout')), // seconds to send the authentication message
+	handshake: getConfigVal('web_security:json_web_token:handshake')
 }));
 
 //light status config requirement: copy dat/color_config.json to ~/dat if not already there
@@ -191,10 +191,10 @@ if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsS
 }
 
 logger.info('Listen on port: ' + port);
-var queuenames = decodeBase64(nconf.get('management_portal:queues'));
-var pollInterval = parseInt(decodeBase64(nconf.get('management_portal:poll_interval')));
-// var adUrl = decodeBase64(nconf.get('acedirect:url'));
-var adUrl = 'https://' + decodeBase64(nconf.get('common:private_ip'));
+var queuenames = getConfigVal('management_portal:queues');
+var pollInterval = parseInt(getConfigVal('management_portal:poll_interval'));
+// var adUrl = getConfigVal('acedirect:url');
+var adUrl = 'https://' + getConfigVal('common:private_ip');
 console.log("port number: " + port + ", poll interval:" + pollInterval);
 
 Asterisk_queuenames = queuenames.split(",");
@@ -212,19 +212,19 @@ io.sockets.on('connection', function (socket) {
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
 		var confobj = {};
-		confobj.host = decodeBase64(nconf.get('asterisk:sip:private_ip'));
-		confobj.realm = decodeBase64(nconf.get('asterisk:sip:private_ip'));
-		//confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun'));
-		confobj.stun = decodeBase64(nconf.get('asterisk:sip:stun')) + ":" + decodeBase64(nconf.get('asterisk:sip:stun_port'));
-		confobj.wsport = parseInt(decodeBase64(nconf.get('asterisk:sip:ws_port')));
-		confobj.channel = decodeBase64(nconf.get('asterisk:sip:channel'));
-		confobj.websocket = "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws";
+		confobj.host = getConfigVal('asterisk:sip:private_ip');
+		confobj.realm = getConfigVal('asterisk:sip:private_ip');
+		//confobj.stun = getConfigVal('asterisk:sip:stun');
+		confobj.stun = getConfigVal('asterisk:sip:stun') + ":" + getConfigVal('asterisk:sip:stun_port');
+		confobj.wsport = parseInt(getConfigVal('asterisk:sip:ws_port'));
+		confobj.channel = getConfigVal('asterisk:sip:channel');
+		confobj.websocket = "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws";
 
 		socket.emit('sipconf', confobj);
 
 		if (message === 'webuser') {
 			var qobj = {};
-			qobj.queues = decodeBase64(nconf.get('management_portal:queues'));
+			qobj.queues = getConfigVal('management_portal:queues');
 			socket.emit('queueconf', qobj);
 			logger.debug('Message is webuser type');
 		}
@@ -308,7 +308,7 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for Operating Status
 	socket.on('hours-of-operation', function (data) {
-		var url = decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours";
+		var url = getConfigVal('agent_service:protocol') + '://' + getConfigVal('agent_service:ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours";
 		request({
 			url: url,
 			json: true
@@ -326,7 +326,7 @@ io.sockets.on('connection', function (socket) {
 			requestJson.end = data.end;
 			request({
 					method: 'POST',
-					url: decodeBase64(nconf.get('agent_service:protocol')) + '://' + decodeBase64(nconf.get('agent_service:ip')) + ':' + decodeBase64(nconf.get('agent_service:port')) + "/OperatingHours",
+					url: getConfigVal('agent_service:protocol') + '://' + getConfigVal('agent_service:ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours",
 					headers: {
 							'Content-Type': 'application/json'
 					},
@@ -345,8 +345,8 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
-		//var url = decodeBase64(nconf.get('acr-cdr:url'));
-		var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port')) + "/getallcdrrecs";
+		//var url = getConfigVal('acr-cdr:url');
+		var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port') + "/getallcdrrecs";
 		var format = data.format;
 		if (data.start && data.end) {
 			url += '?start=' + data.start + '&end=' + data.end;
@@ -577,14 +577,14 @@ setImmediate(initialize);
 function sendResourceStatus() {
 	var hostMap = new Map();
 	// list of resources to check for status
-	hostMap.set("Asterisk", "wss://" + decodeBase64(nconf.get('asterisk:sip:private_ip')) + ":" + decodeBase64(nconf.get('asterisk:sip:ws_port')) + "/ws");
-	var url = 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port'));
-	hostMap.set("ACR-CDR", 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('acr_cdr:https_listen_port')));
-	hostMap.set("VRS Lookup", 'https://' + decodeBase64(nconf.get('user_service:ip')) + ':' + decodeBase64(nconf.get('user_service:port')));
-	hostMap.set("ACE Direct", 'https://' + decodeBase64(nconf.get('common:private_ip')) + ':' + decodeBase64(nconf.get('ace_direct:https_listen_port')));
+	hostMap.set("Asterisk", "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws");
+	var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port');
+	hostMap.set("ACR-CDR", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port'));
+	hostMap.set("VRS Lookup", 'https://' + getConfigVal('user_service:ip') + ':' + getConfigVal('user_service:port'));
+	hostMap.set("ACE Direct", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('ace_direct:https_listen_port'));
 
-	hostMap.set("Zendesk", decodeBase64(nconf.get('zendesk:protocol')) + '://' + decodeBase64(nconf.get('zendesk:private_ip')) + ':' + decodeBase64(nconf.get('zendesk:port')) + '/api/v2');
-	hostMap.set("Agent Provider", 'https://' + decodeBase64(nconf.get('agent_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))));
+	hostMap.set("Zendesk", getConfigVal('zendesk:protocol') + '://' + getConfigVal('zendesk:private_ip') + ':' + getConfigVal('zendesk:port') + '/api/v2');
+	hostMap.set("Agent Provider", 'https://' + getConfigVal('agent_service:ip') + ":" + parseInt(getConfigVal('agent_service:port')));
 
 	checkConnection(hostMap, function (data) {
 		io.to('my room').emit('resource-status', data);
@@ -657,10 +657,10 @@ function checkConnection(hosts, callback) {
 function init_ami() {
 	if (ami === null) {
 		try {
-			ami = new AsteriskManager(parseInt(decodeBase64(nconf.get('asterisk:ami:port'))),
-				decodeBase64(nconf.get('asterisk:sip:private_ip')),
-				decodeBase64(nconf.get('asterisk:ami:id')),
-				decodeBase64(nconf.get('asterisk:ami:passwd')), true);
+			ami = new AsteriskManager(parseInt(getConfigVal('asterisk:ami:port')),
+				getConfigVal('asterisk:sip:private_ip'),
+				getConfigVal('asterisk:ami:id'),
+				getConfigVal('asterisk:ami:passwd'), true);
 
 			ami.keepConnected();
 			ami.on('managerevent', handle_manager_event);
@@ -1018,7 +1018,7 @@ function mapAgents() {
  * @returns {undefined} Not used
  */
 function getAgentsFromProvider(callback) {
-	var url = 'https://' + decodeBase64(nconf.get('user_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + "/getallagentrecs";
+	var url = 'https://' + getConfigVal('user_service:ip') + ":" + parseInt(getConfigVal('agent_service:port')) + "/getallagentrecs";
 	request({
 		url: url,
 		json: true
@@ -1124,7 +1124,7 @@ app.use('/', require('./routes'));
  * @returns {undefined} Not used
  */
 // function login(username, password, callback) {
-// 	var url = decodeBase64(nconf.get('agentservice:url')) + ":" + parseInt(decodeBase64(nconf.get('agentservice:port'))) + "/agentverify/";
+// 	var url = getConfigVal('agentservice:url') + ":" + parseInt(getConfigVal('agentservice:port')) + "/agentverify/";
 // 	var params = "?username=" + escape(username) + "&password=" + escape(password);
 // 	request({
 // 		url: url + params,
@@ -1150,7 +1150,7 @@ app.use('/', require('./routes'));
  * @returns {undefined} Not used
  */
 function getUserInfo(username, callback) {
-	var url = 'https://' + decodeBase64(nconf.get('agent_service:ip')) + ":" + parseInt(decodeBase64(nconf.get('agent_service:port'))) + '/getagentrec/' + username;
+	var url = 'https://' + getConfigVal('agent_service:ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getagentrec/' + username;
 	request({
 		url: url,
 		json: true

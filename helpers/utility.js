@@ -17,19 +17,32 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"  && nconf.get('common
 }
 
 /**
- * Function to decode the Base64 configuration file parameters.
- * @param {type} encodedString Base64 encoded string.
+ * Function to verify the config parameter name and
+ * decode it from Base64 (if necessary).
+ * @param {type} param_name of the config parameter
  * @returns {unresolved} Decoded readable string.
  */
-exports.decodeBase64 = function (encodedString) {
-	var decodedString = null;
-	if (clearText) {
-		decodedString = encodedString;
-	} else {
-		decodedString = new Buffer(encodedString, 'base64');
-	}
-	return (decodedString.toString());
-};
+exports.getConfigVal = function (param_name) {
+  var val = nconf.get(param_name);
+  if (typeof val !== 'undefined' && val !== null) {
+    //found value for param_name
+    var decodedString = null;
+    if (clearText) {
+      decodedString = val;
+    } else {
+      decodedString = new Buffer(val, 'base64');
+    }
+  } else {
+    //did not find value for param_name
+    console.log('');
+    console.log('*******************************************************');
+    console.log('ERROR!!! Config parameter is missing: ' + param_name);
+    console.log('*******************************************************');
+    console.log('');
+    decodedString = "";
+  }
+  return (decodedString.toString());
+}
 
 /**
  * Function that sets the rgb fields in the json file from a given color (for light config page)

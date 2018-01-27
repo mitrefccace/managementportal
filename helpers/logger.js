@@ -1,5 +1,5 @@
 'use strict';
-var decodeBase64 = require('./utility').decodeBase64;
+var getConfigVal = require('./utility').getConfigVal;
 var log4js = require('log4js');  //https://www.npmjs.com/package/log4js
 var nconf = require('nconf');
 
@@ -22,7 +22,7 @@ log4js.configure({
 	]
 });
 
-var debugLevel = decodeBase64(nconf.get('common:debug_level'));
+var debugLevel = getConfigVal('common:debug_level');
 
 var logger = log4js.getLogger(logname);
 logger.setLevel(debugLevel); //log level hierarchy: ALL TRACE DEBUG INFO WARN ERROR FATAL OFF
