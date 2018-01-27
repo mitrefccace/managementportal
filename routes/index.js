@@ -1,6 +1,6 @@
 'use strict';
 
-var decodeBase64 = require('../helpers/utility').decodeBase64;
+var getConfigVal = require('../helpers/utility').getConfigVal;
 var express = require('express');
 var jwt = require('jsonwebtoken');
 var logger = require('../helpers/logger');
@@ -12,8 +12,8 @@ var url = require('url');
 var router  = express.Router();
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : 'https://' + decodeBase64(nconf.get('openam:fqdn')) + ":" + decodeBase64(nconf.get('openam:port')) + '/' +  decodeBase64(nconf.get('openam:path')),
-	privateIP: decodeBase64(nconf.get('openam:private_ip')),
+	serverUrl : 'https://' + getConfigVal('openam:fqdn') + ":" + getConfigVal('openam:port') + '/' +  getConfigVal('openam:path'),
+	privateIP: getConfigVal('openam:private_ip'),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
   } 
@@ -146,8 +146,8 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager') {
 		var token = jwt.sign(
 			{ id: req.session.agent_id },
-			new Buffer(decodeBase64(nconf.get('web_security:json_web_token:secret_key')), decodeBase64(nconf.get('web_security:json_web_token:encoding'))),
-			{ expiresIn: parseInt(decodeBase64(nconf.get('web_security:json_web_token:timeout'))) });
+			new Buffer(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
+			{ expiresIn: parseInt(getConfigVal('web_security:json_web_token:timeout')) });
 		res.status(200).json({ message: "success", token: token });
 	} else {
 		req.session.destroy(function (err) {
@@ -166,9 +166,9 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 router.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + decodeBase64(nconf.get('openam:private_ip'))+ ':' + decodeBase64(nconf.get('openam:port')) + '/json/sessions/?_action-logout',
+		url: 'https://' + getConfigVal('openam:private_ip')+ ':' + getConfigVal('openam:port') + '/json/sessions/?_action-logout',
 		headers: {
-			'host' : url.parse('https://' + decodeBase64(nconf.get('openam:fqdn'))).hostname,
+			'host' : url.parse('https://' + getConfigVal('openam:fqdn')).hostname,
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}
@@ -176,7 +176,7 @@ router.get('/logout', function (req, res) {
 		if (error) {
 			logger.error("logout ERROR: " + error);
 		} else {
-            var domaintemp = decodeBase64(nconf.get('openam:fqdn'));
+            var domaintemp = getConfigVal('openam:fqdn');
             var n1 = domaintemp.indexOf(".");
 			res.cookie('iPlanetDirectoryPro', 'cookievalue', { 
 				maxAge: 0, 
