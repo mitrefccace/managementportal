@@ -308,7 +308,7 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for Operating Status
 	socket.on('hours-of-operation', function (data) {
-		var url = 'https://' + getConfigVal('common:ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours";
+		var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours";
 		request({
 			url: url,
 			json: true
@@ -326,7 +326,7 @@ io.sockets.on('connection', function (socket) {
 			requestJson.end = data.end;
 			request({
 					method: 'POST',
-					url: 'https://' + getConfigVal('common:ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours",
+					url: 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours",
 					headers: {
 							'Content-Type': 'application/json'
 					},
@@ -580,11 +580,11 @@ function sendResourceStatus() {
 	hostMap.set("Asterisk", "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws");
 	var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port');
 	hostMap.set("ACR-CDR", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port'));
-	hostMap.set("VRS Lookup", 'https://' + getConfigVal('common:ip') + ':' + getConfigVal('user_service:port'));
+	hostMap.set("VRS Lookup", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('user_service:port'));
 	hostMap.set("ACE Direct", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('ace_direct:https_listen_port'));
 
 	hostMap.set("Zendesk", getConfigVal('zendesk:protocol') + '://' + getConfigVal('zendesk:private_ip') + ':' + getConfigVal('zendesk:port') + '/api/v2');
-	hostMap.set("Agent Provider", 'https://' + getConfigVal('common:ip') + ":" + parseInt(getConfigVal('agent_service:port')));
+	hostMap.set("Agent Provider", 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')));
 
 	checkConnection(hostMap, function (data) {
 		io.to('my room').emit('resource-status', data);
@@ -1018,7 +1018,7 @@ function mapAgents() {
  * @returns {undefined} Not used
  */
 function getAgentsFromProvider(callback) {
-	var url = 'https://' + getConfigVal('common:ip') + ":" + parseInt(getConfigVal('agent_service:port')) + "/getallagentrecs";
+	var url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + "/getallagentrecs";
 	request({
 		url: url,
 		json: true
@@ -1150,7 +1150,7 @@ app.use('/', require('./routes'));
  * @returns {undefined} Not used
  */
 function getUserInfo(username, callback) {
-	var url = 'https://' + getConfigVal('common:ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getagentrec/' + username;
+	var url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getagentrec/' + username;
 	request({
 		url: url,
 		json: true
