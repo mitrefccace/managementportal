@@ -12,8 +12,8 @@ var url = require('url');
 var router  = express.Router();
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : 'https://' + getConfigVal('openam:fqdn') + ":" + getConfigVal('openam:port') + '/' +  getConfigVal('openam:path'),
-	privateIP: getConfigVal('openam:private_ip'),
+	serverUrl : 'https://' + getConfigVal('common:fqdn') + ":" + getConfigVal('openam:port') + '/' +  getConfigVal('openam:path'),
+	privateIP: getConfigVal('common:private_ip'),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
   } 
@@ -166,9 +166,9 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 router.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + getConfigVal('openam:private_ip')+ ':' + getConfigVal('openam:port') + '/json/sessions/?_action-logout',
+		url: 'https://' + getConfigVal('common:private_ip')+ ':' + getConfigVal('openam:port') + '/json/sessions/?_action-logout',
 		headers: {
-			'host' : url.parse('https://' + getConfigVal('openam:fqdn')).hostname,
+			'host' : url.parse('https://' + getConfigVal('common:fqdn')).hostname,
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}
@@ -176,7 +176,7 @@ router.get('/logout', function (req, res) {
 		if (error) {
 			logger.error("logout ERROR: " + error);
 		} else {
-            var domaintemp = getConfigVal('openam:fqdn');
+            var domaintemp = getConfigVal('common:fqdn');
             var n1 = domaintemp.indexOf(".");
 			res.cookie('iPlanetDirectoryPro', 'cookievalue', { 
 				maxAge: 0, 
