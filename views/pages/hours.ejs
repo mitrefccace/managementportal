@@ -58,13 +58,13 @@
 														</td>
 													</tr>
 													<tr>
-														<th>Open/Close:</th>
+														<th>Business Mode:</th>
 														<td>
 
-															<select id="forceopenclosedropdown" class="form-control select2 select2-hidden-accessible" style="width: 100%">
+															<select id="business_mode_dropdown" class="form-control select2 select2-hidden-accessible" style="width: 100%">
 																<option selected="selected" value="NORMAL">Use Hours of Operation</option>
-																<option disabled="disabled" value="FOPEN">Manually Open (in development)</option>
-																<option disabled="disabled" value="FCLOSE">Manually Close (in development)</option>
+																<option value="FORCE_OPEN">Always Open</option>
+																<option value="FORCE_CLOSE">Always Closed</option>
 															</select>
 														</td>
 													</tr>
@@ -166,9 +166,11 @@
 		$("#sidebaroperatinghours").addClass("active");
 		var socket = null;
 
-		$('#forceopenclosedropdown').select2({
+		$('#business_mode_dropdown').select2({
 			minimumResultsForSearch: Infinity
 		});
+
+		
 
 		var updateTime = function () {
 			var timeFormat = 'h:mm A';
@@ -183,18 +185,15 @@
 		setInterval(updateTime, 1000);
 
 		function updateHoursOfOperation() {
-			$('#updateBtn').attr("disabled", "disabled");
+			//$('#updateBtn').attr("disabled", "disabled");
 
 			var data = {};
-			data.start = formatTimeToUTC($("#start_time").val());
-			data.end = formatTimeToUTC($("#end_time").val());
+			//data.start = formatTimeToUTC($("#start_time").val());
+			//data.end = formatTimeToUTC($("#end_time").val());
+			data.business_mode = $("#business_mode_dropdown").val();
+			alert(JSON.stringify(data) )
 
-			setTimeout(function () {
-
-
-			}, 3000)
-
-			socket.emit('hours-of-operation-update', data);
+			//socket.emit('hours-of-operation-update', data);
 		}
 
 
@@ -206,6 +205,8 @@
 			$("#end_time").wickedpicker({
 				now: formatTime(data.end)
 			});
+
+			$("#business_mode_dropdown").val(data.business_mode).change();
 		}
 
 		var setOperatingStatus = function (isOpen) {

@@ -206,8 +206,11 @@ io.sockets.on('connection', function (socket) {
 	var numClients = 0;
 	logger.info('io.socket connected, id: ' + socket.id);
 
-    //emit AD version, year to clients
-    socket.emit('adversion', {"version":version,"year":year});
+	//emit AD version, year to clients
+	socket.emit('adversion', {
+		"version": version,
+		"year": year
+	});
 
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
@@ -316,6 +319,21 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("Aserver error: " + err);
 			} else {
+				switch (hourData.business_mode) {
+					case '0':
+						hourData.business_mode = 'NORMAL';
+						break;
+					case '1':
+						hourData.business_mode = 'FORCE_OPEN';
+						break;
+					case '2':
+						hourData.business_mode = 'FORCE_CLOSE';
+						break;
+					default:
+						hourData.business_mode = 'NORMAL';
+						break;
+				}
+
 				io.to(socket.id).emit("hours-of-operation-response", hourData)
 			}
 		});
@@ -324,21 +342,37 @@ io.sockets.on('connection', function (socket) {
 			var requestJson = {};
 			requestJson.start = data.start;
 			requestJson.end = data.end;
+
+			switch (data.business_mode) {
+				case 'NORMAL':
+					requestJson.business_mode = 0;
+					break;
+				case 'FORCE_OPEN':
+					requestJson.business_mode = 1;
+					break;
+				case 'FORCE_CLOSE':
+					requestJson.business_mode = 2;
+					break;
+				default:
+					requestJson.business_mode = 0;
+					break;
+			}
+
 			request({
-					method: 'POST',
-					url: 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours",
-					headers: {
-							'Content-Type': 'application/json'
-					},
-					body: requestJson,
-					json: true
+				method: 'POST',
+				url: 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours",
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: requestJson,
+				json: true
 			}, function (error, response, data) {
-					if (error) {
-							logger.error("Aserver error: " + error);
-					} else {
-						
-							io.to(socket.id).emit("hours-of-operation-update-response", data)
-					}
+				if (error) {
+					logger.error("Aserver error: " + error);
+				} else {
+
+					io.to(socket.id).emit("hours-of-operation-update-response", data)
+				}
 			});
 		}
 	});
