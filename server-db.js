@@ -320,13 +320,13 @@ io.sockets.on('connection', function (socket) {
 				logger.error("Aserver error: " + err);
 			} else {
 				switch (hourData.business_mode) {
-					case '0':
+					case 0:
 						hourData.business_mode = 'NORMAL';
 						break;
-					case '1':
+					case 1:
 						hourData.business_mode = 'FORCE_OPEN';
 						break;
-					case '2':
+					case 2:
 						hourData.business_mode = 'FORCE_CLOSE';
 						break;
 					default:
