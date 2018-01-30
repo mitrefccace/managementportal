@@ -206,22 +206,23 @@
     <script type="text/javascript" src="./bower_components/jwt-decode/build/jwt-decode.min.js"></script>
     <script type="text/javascript" src="public/js/controllers/videomail.js"></script>
 
-		<!-- flot -->
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
-		<script type="text/javascript" src="./bower_components/flot-axislabels/jquery.flot.axislabels.js"></script>
-		<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.pie.min.js"></script>
+	<!-- flot -->
+	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
+	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
+	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
+	<script type="text/javascript" src="./bower_components/flot-axislabels/jquery.flot.axislabels.js"></script>
+	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.pie.min.js"></script>
+	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.resize.min.js"></script>
 
     <script type="text/javascript">
       $(document).ready(function () {
         $("#sidebarvideomail").addClass("active");
       });
 
-			// Label formatter for flot pie chart
-			function labelFormatter(label, series) {
-				return "<div style='font-size:10pt; text-align:center; padding:2px; color:black;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
-			};
+		// Label formatter for flot pie chart
+		function labelFormatter(label, series) {
+			return "<div style='font-size:10pt; text-align:center; padding:2px; color:black;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+		};
 
         $.ajax({
             url: './token',
