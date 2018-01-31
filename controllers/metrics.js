@@ -1,8 +1,7 @@
 'use strict';
-var _ = require('lodash');
 var logger = require('../helpers/logger');
 
-exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, callback) {
+exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback) {
 	var metrics = {};
 	logger.debug('CreateMetrics');
 	logger.debug('start and end: ' + metricsStartDate + ', ' + metricsEndDate);
@@ -61,21 +60,6 @@ exports.createMetrics = function(db, Agents, metricsStartDate, metricsEndDate, c
 				metrics.averageCallsInQueue = [];
 				metrics.averageCallsInQueueTarget = [];
 			}
-		})
-		.then(function() {
-			// Agent Status Pie Chart
-			// Make chart data from Agents array
-			// Improvements:
-			// Do it for one user selected queue?
-			// Make pie chart colors match busylight status colors?
-
-			logger.debug(Agents.length);
-			var grouped = _.countBy(Agents, 'status');
-			metrics.agentStatus = [];
-			_.forOwn(grouped, function(item, key) {
-				metrics.agentStatus.push({ "label": key, "data": item});
-			});
-			//logger.debug(JSON.stringify(metrics.agentStatus, null, '\t'));
 
 			callback(metrics);
 		})

@@ -54,6 +54,8 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 						$scope.Agents.push(data.agents[i]);
 					}
 				}
+
+				updateAgentStatusPieChart(data.agents);
 			}
 		});
 
@@ -116,6 +118,50 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		
 		angular.element(document).ready($scope.initData());       
 	});
+
+function updateAgentStatusPieChart(agents) {
+	var temp = agents.reduce(function(p, c){
+		var defaultValue = {
+		  status: c.status,
+		  data: 0
+		};
+		p[c.status] = p[c.status] || defaultValue;
+		p[c.status].data++;
+		
+		return p;
+	  }, {});
+	
+	var agentStatusSummary = [];
+	for( var k in temp ){
+		agentStatusSummary.push(temp[k]);
+	}
+	
+	agentStatusSummary.forEach(function(e) {
+		e.label = e.status;
+		delete e.status;    
+	});
+	//console.log(JSON.stringify(agentStatusSummary, null, '\t'));
+
+	$.plot("#agentStatusPieChart", agentStatusSummary, {
+		series: {
+			pie: { 
+				show: true,
+				radius: 1,
+				label: {
+					show: true,
+					radius: 0.6,
+					formatter: labelFormatter,
+					background: {
+						opacity: 0.5
+					}
+				}
+			}
+		},
+		legend: {
+			show: false
+		}
+	});
+}
 
 dbController.directive('highlightOnChange', function() {
 	  return {
