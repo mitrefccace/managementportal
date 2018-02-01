@@ -44,12 +44,14 @@
 										<h3 class="box-title">Call Detail Records</h3>
 
 										<div class="box-tools pull-right">
-											<button class="btn btn-box-tool" id="toggle" data-toggle="tooltip" data-placement="left" title="Show/Hide Columns – This action expands the table to include the following columns: Caller ID Text, Destination Channel, Disposition, AMA Flags, Account Code, User Field, Unique ID, Linked ID, Sequence, and Peer Account.">
-												<i class="fa fa-toggle-off"></i>
+											<button class="btn btn-box-tool" id="toggle">
+												<i class="fa fa-toggle-off" style="font-size: 1.75em"></i>
 											</button>
-											<button class="btn btn-box-tool" id="cdrdownloadbtn" data-toggle="tooltip" data-placement="left" title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range.">
-												<i class="fa fa-download"></i>
+											<i style="padding-right: 25px" class="fa fa-question-circle" data-toggle="tooltip" data-placement="bottom" title="Show/Hide Columns – This action expands the table to include the following columns: Caller ID Text, Destination Channel, Disposition, AMA Flags, Account Code, User Field, Unique ID, Linked ID, Sequence, and Peer Account."></i>
+											<button class="btn btn-box-tool" id="cdrdownloadbtn">
+												<i class="fa fa-download" style="font-size: 1.75em"></i>
 											</button>
+											<i style="padding-right: 15px" class="fa fa-question-circle" data-toggle="tooltip" data-placement="bottom" title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range."></i>
 										</div>
 									</div>
 									<!-- /.box-header -->
@@ -267,9 +269,9 @@
 		function toggleTable() {
 			toggle = !toggle;
 			if (toggle) {
-				$('#toggle').html('<i class="fa fa-toggle-on"></i>');
+				$('#toggle').html('<i class="fa fa-toggle-on" style="font-size: 1.75em"></i>');
 			} else {
-				$('#toggle').html('<i class="fa fa-toggle-off"></i>');
+				$('#toggle').html('<i class="fa fa-toggle-off" style="font-size: 1.75em"></i>');
 			}
 			datatable.column(1).visible(toggle);
 			datatable.column(6).visible(toggle);
