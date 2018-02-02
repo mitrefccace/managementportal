@@ -12,7 +12,7 @@ var url = require('url');
 var router  = express.Router();
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl : 'https://' + getConfigVal('common:fqdn') + ":" + getConfigVal('openam:port') + '/' +  getConfigVal('openam:path'),
+	serverUrl : 'https://' + getConfigVal('common:fqdn') + ":" + getConfigVal('nginx:port') + '/' +  getConfigVal('openam:path'),
 	privateIP: getConfigVal('common:private_ip'),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
@@ -166,7 +166,7 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 router.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + getConfigVal('common:private_ip')+ ':' + getConfigVal('openam:port') + '/json/sessions/?_action-logout',
+		url: 'https://' + getConfigVal('common:private_ip')+ ':' + getConfigVal('nginx:port') + '/json/sessions/?_action-logout',
 		headers: {
 			'host' : url.parse('https://' + getConfigVal('common:fqdn')).hostname,
 			'iplanetDirectoryPro': req.session.key,

@@ -56,7 +56,7 @@ var year = getConfigVal('common:year');
 logger.info("This is ACE Direct v" + version + ", Copyright " + year + ".");
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl: 'https://' + getConfigVal('common:fqdn') + ":" + getConfigVal('openam:port') + '/' + getConfigVal('openam:path'),
+	serverUrl: 'https://' + getConfigVal('common:fqdn') + ":" + getConfigVal('nginx:port') + '/' + getConfigVal('openam:path'),
 	privateIP: getConfigVal('common:private_ip'),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
