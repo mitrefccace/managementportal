@@ -154,7 +154,11 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = getConfigVal('database_servers:mongodb:connection_uri');
 	// Initialize connection once
 	MongoClient.connect(mongodbUri, function (err, database) {
-		if (err) throw err;
+    if (err) {
+      logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+      console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+      process.exit(-99);
+    }
 
 		console.log('MongoDB Connection Successful');
 		db = database;
