@@ -166,9 +166,9 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 router.get('/logout', function (req, res) {
 	request({
 		method: 'POST',
-		url: 'https://' + getConfigVal('common:private_ip')+ ':' + getConfigVal('nginx:port') + '/json/sessions/?_action-logout',
+		url: 'https://' + getConfigVal('nginx:private_ip')+ ':' + getConfigVal('nginx:port') + '/json/sessions/?_action-logout',
 		headers: {
-			'host' : url.parse('https://' + getConfigVal('common:fqdn')).hostname,
+			'host' : url.parse('https://' + getConfigVal('nginx:fqdn')).hostname,
 			'iplanetDirectoryPro': req.session.key,
 			'Content-Type': 'application/json'
 		}
@@ -176,7 +176,7 @@ router.get('/logout', function (req, res) {
 		if (error) {
 			logger.error("logout ERROR: " + error);
 		} else {
-            var domaintemp = getConfigVal('common:fqdn');
+            var domaintemp = getConfigVal('nginx:fqdn');
             var n1 = domaintemp.indexOf(".");
 			res.cookie('iPlanetDirectoryPro', 'cookievalue', { 
 				maxAge: 0, 
