@@ -7,7 +7,7 @@ The ACE Management Portal consists of two components, the Management and Call De
 ## SSL Configuration
 
 1. ACE software uses SSL which requires a valid key and certificate
-1. The location of the SSL key and certificate can be specified in the config.json by using the https:certificate and https:private_key parameters in the form of folder/file (e.g., ssl/mycert.pem and ssl/mykey.pem)
+1. The location of the SSL key and certificate is specified in the ~/dat/config.json by using the common:https:certificate and common:https:private_key parameters in the form of folder/file (e.g., /home/centos/ssl/mycert.pem and /home/centos/ssl/mykey.pem)
 1. Additional information can be found in the ACE Direct Platform Release document
 
 ## Getting Started
@@ -23,4 +23,4 @@ To install the management portal, follow the README.md file in the autoinstall f
 
 ## Accessing the Portal
 
-1. ACE Management Portal, go to: `http://<hostname:port>/dashboard.html`
+1. ACE Management Portal: `http://host/ManagementPortal`
