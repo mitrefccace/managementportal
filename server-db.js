@@ -242,12 +242,12 @@ io.sockets.on('connection', function (socket) {
 		logger.info("Adding client socket to room: 'my room'");
 		// Add this socket to my room
 		socket.join('my room');
-		sendResourceStatus();
+		//sendResourceStatus();
 	});
 
 	// Manually get resource status
 	socket.on('resource-status-update', function () {
-		sendResourceStatus();
+		//sendResourceStatus();
 	});
 
 	socket.on('ami-req', function (message) {
@@ -605,7 +605,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 //calls sendResourceStatus every minute
-setInterval(sendResourceStatus, 60000);
+//setInterval(sendResourceStatus, 60000);
 setImmediate(initialize);
 
 /**
