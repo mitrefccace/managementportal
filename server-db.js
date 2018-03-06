@@ -615,7 +615,7 @@ setImmediate(initialize);
 function sendResourceStatus() {
 	var hostMap = new Map();
 	// list of resources to check for status
-	hostMap.set("Asterisk", "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws");
+	//hostMap.set("Asterisk", "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws");
 	var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port');
 	hostMap.set("ACR-CDR", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port'));
 	hostMap.set("VRS Lookup", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('user_service:port'));
