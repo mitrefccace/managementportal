@@ -32,11 +32,9 @@ var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: fal
 router.get('/', agent.shield(cookieShield),function (req, res) {
 	if (req.session.role === 'Manager') {
 		res.redirect('./dashboard');
-	} else if (req.session.role !== undefined) {
-		res.redirect('./Logout');
 	} else {
-		res.render('pages/login', { csrfToken: req.csrfToken() });
-	}
+		res.redirect('./Logout');
+	} 
 });
 
 /**
