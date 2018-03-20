@@ -893,7 +893,6 @@ function handle_manager_event(evt) {
 					else if (evt.status === "2") // In a call
 						a.status = "In Call";
 					else {
-						a.status = "Logged Out";
 						a.queue = "--";
 					}
 					if (a.queue === "--")
