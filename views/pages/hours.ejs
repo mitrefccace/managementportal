@@ -175,10 +175,17 @@
 		var updateTime = function () {
 			var timeFormat = 'h:mm A';
 			$('#current_local').html(moment().format(timeFormat))
-			$('#current_est').html(moment().utcOffset(-5).format(timeFormat))
-			$('#current_cst').html(moment().utcOffset(-6).format(timeFormat))
-			$('#current_mst').html(moment().utcOffset(-7).format(timeFormat))
-			$('#current_pst').html(moment().utcOffset(-8).format(timeFormat))
+			
+			var dst = 0;
+			if (moment().isDST())
+				dst = 1;
+				
+			$('#current_est').html(moment().utcOffset(-5 + dst).format(timeFormat))
+			$('#current_cst').html(moment().utcOffset(-6 + dst).format(timeFormat))
+			$('#current_mst').html(moment().utcOffset(-7 + dst).format(timeFormat))
+			$('#current_pst').html(moment().utcOffset(-8 + dst).format(timeFormat))
+
+			
 		};
 
 		updateTime();
