@@ -1,5 +1,5 @@
 ![](images/acesmall.png)
-
+  
 # ACE Management Portal Project
 
 The ACE Management Portal consists of two components, the Management and Call Detail Record (CDR) dashboards. These dashboards present the manager with information about the operations of the call center and information about incoming calls.
