@@ -30,7 +30,7 @@ var cookieShield = new openamAgent.CookieShield({ getProfiles: false, cdsso: fal
  * @param {function} function(req, res)
  */
 router.get('/', agent.shield(cookieShield),function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		res.redirect('./dashboard');
 	} else {
 		res.redirect('./Logout');
@@ -46,7 +46,7 @@ router.get('/', agent.shield(cookieShield),function (req, res) {
  * @param {function} function(req, res)
  */
 router.get('/dashboard', agent.shield(cookieShield), function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		res.render('pages/dashboard');
 	} else if (req.session.role !== undefined) {
 		console.log("bad role");
@@ -77,7 +77,7 @@ router.get('/ManagementPortal', agent.shield(cookieShield), function (req, res) 
  * @param {function} function(req, res)
  */
 router.get('/cdr', agent.shield(cookieShield), function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		res.render('pages/cdr');
 	} else {
 		res.redirect('./');
@@ -93,7 +93,7 @@ router.get('/cdr', agent.shield(cookieShield), function (req, res) {
  * @param {function} function(req, res)
  */
 router.get('/videomail', agent.shield(cookieShield), function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		res.render('pages/videomail');
 	} else {
 		res.redirect('./');
@@ -109,7 +109,7 @@ router.get('/videomail', agent.shield(cookieShield), function (req, res) {
  * @param {function} function(req, res)
  */
 router.get('/light', agent.shield(cookieShield), function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		res.render('pages/light');
 	} else {
 		res.redirect('./');
@@ -125,7 +125,7 @@ router.get('/light', agent.shield(cookieShield), function (req, res) {
  * @param {function} function(req, res)
  */
 router.get('/hours', agent.shield(cookieShield), function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		res.render('pages/hours');
 	} else {
 		res.redirect('./');
@@ -141,7 +141,7 @@ router.get('/hours', agent.shield(cookieShield), function (req, res) {
  * @param {function} function(req, res)
  */
 router.get('/token', agent.shield(cookieShield), function (req, res) {
-	if (req.session.role === 'Manager') {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
 		var token = jwt.sign(
 			{ id: req.session.agent_id },
 			new Buffer(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
