@@ -1,8 +1,0 @@
-{
-	"apps": [{
-			"name": "Management Portal: 8081",
-			"script": "./server-db.js",
-			"error_file": "./logs/server-db.log",
-			"out_file": "./logs/server-db.log"
-		}]
-}
