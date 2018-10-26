@@ -55,6 +55,13 @@ var version = getConfigVal('common:version');
 var year = getConfigVal('common:year');
 logger.info("This is ACE Direct v" + version + ", Copyright " + year + ".");
 
+//NGINX path parameter
+var nginxPath = getConfigVal('nginx:mp_path');
+if (nginxPath.length == 0) {
+  //default for backwards compatibility
+  nginxPath = "/ManagementPortal";
+}
+
 var agent = new openamAgent.PolicyAgent({
 	serverUrl: 'https://' + getConfigVal('nginx:fqdn') + ":" + getConfigVal('nginx:port') + '/' + getConfigVal('openam:path'),
 	privateIP: getConfigVal('nginx:private_ip'),
@@ -91,9 +98,9 @@ app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({
 	type: 'application/vnd.api+json'
 })); // parse application/vnd.api+json as json
-app.use(csrf({
-	cookie: false
-}));
+//app.use(csrf({
+//	cookie: false
+//}));
 
 nconf.defaults({ // if the port is not defined in the cocnfig.json file, default it to 8080
 	dashboard: {
@@ -154,11 +161,11 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = getConfigVal('database_servers:mongodb:connection_uri');
 	// Initialize connection once
 	MongoClient.connect(mongodbUri, function (err, database) {
-    if (err) {
-      logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
-      console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
-      process.exit(-99);
-    }
+		if (err) {
+			logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+			console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+			process.exit(-99);
+		}
 
 		console.log('MongoDB Connection Successful');
 		db = database;
@@ -182,16 +189,25 @@ io.use(socketioJwt.authorize({
 	handshake: getConfigVal('web_security:json_web_token:handshake')
 }));
 
+/* ACRDEMO-491: remove the mechanism of copying color config files from ../dat to ~/dat
+ * The copying is problematic and also the agent is looking for color configuration in ~/dat only
+ *
 //light status config requirement: copy dat/color_config.json to ~/dat if not already there
 var color_config_file_path = os.homedir() + '/dat';
 if (!fs.existsSync(color_config_file_path)) { //make sure dir existsSync
 	fs.mkdirSync(color_config_file_path, '0775');
 }
-if (!fs.existsSync(color_config_file_path + '/color_config.json') || !fs.existsSync(color_config_file_path + '/default_color_config.json')) {
+*/
+
+if (!fs.existsSync('../dat/color_config.json') || !fs.existsSync('../dat/default_color_config.json')) {
+	/* ACRDEMO-491: skip the copying however log an error if the color config files do not exist
 	// copy it from dat
 	logger.info('copying default color config file to ~/dat since it does not exist...');
-	fs.createReadStream('dat/color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/color_config.json'));
-	fs.createReadStream('dat/default_color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/default_color_config.json'));
+	fs.createReadStream('../dat/color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/color_config.json'));
+	fs.createReadStream('../dat/default_color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/default_color_config.json'));
+	*/
+	logger.error("color_config.json or default_color_config.json files do not exist in ../dat folder");
+	console.log("color_config.json or default_color_config.json files do not exist in ../dat folder");
 }
 
 logger.info('Listen on port: ' + port);
@@ -242,12 +258,12 @@ io.sockets.on('connection', function (socket) {
 		logger.info("Adding client socket to room: 'my room'");
 		// Add this socket to my room
 		socket.join('my room');
-		//sendResourceStatus();
+		sendResourceStatus();
 	});
 
 	// Manually get resource status
 	socket.on('resource-status-update', function () {
-		//sendResourceStatus();
+		sendResourceStatus();
 	});
 
 	socket.on('ami-req', function (message) {
@@ -338,7 +354,7 @@ io.sockets.on('connection', function (socket) {
 						break;
 				}
 
-				io.to(socket.id).emit("hours-of-operation-response", hourData)
+				io.to(socket.id).emit("hours-of-operation-response", hourData);
 			}
 		});
 	}).on("hours-of-operation-update", function (data) {
@@ -375,7 +391,7 @@ io.sockets.on('connection', function (socket) {
 					logger.error("Aserver error: " + error);
 				} else {
 
-					io.to(socket.id).emit("hours-of-operation-update-response", data)
+					io.to(socket.id).emit("hours-of-operation-update-response", data);
 				}
 			});
 		}
@@ -555,7 +571,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on("get_color_config", function () {
 		try {
 			//send json file to client
-			var file_path = os.homedir() + '/dat/color_config.json';
+			var file_path = '../dat/color_config.json';
 			var data = fs.readFileSync(file_path, 'utf8');
 			socket.emit("html_setup", data);
 		} catch (ex) {
@@ -566,7 +582,7 @@ io.sockets.on('connection', function (socket) {
 	//on light color config submit update current color_config.json file
 	socket.on('submit', function (form_data) {
 		try {
-			var file_path = os.homedir() + '/dat/color_config.json';
+			var file_path = '../dat/color_config.json';
 			var data = fs.readFileSync(file_path, 'utf8');
 			var json_data = JSON.parse(data);
 			for (var status in json_data.statuses) {
@@ -594,7 +610,7 @@ io.sockets.on('connection', function (socket) {
 	//sends the default_color_config.json data back to the management portal
 	socket.on('reset-color-config', function () {
 		try {
-			var default_color_config = os.homedir() + '/dat/default_color_config.json';
+			var default_color_config = '../dat/default_color_config.json';
 			var data = fs.readFileSync(default_color_config, 'utf8');
 			socket.emit("update-colors", data);
 		} catch (ex) {
@@ -605,7 +621,7 @@ io.sockets.on('connection', function (socket) {
 });
 
 //calls sendResourceStatus every minute
-//setInterval(sendResourceStatus, 60000);
+setInterval(sendResourceStatus, 60000);
 setImmediate(initialize);
 
 /**
@@ -781,7 +797,7 @@ function amiaction(obj) {
 
 /**
  * Caculate the total calls taken by an agent
- * @param {type} m
+ * @param {type} m Agent CallMap
  * @returns {undefined}
  */
 function getTotalCallsTaken(m) {
@@ -796,8 +812,8 @@ function getTotalCallsTaken(m) {
 
 /**
  * increment the agent call for a specific queue after the agent completes a call
- * @param {type} m
- * @param {type} myqueue
+ * @param {type} m Agent CallMap
+ * @param {type} myqueue Event Queue
  * @returns {undefined}
  */
 function incrementCallMap(m, myqueue) {
@@ -840,10 +856,12 @@ function handle_manager_event(evt) {
 						evt.callstaken = 0;
 						evt.queue = '--';
 						evt.status = "Logged Out";
+
 						evt.callMap = new Map();
 						for (var i = 0; i < Asterisk_queuenames.length; i++) {
 							evt.callMap.set(Asterisk_queuenames[i], 0); // set the total call to 0
 						}
+
 						//evt.callsabandoned = 0; -- this information is not available for agent
 						Agents.push(evt);
 
@@ -852,7 +870,6 @@ function handle_manager_event(evt) {
 					}
 				} else {
 					logger.debug("Existing agent"); // status always set to AGENT_LOGGEDOFF. Do not use this field
-
 				}
 				break;
 			}
@@ -881,6 +898,10 @@ function handle_manager_event(evt) {
 		case 'QueueMember':
 			{ // update status and averageTalkTime
 				logger.debug(evt);
+                if (evt.name == null) {
+			        logger.error("handle_manager_event(evt) QueueMember ERROR - evt.name is null or undefined");
+                    break;
+                }
 				name = evt.name.split("/");
 				a = findAgent(name[1]); // use full name e.g. PSSIP/30001 which is the extension
 				if (a) {
@@ -918,6 +939,7 @@ function handle_manager_event(evt) {
 					q = {};
 					Queues.push(q);
 				}
+				q.queue = evt.queue;    // ybao: avoid creating multiple queue elements for the same queue
 				q.completed = Number(evt.completed); // params
 				q.abandoned = Number(evt.abandoned); // params
 				q.calls = Number(evt.calls); // params
@@ -992,7 +1014,6 @@ function handle_manager_event(evt) {
  * @returns {undefined} Not used
  */
 function initialize() {
-
 	mapAgents();
 	callAmiActions();
 	resetAllCounters();
@@ -1068,7 +1089,6 @@ function getAgentsFromProvider(callback) {
 		} else {
 			callback(data);
 		}
-
 	});
 }
 
@@ -1101,12 +1121,12 @@ app.use(function (err, req, res, next) {
  * before openam cookie shield is enforced
  */
 app.use(function (req, res, next) {
-	if (req.path === '/ManagementPortal' || req.path === '/agentassist') {
+	if (req.path === nginxPath || req.path === '/agentassist') {
 		return next();
 	} else if (req.path === '/logout') {
 		return next();
-	} else if (req.session.data) {
-		if (req.session.data.uid) {
+	} else if (req.session !== null && req.session.data) {
+		if (req.session.data !== null && req.session.data.uid) {
 			if (req.session.role)
 				return next(); //user is logged in go to next()
 
@@ -1122,7 +1142,7 @@ app.use(function (req, res, next) {
 			});
 		}
 	} else {
-		res.redirect('./ManagementPortal');
+		res.redirect('.' + nginxPath);
 	}
 });
 
@@ -1148,6 +1168,13 @@ app.use('/agentassist', function (req, res) {
 //must come after above function
 //All get requests below are subjected to openam cookieShield
 //app.use(agent.shield(cookieShield));
+
+app.use(function(req, res, next){
+	res.locals = {
+		"nginxPath": nginxPath
+	};
+	next();
+});
 
 app.use('/', require('./routes'));
 

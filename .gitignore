@@ -7,5 +7,5 @@
 node_modules
 nbproject
 /public/bower_components
-config_.json_MIKE
 .DS_Store
+.env

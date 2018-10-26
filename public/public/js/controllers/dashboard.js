@@ -3,7 +3,7 @@
 //var socket = io.connect();
 var dbController = angular.module('dashboardModule', ['csrService', 'angularDurationFormat'])
 		.controller('dashboardController', function($scope, $http, $window, socket) {
-	
+
 		$scope.Queues = [];
 		$scope.qNames = [];
 		$scope.queue = "";
@@ -15,12 +15,34 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		$scope.summary.abandoned = 0;
 		$scope.summary.avgholdtime = 0;
 
-		// receives queue summary update every minute 
+		var calculateSummary = function () {
+			$scope.summary.calls = 0;
+			$scope.summary.completed = 0;
+			$scope.summary.holdtime = 0;
+			$scope.summary.abandoned = 0;
+
+			for (var i=0; i<$scope.Queues.length; i++) {
+				$scope.summary.calls += Number($scope.Queues[i].calls);
+
+				$scope.summary.completed += $scope.Queues[i].completed;
+				$scope.summary.holdtime += Number($scope.Queues[i].holdtime);
+				$scope.summary.abandoned += $scope.Queues[i].abandoned;
+			}
+
+			if ($scope.summary.completed > 0 && $scope.summary.holdtime > 0) {
+				$scope.summary.avgholdtime = Number($scope.summary.holdtime / $scope.summary.completed).toFixed(2);
+			}
+			else {
+				$scope.summary.avgholdtime = 0;
+			}
+		};
+
+		// receives queue summary update every minute
 		socket.on('queue', function (data){
 			//console.log("Received socket emit for queues...");
 			//$scope.$apply(function() {
 			$scope.Queues = data.queues;
-			if (data.queues.length !== $scope.qNames.length) { 
+			if (data.queues.length !== $scope.qNames.length) {
 				//console.log("Push qNames socket........." );
 				$scope.qNames = [];
 				for (var i=0; i<data.queues.length; i++) {
@@ -40,7 +62,7 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		}
 
 		socket.on('agent-resp', function (data){
-			//console.log("Received agent data..." + JSON.stringify(data, null,2,true));					
+			//console.log("Received agent data..." + JSON.stringify(data, null,2,true));
 			//$scope.Agents = data.agents;
 			if (data.agents) {
 				for (var i=0; i<data.agents.length; i++) {
@@ -60,23 +82,23 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 		});
 
 		socket.on('queue-resp', function (data){
-			//console.log("Received queue data..." + JSON.stringify(data, null,2,true));					
+			//console.log("Received queue data..." + JSON.stringify(data, null,2,true));
 			$scope.Queues = data.queues;
 			calculateSummary();
 		});
-		
+
 		socket.on('sipconf', function (data){
 			//console.log("Received sip conf data..." + JSON.stringify(data, null,2,true));
 			$window.sipconf = data; // so the data can be accessed by non-angular javascript under the window element
 		});
 		socket.on('queueconf', function (data){
-			//console.log("Received queue conf data..." + JSON.stringify(data, null,2,true));	
+			//console.log("Received queue conf data..." + JSON.stringify(data, null,2,true));
 			$window.queueconf = data;
 		});
-		
+
 		socket.on('agent-request', function (data){
-			console.log("Received agent-request help data..." + JSON.stringify(data, null,2,true));	
-			
+			console.log("Received agent-request help data..." + JSON.stringify(data, null,2,true));
+
 			for (var i=0; i<$scope.Agents.length; i++) {
 				if ($scope.Agents[i].agent === data) {
 					console.log("Extension needs assistance: " + $scope.Agents[i].agent);
@@ -85,28 +107,6 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 				}
 			}
 		});
-		
-		var calculateSummary = function () {
-			$scope.summary.calls = 0;
-			$scope.summary.completed = 0;
-			$scope.summary.holdtime = 0;
-			$scope.summary.abandoned = 0;
-
-			for (var i=0; i<$scope.Queues.length; i++) {
-				$scope.summary.calls += Number($scope.Queues[i].calls);
-				
-				$scope.summary.completed += $scope.Queues[i].completed;
-				$scope.summary.holdtime += Number($scope.Queues[i].holdtime);
-				$scope.summary.abandoned += $scope.Queues[i].abandoned;
-			}
-			
-			if ($scope.summary.completed > 0 && $scope.summary.holdtime > 0) {
-				$scope.summary.avgholdtime = Number($scope.summary.holdtime / $scope.summary.completed).toFixed(2);
-			}
-			else {
-				$scope.summary.avgholdtime = 0;
-			}
-		};
 
 		$scope.initData = function () {
 			   //$scope.getQueues();
@@ -115,8 +115,8 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 			   socket.emit('ami-req', "agent");
 			   socket.emit('ami-req', "queue");
 		};
-		
-		angular.element(document).ready($scope.initData());       
+
+		angular.element(document).ready($scope.initData());
 	});
 
 function updateAgentStatusPieChart(agents) {
@@ -127,24 +127,24 @@ function updateAgentStatusPieChart(agents) {
 		};
 		p[c.status] = p[c.status] || defaultValue;
 		p[c.status].data++;
-		
+
 		return p;
 	  }, {});
-	
+
 	var agentStatusSummary = [];
 	for( var k in temp ){
 		agentStatusSummary.push(temp[k]);
 	}
-	
+
 	agentStatusSummary.forEach(function(e) {
 		e.label = e.status;
-		delete e.status;    
+		delete e.status;
 	});
 	//console.log(JSON.stringify(agentStatusSummary, null, '\t'));
 
 	$.plot("#agentStatusPieChart", agentStatusSummary, {
 		series: {
-			pie: { 
+			pie: {
 				show: true,
 				radius: 1,
 				label: {

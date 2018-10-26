@@ -25,7 +25,7 @@ function connect_socket() {
 			console.log(JSON.stringify(data));
 			if (data.message === "success") {
 				socket = io.connect('https://' + window.location.host, {
-					path: '/ManagementPortal/socket.io',
+					path: nginxPath+'/socket.io',
 					query: 'token=' + data.token,
 					forceNew: true
 				});
@@ -41,7 +41,7 @@ function connect_socket() {
 					$('#loginModal').modal('hide');
 
 					$('#statusmsg').text(""); //clear status text
-					
+
 					socket.emit('register-manager', {
 						"hello": "hello"
 					});
@@ -82,7 +82,7 @@ function connect_socket() {
 									}
 								}
 						 	}
-						 },        
+						 },
 						 legend: {show: true}
 					});
 				});
@@ -223,7 +223,7 @@ function updateVideomailTable(data){
 		}
 		var vidReceived = data[i].received;
 		var vidDuration = data[i].video_duration;
-		var vidAgent = data[i].processing_agent;								  
+		var vidAgent = data[i].processing_agent;
 		var vidStatus = data[i].status;
 		var vidFilepath = data[i].video_filepath;
 		var vidFilename = data[i].video_filename;
@@ -239,13 +239,13 @@ function updateVideomailTable(data){
 		filepathCell.setAttribute('hidden', true);
 		var idCell = row.insertCell(6);
 		idCell.setAttribute('hidden',true);
-		
+
 		filepathCell.innerHTML = vidFilepath + vidFilename;
 		idCell.innerHTML = vidId;
 		numberCell.innerHTML = vidNumber;
 		receivedCell.innerHTML = vidReceived;
 		durationCell.innerHTML = vidDuration;
-		agentCell.innerHTML = vidAgent;						 
+		agentCell.innerHTML = vidAgent;
 
     if (vidStatus === 'UNREAD')
       statusCell.innerHTML = '<span style="font-weight:bold">' + vidStatus+ '</span>';
@@ -356,7 +356,7 @@ function videomail_deleted(id){
 		"extension": extensionMe
 	});
 	console.log('Emitted a socket videomail-deleted');
-	stopVideomail();			 
+	stopVideomail();
 }
 
 //Videomail play button functionality

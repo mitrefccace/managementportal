@@ -8,8 +8,7 @@
 	var realtimetext = false;
 	var newline = true;
 	var currentli = null;
-	
-	
+
 	function sendChat (key) {
 		if(chatinput.val().length) {
 			//createChatMessage(chatinput.val(), name, img, moment());
@@ -17,7 +16,7 @@
 			// Send the message to the other person in the chat
 			socket.emit('msg', {'msg': chatinput.val(), 'key': key});
 			if (key === 13) { // enter key
-				createChatMessage(chatinput.val(), 'me');		
+				createChatMessage(chatinput.val(), 'me');
 				chatinput.val('');
 				//realtimearea.val('');
 			}
@@ -35,7 +34,7 @@
 		var li = $(
 			'<li class=' + user + '>'+
 				'<div class="image">' +
-					'<img src=' + imgg + ' />' 
+					'<img src=' + imgg + ' />'
 					'<b></b>' +
 					'<i class="timesent" data-time=' + now + '></i> ' +
 				'</div>' +
@@ -43,7 +42,7 @@
 			'</li>');
 		*/
 		var li = $(
-				'<li class=' + user + '>'+					
+				'<li class=' + user + '>'+
 					//'<p></p>' +
 				'</li>');
 
@@ -56,19 +55,19 @@
 
 	function processChatMessage(msg, user){
 		currentli = $(
-				'<li class=' + user + '>'+					
+				'<li class=' + user + '>'+
 					//'<p></p>' +
 				'</li>');
 		currentli.text(msg);
 		chats.append(currentli);
 		scrollToBottom();
 	}
-	
+
 	function scrollToBottom(){
 		//chatArea.scrollTop = chatArea.scrollHeight;
         chatarea.scrollTop(chatarea[0].scrollHeight - chatarea.height());
 	}
-	
+
 	function showMessage(status,data){
 		console.log("showMesage: " + status);
 	}
@@ -77,13 +76,13 @@
 		if (!obj) return;
 		for (var key in obj) {
 			//if (obj.hasOwnProperty(key)) {
-			//if (typeof obj[key] !== "function") {			
+			//if (typeof obj[key] !== "function") {
 				console.log(key + " = " + obj[key]);
-			//}			
+			//}
 		}
 	}
-	
-	
+
+
 	function socketToken() {
 		var token = '';
 		$.ajax({
@@ -99,7 +98,7 @@
 		});
 		return token;
 	}
-	
+
 ////$(function(){
     $(document).ready(function() {
 
@@ -115,7 +114,7 @@
 
 	$(document).on( "connect-to-chat-server", function(evt,url) {
 		console.log("==============================================================connect-to-chat-server event received - url: " + url);
-		
+
 		if (url) {
 			//socket = io.connect(url);
 			socket = io.connect('http://' + window.location.host, {
@@ -126,24 +125,24 @@
 		else {
 			socket = window.socket_chat;
 		}
-		
+
 		$(document).on("disconnect-chat-server", function(evt, room) {
 			socket.disconnect();
 		});
-		
+
 		$(document).on("terminate-chat-session", function(evt, room) {
 			socket.emit("leave", room);
 		});
-		
+
 		$(document).on("chat-register", function(evt, room) {
 			socket.emit('chat_login', {user: name, avatar: email, id: room});
 		});
-	
+
 		$(document).on("chat-unregister", function(evt, room) {
 			socket.emit("leave", room);
 		});
-	
-	
+
+
 	socket.on('opentok', function(data) {
 		showProperty("Opentok credentials", data.opentok);
 		if (data && data.opentok) {
@@ -153,7 +152,7 @@
 			//}
 		}
 	});
-	
+
 	socket.on('leave',function(data){
 		if(data.boolean && id==data.room){
 			showMessage("Leaving chat room: ", data);
@@ -203,7 +202,7 @@
 		if (e.keyCode == 13)
 			return false;
 	});
-	
+
 	chatinput.keyup(function(e){
 		e.preventDefault();
 		// Submit the form on enter. e.which 32 = space, 13 = return
@@ -214,19 +213,19 @@
 			sendChat(e.which);
 		//}
 	});
-	
-	}); 
+
+	});
 	/*
 	$('#btnRealtime').click(function() {
 		realtimetext = $('#btnRealtime').is(':checked');
-		
+
 		 //$('#btnRealtime').attr('checked', !realtimetext);
-		 //  if($('#btnRealtime').is(':checked')) { 
-		//	   realtimetext = true; 
+		 //  if($('#btnRealtime').is(':checked')) {
+		//	   realtimetext = true;
 		//   } else {
 		//	   realtimetext = false;
 		  // }
-		 
+
 		 console.log("realtimetext is: " + realtimetext);
 	});
     */

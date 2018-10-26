@@ -23,12 +23,12 @@ filterModule.filter('shorten', function () {
 });
 filterModule.filter('ssnfilter', function () {
 	return function (input) {
-		
+
 		var out = "";
 		if (input && input.length > 4) {
 			out = input.substring(input.length-4);
 		}
-		
+
 		return "***********" + out;
 	}
 });

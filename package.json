@@ -1,38 +1,32 @@
 {
-  "name": "managementportal",
-  "description": "Management Dashboard foro ACE Product Family",
-  "version": "1.0.0-Beta",
-  "main": "server-db.js",
-  "author": "",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "TBD"
-  },
+  "name": "app",
+  "version": "1.0.0",
+  "description": "This folder is not required for the Provider portal.",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error \" && exit 1",
-    "start": "node server-db.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {},
+  "author": "",
+  "license": "UNLICENSED",
   "dependencies": {
-    "asterisk-manager": "0.1.16",
+    "asterisk-manager": "^0.1.16",
     "body-parser": "1.17.2",
-    "collections": "5.1.1",
-    "cookie-parser": "1.4.3",
-    "csurf": "1.9.0",
+    "collections": "^5.1.1",
+    "cookie-parser": "^1.4.3",
+    "csurf": "^1.9.0",
     "ejs": "2.5.7",
     "express": "4.16.2",
-    "express-session": "1.15.6",
-    "json2csv": "3.11.5",
+    "express-session": "^1.15.6",
+    "json2csv": "^3.11.5",
     "log4js": "0.6.38",
-    "mongodb": "2.2.33",
+    "mongodb": "^2.2.33",
     "mysql": "2.15.0",
     "nconf": "0.8.5",
-    "openam-agent": "3.1.2",
+    "openam-agent": "^3.1.2",
     "request": "2.83.0",
-    "shelljs": "0.7.8",
-    "socket.io": "1.7.4",
-    "socketio-jwt": "4.5.0",
-    "tcp-ping": "0.1.1"
+    "shelljs": "^0.7.8",
+    "socket.io": "^1.7.4",
+    "socketio-jwt": "^4.5.0",
+    "tcp-ping": "^0.1.1"
   }
 }

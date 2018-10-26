@@ -19,7 +19,7 @@ module.exports={
             var endDate = new Date();
             endDate.setHours(23,59,59,0);
             endDate/=1000;
-            
+
             //Get the range of values to create the array of seconds for the entire day
             var range =(endDate-startDate)+1;
             //Use the start date as the offset into the time index array
@@ -45,7 +45,7 @@ module.exports={
                     //calculate new offset for the time index array and increment the value at that offset
                     var offsetIndex = dateToBeInserted-offset;
                     timeIndexArray[offsetIndex]+=1;
-                };
+                }
                 console.log(timeIndexArray.indexOf(1));
 
             //create record collection
@@ -63,10 +63,9 @@ module.exports={
                     "holdtime": 0,
                     "longestholdtime": 0
                 };
-                    counter.setSeconds(counter.getSeconds() + 1)
+                    counter.setSeconds(counter.getSeconds() + 1);
                     recordArray[i].timestamp=counter.getTime();
                     recordArray[i].callers=timeIndexArray[i];
-                    
                 }
             return recordArray;
 
@@ -109,4 +108,4 @@ module.exports={
             // });
         });
     }
-}
+};

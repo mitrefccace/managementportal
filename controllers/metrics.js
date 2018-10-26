@@ -1,6 +1,30 @@
 'use strict';
 var logger = require('../helpers/logger');
 
+var convertTo2DArray = function(array, firstProperty, secondProperty) {
+	var newArray = [];
+	for(var i = 0; i < array.length; i++) {
+		var point = [];
+		point.push(array[i][firstProperty]);
+		point.push(array[i][secondProperty]);
+		newArray.push(point);
+	}
+	return newArray;
+};
+
+var createTargetLine = function(data, target) {
+	var targetData = [];
+	var point = [];
+	point.push(data[0][0]);
+	point.push(target);
+	targetData.push(point);
+	var point2 = [];
+	point2.push(data[data.length - 1][0]);
+	point2.push(target);
+	targetData.push(point2);
+	return targetData;
+};
+
 exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback) {
 	var metrics = {};
 	logger.debug('CreateMetrics');
@@ -24,11 +48,11 @@ exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback)
 					}
 				}, {
 					$group : {
-							"_id" : { 
-									year: { $year: "$date" }, 
-									month: { $month: "$date" }, 
-									day: { $dayOfMonth: "$date" }, 
-									hour: { $hour: "$date" }, 
+							"_id" : {
+									year: { $year: "$date" },
+									month: { $month: "$date" },
+									day: { $dayOfMonth: "$date" },
+									hour: { $hour: "$date" },
 									minutes: {$multiply:[{$floor:{ $divide: [{$minute: "$date"}, 10]}}, 10] }
 									},
 							"timestamp":{$min: "$timestamp"},
@@ -70,28 +94,4 @@ exports.createMetrics = function(db, metricsStartDate, metricsEndDate, callback)
 	else {
 		metrics.showCharts = false;
 	}
-};
-
-var createTargetLine = function(data, target) {
-	var targetData = [];
-	var point = [];
-	point.push(data[0][0]);
-	point.push(target);
-	targetData.push(point);
-	var point2 = [];
-	point2.push(data[data.length - 1][0]);
-	point2.push(target);
-	targetData.push(point2);
-	return targetData;
-};
-
-var convertTo2DArray = function(array, firstProperty, secondProperty) {
-	var newArray = [];
-	for(var i = 0; i < array.length; i++) {
-		var point = [];
-		point.push(array[i][firstProperty]);
-		point.push(array[i][secondProperty]);
-		newArray.push(point);
-	}
-	return newArray;
 };

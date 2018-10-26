@@ -6,7 +6,7 @@
 angular.module('csrService', []).factory('socket', ['$rootScope', '$http', '$timeout', '$q', function ($rootScope, $http, $timeout, $q) {
 		//var socket = io.connect();
 		var socket = io.connect('https://' + window.location.host, {
-			path: '/ManagementPortal/socket.io',
+			path: nginxPath+'/socket.io',
 			query: 'token=' + socketToken(),
 			forceNew: true
 		});

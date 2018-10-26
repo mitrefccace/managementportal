@@ -255,7 +255,7 @@
 			success: function (data) {
 				if (data.message === "success") {
 					socket = io.connect('https://' + window.location.host, {
-						path: '/ManagementPortal/socket.io',
+						path: nginxPath+'/socket.io',
 						query: 'token=' + data.token,
 						forceNew: true
 					});

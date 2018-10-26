@@ -50,7 +50,7 @@ function printAgent(Agents) {
 }
 
 /**
- * Initialize Agent Call map (total calls taken) 
+ * Initialize Agent Call map (total calls taken)
  * @param {type} Asterisk_queuenames
  * @param {type} obj Map
  * @returns {undefined} Not used

@@ -22,6 +22,7 @@
     "bootstrap-select": "1.12.2",
     "datatables": "1.10.15",
     "datatables.net": "1.10.15",
+    "jquery-form-validator": "2.3.77",
     "flot-axislabels": "*",
     "font-awesome": "4.6.0",
     "Ionicons": "ionicons#2.0.1",

@@ -1,0 +1,33 @@
+# Usage:
+#
+# sudo docker-compose build
+# sudo docker-compose up
+#
+# Remember to setup "./.env" to match your needs prior to build.
+#
+#
+version: "2"
+services:
+    mongodb:
+        ports:
+        - "27017:27017"
+        image: "mongo:latest"
+        volumes:
+        - ../volumes/database:/data/db
+    managementportal:
+        env_file: .env
+        image: "managementportal:v1"
+        build:
+            dockerfile: Dockerfile
+            context: .
+            args:
+            - https_proxy=${https_proxy}
+            - http_proxy=${http_proxy}
+        ports:
+        - "9000:9000" # Default http port
+        volumes:
+        - ${SSL_public_key}:/home/centos/.ssl/cert.pem
+        - ${SSL_private_key}:/home/centos/.ssl/key.pem
+        - ${DAT_DIR}:/usr/src/dat
+        - ../volumes/logs:/usr/src/app/logs
+        restart: "no"
