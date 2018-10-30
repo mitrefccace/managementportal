@@ -1,28 +1,38 @@
 {
-  "name": "app",
-  "version": "1.0.0",
-  "description": "This folder is not required for the Provider portal.",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "name": "managementportal",
+  "description": "Management Dashboard foro ACE Product Family",
+  "version": "1.0.0-Beta",
+  "main": "server-db.js",
   "author": "",
-  "license": "UNLICENSED",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "TBD"
+  },
+  "scripts": {
+    "test": "echo \"Error \" && exit 1",
+    "start": "node server-db.js"
+  },
+  "devDependencies": {},
   "dependencies": {
     "asterisk-manager": "^0.1.16",
     "body-parser": "1.17.2",
     "collections": "^5.1.1",
     "cookie-parser": "^1.4.3",
+    "cryptiles": "^4.1.2",
     "csurf": "^1.9.0",
+    "debug": "^2.6.9",
     "ejs": "2.5.7",
     "express": "4.16.2",
     "express-session": "^1.15.6",
     "json2csv": "^3.11.5",
+    "jsonwebtoken": "^8.3.0",
     "log4js": "0.6.38",
     "mongodb": "^2.2.33",
     "mysql": "2.15.0",
     "nconf": "0.8.5",
     "openam-agent": "^3.1.2",
+    "parsejson": "0.0.3",
     "request": "2.83.0",
     "shelljs": "^0.7.8",
     "socket.io": "^1.7.4",
