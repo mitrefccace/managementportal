@@ -17,8 +17,10 @@
   "dependencies": {
     "asterisk-manager": "^0.1.16",
     "body-parser": "1.17.2",
+    "collections": "^5.1.8",
     "cookie-parser": "^1.4.3",
     "cryptiles": "^4.1.2",
+    "csurf": "^1.10.0",
     "debug": "^2.6.9",
     "ejs": "2.5.7",
     "express": "4.16.2",
