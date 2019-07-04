@@ -19,7 +19,6 @@ const os = require('os'); //get home directory path
 var request = require('request');
 var session = require('express-session');
 var set_rgb_values = require('./helpers/utility').set_rgb_values;
-var shell = require('shelljs');
 var socketioJwt = require('socketio-jwt');
 var tcpp = require('tcp-ping');
 var url = require('url');
@@ -115,9 +114,9 @@ var fqdn = '';
 if (nconf.get('nginx:fqdn')) {
 	fqdn = getConfigVal('nginx:fqdn');
 } else {
-	fqdn = shell.exec('hostname -f', {
-		silent: true
-	}).stdout;
+    logger.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
+    console.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
+    process.exit(-99);
 }
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';

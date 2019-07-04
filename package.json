@@ -13,7 +13,9 @@
     "test": "echo \"Error \" && exit 1",
     "start": "node server-db.js"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "handlebars": "^4.1.2"
+  },
   "dependencies": {
     "asterisk-manager": "^0.1.16",
     "body-parser": "1.17.2",
@@ -25,7 +27,6 @@
     "ejs": "2.5.7",
     "express": "4.16.2",
     "express-session": "^1.15.6",
-    "handlebars": "^4.0.14",
     "json2csv": "^3.11.5",
     "jsonwebtoken": "^8.3.0",
     "log4js": "0.6.38",
@@ -35,7 +36,6 @@
     "node-cleanup": "^2.1.2",
     "openam-agent": "^3.1.2",
     "request": "2.83.0",
-    "shelljs": "^0.7.8",
     "socket.io": "^2.1.1",
     "socket.io-client": "^2.1.1",
     "socketio-jwt": "^4.5.0",
