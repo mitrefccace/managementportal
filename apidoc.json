@@ -1,7 +1,0 @@
-{
-	"name"    		:  "fendesk",
-	"version" 		:  "1.0.0",
-	"description"	:  "A RESTFul Service for simulating Zendesk.",
-	"title"			:  "fendesk API Document",
-	"url" 			:  "<hostname>"
-}
