@@ -24,14 +24,6 @@
 								<b class="caret"></b>
 							</div>
 						</div>
-
-						<ol class="breadcrumb">
-							<li>
-								<a href="./dashboard">
-									<i class="fa fa-dashboard"></i> Home</a>
-							</li>
-							<li class="active">CDR Dashboard</li>
-						</ol>
 					</section>
 
 					<!-- Main content -->
@@ -99,14 +91,13 @@
 
 	<!-- REQUIRED JS SCRIPTS -->
 	<!-- DataTables 1.10.12 -->
-	<script type="text/javascript" src="./bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-	<!-- Datatables-Bootstrap3 - ->
-        <script type="text/javascript" src="./bower_components/datatables-bootstrap3/BS3/assets/js/datatables.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.dataTables.min.js"></script>
+	<!-- Datatables-Bootstrap3 -->
 		<!-- DateRangePicker -->
-	<script type="text/javascript" src="./bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
+	<script type="text/javascript" src="./assets/js/daterangepicker.js"></script>
 
 	<script type="text/javascript">
-		var socket; // = io.connect('http://' + window.location.host); // opens socket.io connection	
+		var socket; // = io.connect('http://' + window.location.host); // opens socket.io connection
 		var toggle = true; // toggle boolean for CDR table
 
 		// sets the Date Range picker start and end date
@@ -148,7 +139,8 @@
 							$('#cdrtable').dataTable().fnAddData(data.data);
 							$('#cdrtable').resize();
 						} else {
-							$(".dataTables_empty").html("CDR's do not exist.");
+							$('#cdrtable').dataTable().fnClearTable();
+							$('#cdrtable').resize();
 						}
 					});
 
@@ -159,7 +151,9 @@
 
 					// Handles Error conditions from CDR REST calls.
 					socket.on('cdrtable-error', function (data) {
+						$('#cdrtable').dataTable().fnClearTable();
 						$(".dataTables_empty").css("color", "red").html(data.message);
+						$('#cdrtable').resize();
 					});
 
 				} else {
@@ -262,7 +256,10 @@
 			],
 			"order": [
 				[0, "desc"]
-			]
+			],
+			"language": {
+      			"emptyTable": "CDR's do not exist."
+    		}
 		});
 
 		//Toggles the table to display or hide extra columns
@@ -288,7 +285,7 @@
 		function DateRangePickerSetup() {
 			// Call back funtion for setting report range <div> value
 			function cb(start, end) {
-				$('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+				$('#reportrange span:first').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 			}
 
 			// controls for the date range picker

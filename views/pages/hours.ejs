@@ -15,13 +15,6 @@
 					<!-- Content Header (Page header) -->
 					<section class="content-header">
 						<h1>Hours of Operation</h1>
-						<ol class="breadcrumb">
-							<li>
-								<a href="./dashboard">
-									<i class="fa fa-dashboard"></i> Home</a>
-							</li>
-							<li class="active">Hours of Operation</li>
-						</ol>
 					</section>
 
 					<!-- Main content -->
@@ -170,22 +163,22 @@
 			minimumResultsForSearch: Infinity
 		});
 
-		
+
 
 		var updateTime = function () {
 			var timeFormat = 'h:mm A';
 			$('#current_local').html(moment().format(timeFormat))
-			
+
 			var dst = 0;
 			if (moment().isDST())
 				dst = 1;
-				
+
 			$('#current_est').html(moment().utcOffset(-5 + dst).format(timeFormat))
 			$('#current_cst').html(moment().utcOffset(-6 + dst).format(timeFormat))
 			$('#current_mst').html(moment().utcOffset(-7 + dst).format(timeFormat))
 			$('#current_pst').html(moment().utcOffset(-8 + dst).format(timeFormat))
 
-			
+
 		};
 
 		updateTime();

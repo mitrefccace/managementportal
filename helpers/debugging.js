@@ -10,9 +10,10 @@
  */
 function findAgentName(Agents, agent) {
 	for (var i = 0; i < Agents.length; i++) {
-		if (Agents[i].agent == agent)
+		if (Agents[i].agent === agent)
 			return Agents[i].name;
 	}
+	return null;
 }
 
 /**

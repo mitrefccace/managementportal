@@ -12,7 +12,5 @@ acrApp.config(['$routeProvider', function($routeProvider) {
     $routeProvider
         .when('/', {
         	templateUrl : 'dashboard'
-            //templateUrl : 'public/login.html'
-            //controller  : 'crmController'
         });
 }]);

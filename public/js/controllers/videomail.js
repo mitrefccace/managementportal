@@ -13,16 +13,11 @@ $(document).ready(function () {
 });
 
 function connect_socket() {
-	//if (sessionStorage.getItem('accesstoken') === null)
-	//	logout();
-	console.log('connect_socket to ');
-	console.log(window.location.host);
 	$.ajax({
 		url: './token',
 		type: 'GET',
 		dataType: 'json',
 		success: function (data) {
-			console.log(JSON.stringify(data));
 			if (data.message === "success") {
 				socket = io.connect('https://' + window.location.host, {
 					path: nginxPath+'/socket.io',
@@ -34,7 +29,6 @@ function connect_socket() {
 					debugtxt('connect', {
 						"no": "data"
 					});
-					console.log('authenticated');
 
 					//get the payload form the token
 					var payload = jwt_decode(data.token);
@@ -57,7 +51,6 @@ function connect_socket() {
 					}); }, 5000);
 
 					toggle_videomail_buttons(false);
-					console.log('Sent a get-videomail event');
 				})
 				.on('got-videomail-recs', function(data){
 					updateVideomailTable(data);
@@ -125,9 +118,9 @@ $('#Videomail_Table tbody').on('click', 'tr', function () {
 //Sorting the videomail table
 $('#vmail-vrs-number').on('click',function(){
 	var sort = sortButtonToggle($(this).children("i"));
-	if (sort == "asc") {
+	if (sort === "asc") {
 		sortFlag = "callbacknumber asc";
-	} else if (sort == "desc") {
+	} else if (sort === "desc") {
 		sortFlag = "callbacknumber desc";
 	}
 	socket.emit('get-videomail',{
@@ -138,9 +131,9 @@ $('#vmail-vrs-number').on('click',function(){
 
 $('#vmail-date').on('click',function(){
 	var sort = sortButtonToggle($(this).children("i"));
-	if (sort == "asc") {
+	if (sort === "asc") {
 		sortFlag = "unix_timestamp(received) asc";
-	} else if (sort == "desc") {
+	} else if (sort === "desc") {
 		sortFlag = "unix_timestamp(received) desc";
 	}
 	socket.emit('get-videomail',{
@@ -151,9 +144,9 @@ $('#vmail-date').on('click',function(){
 
 $('#vmail-duration').on('click',function(){
 	var sort = sortButtonToggle($(this).children("i"));
-		if (sort == "asc") {
+		if (sort === "asc") {
 		sortFlag = "video_duration asc";
-	} else if (sort == "desc") {
+	} else if (sort === "desc") {
 		sortFlag = "video_duration desc";
 	}
 	socket.emit('get-videomail',{
@@ -164,9 +157,9 @@ $('#vmail-duration').on('click',function(){
 
 $('#vmail-status').on('click',function(){
 	var sort = sortButtonToggle($(this).children("i"));
-	if (sort == "asc") {
+	if (sort === "asc") {
 		sortFlag = "status asc";
-	} else if (sort == "desc") {
+	} else if (sort === "desc") {
 		sortFlag = "status desc";
 	}
 	socket.emit('get-videomail',{
@@ -177,9 +170,9 @@ $('#vmail-status').on('click',function(){
 
 $('#vmail-agent').on('click', function(){
 	var sort = sortButtonToggle($(this).children("i"));
-	if (sort == "asc") {
+	if (sort === "asc") {
 		sortFlag = "processing_agent asc";
-	} else if (sort == "desc") {
+	} else if (sort === "desc") {
 		sortFlag = "processing_agent desc";
 	}
 	socket.emit('get-videomail',{
@@ -189,13 +182,13 @@ $('#vmail-agent').on('click', function(){
 });
 
 function sortButtonToggle(buttonid){
-	if ($(buttonid).attr("class")=='fa fa-sort'){
+	if ($(buttonid).attr("class") === 'fa fa-sort'){
 		$(buttonid).addClass('fa-sort-asc').removeClass('fa-sort');
 		return("asc");
-	} else if ($(buttonid).attr("class")=='fa fa-sort-desc'){
+	} else if ($(buttonid).attr("class") === 'fa fa-sort-desc'){
 		$(buttonid).addClass('fa-sort-asc').removeClass('fa-sort-desc');
 		return("asc");
-	} else if ($(buttonid).attr("class")=='fa fa-sort-asc'){
+	} else if ($(buttonid).attr("class") === 'fa fa-sort-asc'){
 		$(buttonid).addClass('fa-sort-desc').removeClass('fa-sort-asc');
 		return("desc");
 	}
@@ -203,7 +196,6 @@ function sortButtonToggle(buttonid){
 
 //Update the records in the videomail table
 function updateVideomailTable(data){
-	//console.log("Refreshing videomail");
 	$("#videomailTbody").html("");
 	var table;
 	var row;
@@ -267,7 +259,6 @@ function filterVideomail(mailFilter){
 function playVideomail(id, duration, vidStatus){
 	console.log('Playing video mail with id ' + id);
 	$('#videoBox').removeAttr('hidden');
-	//remoteView.removeAttribute("autoplay");
 	remoteView.removeAttribute("poster");
 	remoteView.setAttribute("src",'./getVideomail?id='+id+'&agent='+socket.id);
 	remoteView.setAttribute("onended", "change_play_button()");

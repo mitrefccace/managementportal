@@ -2,11 +2,11 @@
 
 <html>
 	<head>
-		<link rel="stylesheet" href="./css/videomail.css">											
+		<link rel="stylesheet" href="./css/videomail.css">
 		<% include ../partials/head %>
 	</head>
   <body class="hold-transition skin-purple sidebar-mini">
-    <div class="wrapper">       
+    <div class="wrapper">
 			<!-- Main Header -->
 			<% include ../partials/header %>
 			<% include ../partials/sidebar %>
@@ -14,11 +14,7 @@
 			<div class="content-wrapper">
 				<!-- Content Header (Page header) -->
 				<section class="content-header">
-					<h1>Videomail Dashboard</h1>       
-					<ol class="breadcrumb">
-					<li><a href="./dashboard"><i class="fa fa-dashboard"></i>Home</a></li>
-					<li class="active">Videomail Dashboard</li>
-					</ol>
+					<h1>Videomail Dashboard</h1>
 				</section>
 
 				<!-- Main content -->
@@ -64,7 +60,7 @@
 											<button class="btn btn-danger" type="button" onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))">Permanently Delete</button>
 											<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Video</button>
 										</div>
-									</div> 
+									</div>
 								</div>
 							</div>
 						</div>
@@ -87,7 +83,7 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<!-- Videomail Summary Table -->
 					<div class="row">
 						<div class="col-lg-12">
@@ -138,7 +134,7 @@
 													<a href="#">
 														<span>Marked for Deletion</span>
 													</a>
-												</li>													 
+												</li>
 											</ul>
 										</span>
 										<table class="table table-hover" id="Videomail_Table">
@@ -165,7 +161,7 @@
 											</tbody>
 										</table>
 									</div><!-- /.form-group -->
-								
+
 								</div><!-- /.box-body -->
 							</div><!-- /.box -->
 						</div><!-- /.col-lg-12-->
@@ -192,32 +188,32 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<!-- Videomail hidden data -->
 		<div hidden>
 			<div id="videomailId"> </div>
-			<div id="callbacknum"> </div>   
+			<div id="callbacknum"> </div>
 		</div>
 
     <!-- REQUIRED JS SCRIPTS -->
     <!--bootstrap-select-->
-    <script type="text/javascript" src="./bower_components/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-    <link rel = "stylesheet" type="text/css" href="./bower_components/bootstrap-select/dist/css/bootstrap-select.min.css">
-    <script type="text/javascript" src="./bower_components/jwt-decode/build/jwt-decode.min.js"></script>
-    <script type="text/javascript" src="public/js/controllers/videomail.js"></script>
+    <script type="text/javascript" src="./assets/js/bootstrap-select.min.js"></script>
+    <link rel = "stylesheet" type="text/css" href="./assets/css/bootstrap-select.min.css">
+    <script type="text/javascript" src="./assets/js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/controllers/videomail.js"></script>
 
 	<!-- flot -->
-	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.min.js"></script>
-	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.categories.min.js"></script>
-	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.time.min.js"></script>
-	<script type="text/javascript" src="./bower_components/flot-axislabels/jquery.flot.axislabels.js"></script>
-	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.pie.min.js"></script>
-	<script type="text/javascript" src="./bower_components/AdminLTE/plugins/flot/jquery.flot.resize.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.categories.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.time.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.axislabels.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.pie.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.resize.min.js"></script>
 
     <script type="text/javascript">
-      $(document).ready(function () {
-        $("#sidebarvideomail").addClass("active");
-      });
+		$(document).ready(function () {
+			$("#sidebarvideomail").addClass("active");
+		});
 
 		// Label formatter for flot pie chart
 		function labelFormatter(label, series) {

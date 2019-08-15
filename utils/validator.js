@@ -7,7 +7,7 @@ Regulation Clause 52.227-14, Rights in Data-General. No other use other than
 that granted to the U. S. Government, or to those acting on behalf of the U. S.
 Government under that Clause is authorized without the express written
 permission of The MITRE Corporation. For further information, please contact
-The MITRE Corporation, Contracts Management Office, 7515 Colshire Drive, 
+The MITRE Corporation, Contracts Management Office, 7515 Colshire Drive,
 McLean, VA 22102-7539, (703) 983-6000.
 
                         ©2018 The MITRE Corporation.
@@ -37,7 +37,7 @@ module.exports = {
     isPasswordComplex: function (password) {
         let isFormatCorrect = false;
         if (password) {
-            let re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$/;;
+            let re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$/;
             isFormatCorrect = re.test(password);
         }
         return isFormatCorrect;
@@ -54,7 +54,7 @@ module.exports = {
     isEmailValid: function (email) {
         let isFormatCorrect = false;
         if (email) {
-            let legalChars = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; 
+            let legalChars = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             isFormatCorrect = ((email.length >= 1) && (email.length <= 40) && (legalChars.test(email)));
 
         }
@@ -63,7 +63,7 @@ module.exports = {
     isPhoneValid: function (phone) {
         let isFormatCorrect = false;
         if (phone) {
-            let legalChars = /^[1-9]\d{2}-\d{3}-\d{4}/; 
+            let legalChars = /^[1-9]\d{2}-\d{3}-\d{4}/;
             isFormatCorrect = ((phone.length >= 1) && (phone.length <= 12) && (legalChars.test(phone)));
 
         }
@@ -72,10 +72,10 @@ module.exports = {
     isNameValid: function (name) {
         let isFormatCorrect = false;
         if (name) {
-            let legalChars = /^[A-Za-z\/\s\.'-]+$/; 
+            let legalChars = /^[A-Za-z\/\s\.'-]+$/;
             isFormatCorrect = ((name.length >= 1) && (name.length <= 20) && (legalChars.test(name)));
 
         }
         return isFormatCorrect;
     }
-}
+};

@@ -11,17 +11,15 @@
 
 	function sendChat (key) {
 		if(chatinput.val().length) {
-			//createChatMessage(chatinput.val(), name, img, moment());
 
 			// Send the message to the other person in the chat
 			socket.emit('msg', {'msg': chatinput.val(), 'key': key});
 			if (key === 13) { // enter key
 				createChatMessage(chatinput.val(), 'me');
 				chatinput.val('');
-				//realtimearea.val('');
 			}
-			else if (key = 32) { // space key
-				//realtimearea.val(chatinput.val());
+			else if (key == 32) { // space key
+
 			}
             scrollToBottom();
 		}
@@ -64,7 +62,6 @@
 	}
 
 	function scrollToBottom(){
-		//chatArea.scrollTop = chatArea.scrollHeight;
         chatarea.scrollTop(chatarea[0].scrollHeight - chatarea.height());
 	}
 
@@ -75,10 +72,7 @@
 		console.log(msg + "========================================");
 		if (!obj) return;
 		for (var key in obj) {
-			//if (obj.hasOwnProperty(key)) {
-			//if (typeof obj[key] !== "function") {
-				console.log(key + " = " + obj[key]);
-			//}
+			console.log(key + " = " + obj[key]);
 		}
 	}
 
@@ -99,24 +93,19 @@
 		return token;
 	}
 
-////$(function(){
     $(document).ready(function() {
 
     chatarea = $("#chat_area");
 	chatinput = $("#chat_input");
 	chats = $('#chats_ul');
-	//realtimearea = $("#txtRealtime");
 	// variables which hold the data for each person
 	var name = "",
-		email = "",
-		img = "",
-		friend = "";
+		email = "";
 
 	$(document).on( "connect-to-chat-server", function(evt,url) {
 		console.log("==============================================================connect-to-chat-server event received - url: " + url);
 
 		if (url) {
-			//socket = io.connect(url);
 			socket = io.connect('http://' + window.location.host, {
 				query: 'token=' + socketToken(),
 				forceNew: true
@@ -147,9 +136,6 @@
 		showProperty("Opentok credentials", data.opentok);
 		if (data && data.opentok) {
 			window.opentok = data.opentok;
-			//if (window.isPortalAgent) {
-			//	$(document).trigger('opentok_ready', window.opentok);
-			//}
 		}
 	});
 
@@ -182,51 +168,20 @@
 				currentli.text(data.msg.msg);
 			}
 		}
-		/*
-		if(data.msg.msg.length) {
-			if (data.msg.key == 13) { // enter key
-				createChatMessage(data.msg.msg, 'you');
-				realtimearea.val("");
-				//chatinput.val("");
-			}
-			else if (data.msg.key == 32) { // space key
-				realtimearea.val(data.msg.msg);
-			}
-			scrollToBottom();
-		}
-		*/
 	});
 
 	// this to prevent the enter key to submit the form on the user side
 	chatinput.keypress(function(e){
-		if (e.keyCode == 13)
+		if (e.keyCode == 13){
 			return false;
+		}
 	});
 
 	chatinput.keyup(function(e){
 		e.preventDefault();
 		// Submit the form on enter. e.which 32 = space, 13 = return
-		//if(e.which == 13) {
-		//if((realtimetext && e.which == 32) || e.which == 13) {
-		//if((realtimetext) {
-			//e.preventDefault();
-			sendChat(e.which);
-		//}
+		sendChat(e.which);
 	});
 
 	});
-	/*
-	$('#btnRealtime').click(function() {
-		realtimetext = $('#btnRealtime').is(':checked');
-
-		 //$('#btnRealtime').attr('checked', !realtimetext);
-		 //  if($('#btnRealtime').is(':checked')) {
-		//	   realtimetext = true;
-		//   } else {
-		//	   realtimetext = false;
-		  // }
-
-		 console.log("realtimetext is: " + realtimetext);
-	});
-    */
 });

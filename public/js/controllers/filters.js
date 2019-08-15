@@ -19,7 +19,7 @@ filterModule.filter('shorten', function () {
 			out = input.substr(0, len) + "...";
 		}
 		return out;
-	}
+	};
 });
 filterModule.filter('ssnfilter', function () {
 	return function (input) {
@@ -30,7 +30,7 @@ filterModule.filter('ssnfilter', function () {
 		}
 
 		return "***********" + out;
-	}
+	};
 });
 filterModule.filter('ACRdate', function ($filter) {
     return function (input, time) {
@@ -67,5 +67,5 @@ filterModule.filter('ACRdate', function ($filter) {
             else // default to return date and time in 'MMM dd, yyyy HH:mm' format (military format)
                 //return $filter('date')(d, 'medium');
                 return $filter('date')(d, 'MMM dd, yyyy HH:mm');
-        }
+        };
 });

@@ -1,6 +1,5 @@
 var fs = require('fs');
 var randgen = require('randgen');
-//var mongoose = require('mongoose');
 var tools = require('./tools');
 
 //if the output file already exists then delete it

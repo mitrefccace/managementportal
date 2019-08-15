@@ -4,7 +4,6 @@ var getConfigVal = require('../helpers/utility').getConfigVal;
 var express = require('express');
 var jwt = require('jsonwebtoken');
 var logger = require('../helpers/logger');
-var nconf = require('nconf');
 var openamAgent = require('openam-agent');
 var request = require('request');
 var urlparse = require('url');
@@ -141,13 +140,14 @@ router.get('/hours', agent.shield(cookieShield), function (req, res) {
 });
 
 /**
- *  * Handles a GET request for /users. Checks user has
- *   * a valid session and displays Hours page.
- *    *
- *     * @param {string} '/users'
- *      * @param {function} 'agent.shield(cookieShield)'
- *       * @param {function} function(req, res)
- *        */
+ * Handles a GET request for /users. Checks user has
+ * a valid session and displays Hours page.
+ *
+ * @param {string} '/users'
+ * @param {function} 'agent.shield(cookieShield)'
+ * @param {function} function(req, res)
+ *
+ */
 router.get('/users', agent.shield(cookieShield), function (req, res) {
 
         if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
@@ -285,7 +285,7 @@ router.post('/AddAgent', agent.shield(cookieShield), function (req, res) {
               				"queue_id": queue_id,
               				"queue2_id": queue2_id,
           				}]
-			}
+			};
 
 			logger.debug("New agent to be added: " + JSON.stringify(newAgent));
 
@@ -312,7 +312,7 @@ router.post('/AddAgent', agent.shield(cookieShield), function (req, res) {
 							"password": password,
 							"first_name": first_name,
 							"last_name": last_name,
-							"email": email}
+							"email": email};
 					openAMOperation(openAMAgentInfo);
 
 					 res.send({
@@ -322,10 +322,6 @@ router.post('/AddAgent', agent.shield(cookieShield), function (req, res) {
                 		}
 
 			});
-			/* res.send({
-                        	'result': 'success',
-				'message': 'New agent added, no change in DB yet'
-                	}); */
 		}
 	});
 
@@ -391,7 +387,7 @@ router.post('/UpdateAgent', agent.shield(cookieShield), function (req, res) {
               				"extension": extension,
 					"queue_id": queue_id,
 					"queue2_id": queue2_id,
-			}
+			};
 
 			logger.debug("Agent data to be updated: " + JSON.stringify(newAgent));
 
@@ -418,7 +414,7 @@ router.post('/UpdateAgent', agent.shield(cookieShield), function (req, res) {
 							"password": "",
 							"first_name": first_name,
 							"last_name": last_name,
-							"email": email}
+							"email": email};
 					openAMOperation(openAMAgentInfo);
 
 					 res.send({
@@ -479,7 +475,7 @@ router.post('/DeleteAgent', agent.shield(cookieShield), function (req, res) {
 							"password": "",
 							"first_name": "",
 							"last_name": "",
-							"email": ""}
+							"email": ""};
 					openAMOperation(openAMAgentInfo);
 
 					res.send({
@@ -525,36 +521,36 @@ router.get('/GetAgent', agent.shield(cookieShield), function (req, res) {
 
 /**
  *  * Calls the RESTful service running on the provider host to retrieve agent information
- *   * username and password.
- *    *
- *     * @param {type} username Agent username, if username is null, retrieve all agent records
- *      * @param {type} callback Returns retrieved JSON
- *       * @returns {undefined} Not used
- *        */
+ *  * username and password.
+ *  *
+ *  * @param {type} username Agent username, if username is null, retrieve all agent records
+ *  * @param {type} callback Returns retrieved JSON
+ *  * @returns {undefined} Not used
+ *  */
 function getAgentInfo(username, callback) {
 	var url;
 
 	if (username) {
-        	url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getagentrec/' + username;
+        url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getagentrec/' + username;
 	} else {
-        	url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getallagentrecs';
+        url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getallagentrecs';
 	}
 	logger.info("getAgentInfo query URL: " + url);
 
-        request({
-                url: url,
-                json: true
-        }, function (error, response, data) {
-                if (error) {
-                        logger.error("login ERROR: " + error);
-                        data = {
-                                "message": "failed"
-                        };
-                } else {
-                        logger.info("Agent Verify: " + data.message);
-                }
-                callback(data);
-        });
+	request({
+		url: url,
+		json: true
+	}, function (error, response, data) {
+		if (error) {
+			logger.error("login ERROR: " + error);
+			data = {
+				"message": "failed"
+			};
+		} else {
+			logger.info("Agent Verify: " + data.message);
+		}
+		callback(data);
+	});
 }
 
 
@@ -602,7 +598,7 @@ function openAMOperation(openAMAgentInfo) {
 					logger.info("openam logged in successfully with tokenid: " + openamToken);
 					resolve(openamToken);		// resolve Promise with token
 				}
-			})
+			});
 		});
 
 	var openAmChange = function (succTokenId) {
@@ -640,11 +636,11 @@ function openAMOperation(openAMAgentInfo) {
 						logger.info("openam addAgent success username: " + openAMAgentInfo.username);
 						resolve(succTokenId);
 					}
-				})
+				});
 
 				break;
 
-			    case "updateAgent":;
+			    case "updateAgent":
 				logger.info("openam updateAgent");
 				var url = urlPrefix + '/json/users/' + openAMAgentInfo.username;
 				request.put({
@@ -671,7 +667,7 @@ function openAMOperation(openAMAgentInfo) {
 						logger.info("openam updateAgent success username: " + openAMAgentInfo.username);
 						resolve(succTokenId);
 					}
-				})
+				});
 
 				break;
 
@@ -697,12 +693,12 @@ function openAMOperation(openAMAgentInfo) {
 						logger.info("openam deleteAgent success username: " + openAMAgentInfo.username);
 						resolve(succTokenId);
 					}
-				})
+				});
 
 				break;
 			}
 
-		})};
+		});};
 
 		openAmLoginSuccess.then(openAmChange).then(
 			function (succTokenId) {
@@ -730,7 +726,7 @@ function openAMOperation(openAMAgentInfo) {
 						logger.debug("openam call data: " + JSON.stringify(data));
 						logger.debug("openam call response: " + JSON.stringify(response));
 					}
-				})
+				});
 			},
 			function(error) {
 				// should only come here if the login fails

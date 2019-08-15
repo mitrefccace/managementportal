@@ -1,0 +1,8 @@
+# a way to version a folder
+# ignore everything in this folder BUT .gitignore
+*
+!.gitignore
+!/css/
+!/fonts/
+!/images/
+!/js/

@@ -1,4 +1,4 @@
-<style>.form-group {
+.form-group {
   position: relative
 }
 .form-checkbox-item {
@@ -17,4 +17,4 @@ margin: 0px 3px 0px 20px;
   right: 65px;
   position:absolute;
   top:12px
-}</style>
+}

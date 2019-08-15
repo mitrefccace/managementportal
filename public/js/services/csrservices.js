@@ -4,7 +4,6 @@
 'use strict';
 
 angular.module('csrService', []).factory('socket', ['$rootScope', '$http', '$timeout', '$q', function ($rootScope, $http, $timeout, $q) {
-		//var socket = io.connect();
 		var socket = io.connect('https://' + window.location.host, {
 			path: nginxPath+'/socket.io',
 			query: 'token=' + socketToken(),

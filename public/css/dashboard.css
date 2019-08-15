@@ -1,0 +1,5 @@
+/* override small-box hover icon resize from AdminLTE
+   90px is the non-hover size in AdminLTE */
+.small-box:hover .icon {
+    font-size:90px;
+   }

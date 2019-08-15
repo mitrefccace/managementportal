@@ -42,7 +42,7 @@ exports.getConfigVal = function (param_name) {
     decodedString = "";
   }
   return (decodedString.toString());
-}
+};
 
 /**
  * Function that sets the rgb fields in the json file from a given color (for light config page)
@@ -53,31 +53,31 @@ exports.getConfigVal = function (param_name) {
  */
 exports.set_rgb_values = function (json_data, status, color) {
 	//json_data.statuses[status] gets you the fields of each specific status
-	if (color == "red") {
+	if (color === "red") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 0;
 		json_data.statuses[status].b = 0;
-	} else if (color == "green") {
+	} else if (color === "green") {
 		json_data.statuses[status].r = 0;
 		json_data.statuses[status].g = 255;
 		json_data.statuses[status].b = 0;
-	} else if (color == "blue") {
+	} else if (color === "blue") {
 		json_data.statuses[status].r = 0;
 		json_data.statuses[status].g = 0;
 		json_data.statuses[status].b = 255;
-	} else if (color == "orange") {
+	} else if (color === "orange") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 50;
 		json_data.statuses[status].b = 0;
-	} else if (color == "yellow") {
+	} else if (color === "yellow") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 255;
 		json_data.statuses[status].b = 0;
-	} else if (color == "pink") {
+	} else if (color === "pink") {
 		json_data.statuses[status].r = 255;
 		json_data.statuses[status].g = 0;
 		json_data.statuses[status].b = 255;
-	} else if (color == "aqua") {
+	} else if (color === "aqua") {
 		json_data.statuses[status].r = 0;
 		json_data.statuses[status].g = 255;
 		json_data.statuses[status].b = 255;

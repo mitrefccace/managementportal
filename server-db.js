@@ -1,35 +1,46 @@
 'use strict';
 
+// node modules
 var AsteriskManager = require('asterisk-manager');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
-var csrf = require('csurf');
-var getConfigVal = require('./helpers/utility').getConfigVal;
 var express = require('express');
 var fs = require('fs');
 var https = require('https');
-var json2csv = require('json2csv');
-var logger = require('./helpers/logger');
-var Map = require('collections/map');
-var metrics = require('./controllers/metrics');
 var MongoClient = require('mongodb').MongoClient;
 var nconf = require('nconf');
 var openamAgent = require('openam-agent');
-const os = require('os'); //get home directory path
 var request = require('request');
 var session = require('express-session');
-var set_rgb_values = require('./helpers/utility').set_rgb_values;
 var socketioJwt = require('socketio-jwt');
 var tcpp = require('tcp-ping');
 var url = require('url');
 var mysql = require('mysql');
+var Json2csvParser = require('json2csv').Parser;
+
+// additional helpers/utility functions
+var getConfigVal = require('./helpers/utility').getConfigVal;
+var logger = require('./helpers/logger');
+var metrics = require('./controllers/metrics');
+var set_rgb_values = require('./helpers/utility').set_rgb_values;
 
 var port = null; // set the port
 var ami = null; // Asterisk AMI
 var Queues = []; // Associative array
 var Agents = []; // Associative array
+var AgentStats = [];	// last stored stats on agents
+var QueueStats = [];	// last stored stats on queues
+
 var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
+
+//declare constants for various config values
+const COMMON_PRIVATE_IP 		= 		"common:private_ip";
+const NGINX_FQDN 				= 		"nginx:fqdn";
+const COLOR_CONFIG_JSON_PATH	=		"../dat/color_config.json";
+const ASTERISK_SIP_PRIVATE_IP	=		"asterisk:sip:private_ip";
+const AGENT_SERVICE_PORT		=		"agent_service:port";
+
 
 var app = express(); // create our app w/ express
 
@@ -56,13 +67,13 @@ logger.info("This is ACE Direct v" + version + ", Copyright " + year + ".");
 
 //NGINX path parameter
 var nginxPath = getConfigVal('nginx:mp_path');
-if (nginxPath.length == 0) {
+if (nginxPath.length === 0) {
   //default for backwards compatibility
   nginxPath = "/ManagementPortal";
 }
 
 var agent = new openamAgent.PolicyAgent({
-	serverUrl: 'https://' + getConfigVal('nginx:fqdn') + ":" + getConfigVal('nginx:port') + '/' + getConfigVal('openam:path'),
+	serverUrl: 'https://' + getConfigVal(NGINX_FQDN) + ":" + getConfigVal('nginx:port') + '/' + getConfigVal('openam:path'),
 	privateIP: getConfigVal('nginx:private_ip'),
 	errorPage: function () {
 		return '<html><body><h1>Access Error</h1></body></html>';
@@ -97,9 +108,6 @@ app.use(bodyParser.json()); // parse application/json
 app.use(bodyParser.json({
 	type: 'application/vnd.api+json'
 })); // parse application/vnd.api+json as json
-//app.use(csrf({
-//	cookie: false
-//}));
 
 nconf.defaults({ // if the port is not defined in the cocnfig.json file, default it to 8080
 	dashboard: {
@@ -111,8 +119,8 @@ nconf.defaults({ // if the port is not defined in the cocnfig.json file, default
 });
 
 var fqdn = '';
-if (nconf.get('nginx:fqdn')) {
-	fqdn = getConfigVal('nginx:fqdn');
+if (nconf.get(NGINX_FQDN)) {
+	fqdn = getConfigVal(NGINX_FQDN);
 } else {
     logger.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
     console.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
@@ -130,6 +138,7 @@ var io = require('socket.io')(httpsServer, {
 });
 io.set('origins', fqdnUrl);
 
+//Pull MySQL configuration from config.json file
 var dbHost = getConfigVal('database_servers:mysql:host');
 var dbUser = getConfigVal('database_servers:mysql:user');
 var dbPassword = getConfigVal('database_servers:mysql:password');
@@ -153,25 +162,95 @@ setInterval(function () {
 	dbConnection.ping();
 }, 60000);
 
-// MongoDB Connection URI
+// Pull MongoDB configuration from config.json file
 var mongodbUriEncoded = nconf.get('database_servers:mongodb:connection_uri');
-var db;
+var logAMIEvents = nconf.get('database_servers:mongodb:logAMIevents');
+var logStats = nconf.get('database_servers:mongodb:logStats');
+var logStatsFreq = nconf.get('database_servers:mongodb:logStatsFreq');
+var mongodb;
+var colEvents = null;
+var colStats = null;
+
+//Connect to MongoDB
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = getConfigVal('database_servers:mongodb:connection_uri');
 	// Initialize connection once
-	MongoClient.connect(mongodbUri, function (err, database) {
-		if (err) {
-			logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
-			console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
-			process.exit(-99);
-		}
+	MongoClient.connect(mongodbUri, {forceServerObjectId:true, useNewUrlParser: true}, function (err, database) {
+    if (err) {
+      logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+      console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+      process.exit(-99);
+    }
 
 		console.log('MongoDB Connection Successful');
-		db = database;
+		mongodb = database.db();
 
 		// Start the application after the database connection is ready
 		httpsServer.listen(port);
 		console.log('https web server listening on ' + port);
+
+
+		// prepare an entry into MongoDB to log the managementportal restart
+		var ts = new Date();
+		var data = {
+				"Timestamp": ts.toISOString(),
+				"Role":"managementportal",
+				"Purpose": "Restarted"
+		}
+
+		if (logAMIEvents) {
+			// first check if collection "events" already exist, if not create one
+			mongodb.listCollections({name: 'events'}).toArray((err, collections) => {
+				console.log("try to find events collection, colEvents length: " + collections.length);
+				if (collections.length == 0) {	// "stats" collection does not exist
+					console.log("Creating new events colleciton in MongoDB");
+					mongodb.createCollection("events",{capped: true, size:1000000, max:5000}, function(err, result) {
+						if (err) throw err;
+        					console.log("Collection events is created capped size 100000, max 5000 entries");
+						colEvents = mongodb.collection('events');
+					});
+				}
+				else {
+					// events collection exist already
+					console.log("Collection events exist");
+					colEvents = mongodb.collection('events');
+					// insert an entry to record the start of managementportal
+					colEvents.insertOne(data, function(err, result) {
+						if(err){
+							console.log("Insert a record into events collection of MongoDB, error: " + err);
+							logger.debug("Insert a record into events collection of MongoDB, error: " + err);
+							throw err;
+						}
+					});
+				}
+
+			});
+		}
+
+		if (logStats) {
+			// first check if collection "stats" already exist, if not create one
+			mongodb.listCollections({name: 'callstats'}).toArray((err, collections) => {
+				console.log("try to find stats collection, colStats length: " + collections.length);
+				if (collections.length == 0) {	// "stats" collection does not exist
+					console.log("Creating new stats colleciton in MongoDB");
+					mongodb.createCollection("callstats",{capped: true, size:1000000, max:5000}, function(err, result) {
+						if (err){
+							console.log("Error creating collection for callstats in Mongo: "+ err);
+							logger.debug("Error creating collection for callstats in Mongo: "+ err);
+							throw err;
+						}
+						logger.info("Collection stats is created capped size 100000, max 5000 entries");
+						colStats = mongodb.collection('callstats');
+					});
+				}
+				else {	// stats collection exists already
+					console.log("Collection stats exist, loading the last stats into managementportal, TBD");
+					colStats = mongodb.collection('callstats');
+					loadStatsinDB();
+				}
+
+			});
+		}
 	});
 } else {
 	console.log('Missing MongoDB Connection URI in config');
@@ -188,23 +267,7 @@ io.use(socketioJwt.authorize({
 	handshake: getConfigVal('web_security:json_web_token:handshake')
 }));
 
-/* ACRDEMO-491: remove the mechanism of copying color config files from ../dat to ~/dat
- * The copying is problematic and also the agent is looking for color configuration in ~/dat only
- *
-//light status config requirement: copy dat/color_config.json to ~/dat if not already there
-var color_config_file_path = os.homedir() + '/dat';
-if (!fs.existsSync(color_config_file_path)) { //make sure dir existsSync
-	fs.mkdirSync(color_config_file_path, '0775');
-}
-*/
-
-if (!fs.existsSync('../dat/color_config.json') || !fs.existsSync('../dat/default_color_config.json')) {
-	/* ACRDEMO-491: skip the copying however log an error if the color config files do not exist
-	// copy it from dat
-	logger.info('copying default color config file to ~/dat since it does not exist...');
-	fs.createReadStream('../dat/color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/color_config.json'));
-	fs.createReadStream('../dat/default_color_config.json').pipe(fs.createWriteStream(color_config_file_path + '/default_color_config.json'));
-	*/
+if (!fs.existsSync(COLOR_CONFIG_JSON_PATH) || !fs.existsSync('../dat/default_color_config.json')) {
 	logger.error("color_config.json or default_color_config.json files do not exist in ../dat folder");
 	console.log("color_config.json or default_color_config.json files do not exist in ../dat folder");
 }
@@ -212,8 +275,7 @@ if (!fs.existsSync('../dat/color_config.json') || !fs.existsSync('../dat/default
 logger.info('Listen on port: ' + port);
 var queuenames = getConfigVal('management_portal:queues');
 var pollInterval = parseInt(getConfigVal('management_portal:poll_interval'));
-// var adUrl = getConfigVal('acedirect:url');
-var adUrl = 'https://' + getConfigVal('common:private_ip');
+var adUrl = 'https://' + getConfigVal(COMMON_PRIVATE_IP);
 console.log("port number: " + port + ", poll interval:" + pollInterval);
 
 Asterisk_queuenames = queuenames.split(",");
@@ -233,20 +295,21 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('config', function (message) {
 		logger.debug('Got config message request: ' + message);
-		var confobj = {};
-		confobj.host = getConfigVal('asterisk:sip:private_ip');
-		confobj.realm = getConfigVal('asterisk:sip:private_ip');
-		//confobj.stun = getConfigVal('asterisk:sip:stun');
-		confobj.stun = getConfigVal('asterisk:sip:stun') + ":" + getConfigVal('asterisk:sip:stun_port');
-		confobj.wsport = parseInt(getConfigVal('asterisk:sip:ws_port'));
-		confobj.channel = getConfigVal('asterisk:sip:channel');
-		confobj.websocket = "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws";
+		var confobj = {
+			host: getConfigVal(ASTERISK_SIP_PRIVATE_IP),
+			realm: getConfigVal(ASTERISK_SIP_PRIVATE_IP),
+			stun: getConfigVal('asterisk:sip:stun') + ":" + getConfigVal('asterisk:sip:stun_port'),
+			wsport: parseInt(getConfigVal('asterisk:sip:ws_port')),
+			channel: getConfigVal('asterisk:sip:channel'),
+			websocket: "wss://" + getConfigVal(ASTERISK_SIP_PRIVATE_IP) + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws"
+		};
 
 		socket.emit('sipconf', confobj);
 
 		if (message === 'webuser') {
-			var qobj = {};
-			qobj.queues = getConfigVal('management_portal:queues');
+			var qobj = {
+				queues: getConfigVal('management_portal:queues')
+			};
 			socket.emit('queueconf', qobj);
 			logger.debug('Message is webuser type');
 		}
@@ -330,7 +393,7 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for Operating Status
 	socket.on('hours-of-operation', function (data) {
-		var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours";
+		var url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal(AGENT_SERVICE_PORT) + "/OperatingHours";
 		request({
 			url: url,
 			json: true
@@ -358,9 +421,10 @@ io.sockets.on('connection', function (socket) {
 		});
 	}).on("hours-of-operation-update", function (data) {
 		if (data.start && data.end) {
-			var requestJson = {};
-			requestJson.start = data.start;
-			requestJson.end = data.end;
+			var requestJson = {
+				start: data.start,
+				end: data.end
+			};
 
 			switch (data.business_mode) {
 				case 'NORMAL':
@@ -379,7 +443,7 @@ io.sockets.on('connection', function (socket) {
 
 			request({
 				method: 'POST',
-				url: 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('agent_service:port') + "/OperatingHours",
+				url: 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal(AGENT_SERVICE_PORT) + "/OperatingHours",
 				headers: {
 					'Content-Type': 'application/json'
 				},
@@ -398,8 +462,7 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for CDR table
 	socket.on('cdrtable-get-data', function (data) {
-		//var url = getConfigVal('acr-cdr:url');
-		var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port') + "/getallcdrrecs";
+		var url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal('acr_cdr:https_listen_port') + "/getallcdrrecs";
 		var format = data.format;
 		if (data.start && data.end) {
 			url += '?start=' + data.start + '&end=' + data.end;
@@ -425,10 +488,8 @@ io.sockets.on('connection', function (socket) {
 					'peeraccount'
 				];
 				// Converts JSON object to a CSV file.
-				var csv = json2csv({
-					'data': cdrdata.data,
-					'fields': csvFields
-				});
+				let json2csvParser = new Json2csvParser({csvFields});
+				let csv = json2csvParser.parse(cdrdata.data)
 				//returns CSV of Call Data Records
 				io.to(socket.id).emit('cdrtable-csv', csv);
 			} else {
@@ -444,7 +505,7 @@ io.sockets.on('connection', function (socket) {
 			// Eventually store them in redis.
 			var metricsStartDate = new Date(data.start);
 			var metricsEndDate = new Date(data.end);
-			metrics.createMetrics(db, metricsStartDate.getTime(), metricsEndDate.getTime(), function (metrics) {
+			metrics.createMetrics(mongodb, metricsStartDate.getTime(), metricsEndDate.getTime(), function (metrics) {
 				io.to('my room').emit('metrics', metrics);
 			});
 		}
@@ -492,7 +553,6 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
-				//logger.debug(result);
 				io.to(socket.id).emit('got-videomail-recs', result);
 			}
 		});
@@ -504,7 +564,6 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
 			} else {
-				//logger.debug('Videomail Status Summary ' + JSON.stringify(result));
 				io.to(socket.id).emit('videomail-status', result);
 			}
 		});
@@ -516,7 +575,7 @@ io.sockets.on('connection', function (socket) {
 			if (err) {
 				logger.error('DELETE-OLD-VIDEOMAIL ERROR: ', err.code);
 			} else {
-				//logger.debug('Deleted old videomail');
+				logger.debug('Deleted old videomail');
 			}
 		});
 	});
@@ -570,7 +629,7 @@ io.sockets.on('connection', function (socket) {
 	socket.on("get_color_config", function () {
 		try {
 			//send json file to client
-			var file_path = '../dat/color_config.json';
+			var file_path = COLOR_CONFIG_JSON_PATH;
 			var data = fs.readFileSync(file_path, 'utf8');
 			socket.emit("html_setup", data);
 		} catch (ex) {
@@ -581,7 +640,7 @@ io.sockets.on('connection', function (socket) {
 	//on light color config submit update current color_config.json file
 	socket.on('submit', function (form_data) {
 		try {
-			var file_path = '../dat/color_config.json';
+			var file_path = COLOR_CONFIG_JSON_PATH;
 			var data = fs.readFileSync(file_path, 'utf8');
 			var json_data = JSON.parse(data);
 			for (var status in json_data.statuses) {
@@ -630,14 +689,12 @@ setImmediate(initialize);
 function sendResourceStatus() {
 	var hostMap = new Map();
 	// list of resources to check for status
-	//hostMap.set("Asterisk", "wss://" + getConfigVal('asterisk:sip:private_ip') + ":" + getConfigVal('asterisk:sip:ws_port') + "/ws");
-	var url = 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port');
-	hostMap.set("ACR-CDR", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('acr_cdr:https_listen_port'));
-	hostMap.set("VRS Lookup", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('user_service:port'));
-	hostMap.set("ACE Direct", 'https://' + getConfigVal('common:private_ip') + ':' + getConfigVal('ace_direct:https_listen_port'));
+	hostMap.set("ACR-CDR", 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal('acr_cdr:https_listen_port'));
+	hostMap.set("VRS Lookup", 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal('user_service:port'));
+	hostMap.set("ACE Direct", 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal('ace_direct:https_listen_port'));
 
 	hostMap.set("Zendesk", getConfigVal('zendesk:protocol') + '://' + getConfigVal('zendesk:private_ip') + ':' + getConfigVal('zendesk:port') + '/api/v2');
-	hostMap.set("Agent Provider", 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')));
+	hostMap.set("Agent Provider", 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ":" + parseInt(getConfigVal(AGENT_SERVICE_PORT)));
 
 	checkConnection(hostMap, function (data) {
 		io.to('my room').emit('resource-status', data);
@@ -645,7 +702,7 @@ function sendResourceStatus() {
 
 	var metricsStartDate = 1497916801000;
 	var metricsEndDate = 1498003200000;
-	metrics.createMetrics(db, metricsStartDate, metricsEndDate, function (data) {
+	metrics.createMetrics(mongodb, metricsStartDate, metricsEndDate, function (data) {
 		io.to('my room').emit('metrics', data);
 	});
 }
@@ -658,7 +715,7 @@ function sendResourceStatus() {
  */
 function checkConnection(hosts, callback) {
 	var results = [];
-	var requests = hosts.length;
+	var requests = hosts.size;
 
 	hosts.forEach(function (host, name) {
 		var parsedurl = url.parse(host, true, true);
@@ -711,7 +768,7 @@ function init_ami() {
 	if (ami === null) {
 		try {
 			ami = new AsteriskManager(parseInt(getConfigVal('asterisk:ami:port')),
-				getConfigVal('asterisk:sip:private_ip'),
+				getConfigVal(ASTERISK_SIP_PRIVATE_IP),
 				getConfigVal('asterisk:ami:id'),
 				getConfigVal('asterisk:ami:passwd'), true);
 
@@ -750,8 +807,21 @@ function sendEmit(evt, message) {
 function findAgent(agent) { // find agent by name e.g. JSSIP/30001
 	for (var i = 0; i < Agents.length; i++) {
 		if (Agents[i].agent === agent) {
-			//logger.debug("findAgent(): found Agent " + agent);
 			return Agents[i];
+		}
+	}
+	return null;
+}
+
+/**
+ * Find the persisted agent information in MongoDB
+ * @param {type} agent
+ * @returns {unresolved} Not used
+ */
+function getAgentFromStats(agent) { // find agent by name e.g. JSSIP/30001
+	for (var i = 0; i < AgentStats.length; i++) {
+		if (AgentStats[i].agent === agent) {
+			return AgentStats[i];
 		}
 	}
 	return null;
@@ -780,6 +850,18 @@ function findQueue(queue) {
 	}
 	return null;
 }
+/**
+ * Find Queue information for a specific queue from queue stats loaded from Mongo
+ * @param {type} queue
+ * @returns {unresolved} Not used
+ */
+function findQueueFromStats(queue){
+	for (var i = 0; i < QueueStats.length; i++) {
+		if (QueueStats[i].queue === queue)
+			return QueueStats[i];
+	}
+	return null;
+}
 
 /**
  * Iniate action to Asterisk
@@ -801,7 +883,6 @@ function amiaction(obj) {
  */
 function getTotalCallsTaken(m) {
 	var num = 0;
-	//printCallMap(m);
 	m.forEach(function (call) {
 		num += call;
 	});
@@ -831,11 +912,22 @@ function incrementCallMap(m, myqueue) {
  * @returns {undefined} Not used
  */
 function handle_manager_event(evt) {
-	//logger.debug (evt);
 
 	var a;
 	var name;
 	var q;
+
+	var ts = new Date();
+	var timestamp = {"Timestamp": ts.toISOString()};
+	var data = Object.assign(timestamp, evt);
+
+	if (colEvents != null) {
+		colEvents.insertOne(data, function(err, result) {
+			if(err){
+				logger.debug("handle_manager_event(): insert event into MongoDB, error: " + err);
+			}
+		});
+	}
 
 	switch (evt.event) {
 		case 'FullyBooted':
@@ -850,9 +942,10 @@ function handle_manager_event(evt) {
 					if (AgentMap.has(agentInt)) {
 						logger.debug("Agents: New Agent");
 						evt.name = AgentMap.get(agentInt).name;
-						evt.talktime = 0;
-						evt.avgtalktime = 0;
-						evt.callstaken = 0;
+						evt.talktime = 0
+						evt.holdtime = 0
+						evt.callstaken = 0
+						evt.avgtalktime = 0
 						evt.queue = '--';
 						evt.status = "Logged Out";
 
@@ -861,20 +954,36 @@ function handle_manager_event(evt) {
 							evt.callMap.set(Asterisk_queuenames[i], 0); // set the total call to 0
 						}
 
-						//evt.callsabandoned = 0; -- this information is not available for agent
 						Agents.push(evt);
 
 					} else {
 						logger.debug("AMI event Agent not in AgentMap");
 					}
 				} else {
+					let mongoAgent = getAgentFromStats(a.agent)
+					if(mongoAgent){
+						if(mongoAgent.talktime > 0 && a.talktime == 0){
+							a.talktime = mongoAgent.talktime
+							a.totaltalktime = (a.talktime/60).toFixed(2)
+						}
+						if(mongoAgent.holdtime > 0 && a.holdtime == 0){
+							a.holdtime = mongoAgent.holdtime
+						}
+						if(mongoAgent.callstaken > 0 && a.callstaken == 0){
+							a.callstaken = mongoAgent.callstaken
+						}
+						if(mongoAgent.avgtalktime > 0 && a.avgtalktime == 0){
+							a.avgtalktime = mongoAgent.avgtalktime
+						}
+					}
 					logger.debug("Existing agent"); // status always set to AGENT_LOGGEDOFF. Do not use this field
+
 				}
 				break;
 			}
 
 		case 'AgentComplete': // raised when a queue member has member finished servicing a caller in the queue
-			{ // update calls, talktime and holdtime
+			{ // update calls, talktime and holdtime for agent; update longestholdtime and currently active calls for queue
 				logger.debug(evt);
 				name = evt.membername.split("/");
 				a = findAgent(name[1]);
@@ -883,16 +992,42 @@ function handle_manager_event(evt) {
 					logger.debug("AgentComplete: " + "talktime = " + evt.talktime + ", holdtime= " + evt.holdtime);
 
 					if (evt.talktime > 0) {
-						a.talktime = Number(Number(a.talktime) + Number(evt.talktime) / 60).toFixed(2);
+						a.talktime += Number(evt.talktime)
+						a.totaltalktime = (a.talktime/60).toFixed(2)
 					}
 
-					a.holdtime += Number((Number(evt.holdtime ? evt.holdtime : "0") / 60).toFixed(2));
+					a.holdtime += Number(evt.holdtime)
 					// increment the callsComplete - queueMember calls field didn't update.
 					incrementCallMap(a.callMap, evt.queue);
+
+					//find the queue associated with this agent complete event
+					q = findQueue(evt.queue)
+					let tempQ = findQueueFromStats(evt.queue)
+					//check if this hold time is longer than the corresponding queue's current longest hold time
+					let agentHoldTime = (Number(evt.holdtime)/60).toFixed(2)
+					if(q.longestholdtime < agentHoldTime){
+						//update the longest hold time
+						q.longestholdtime = agentHoldTime
+					}
+					//decrement the queue's calls in progress
+					if(q.currentCalls > 0){
+						q.currentCalls -= 1
+					}
+					q.cumulativeHoldTime += Number(evt.holdtime)
+					q.cumulativeTalkTime += Number(evt.talktime)
 					// do not send agent-resp till ends of QueueStatusComplete
-				} else
+				} else{
 					logger.debug("AgentComplete: cannot find agent " + evt.membername);
+				}
 				break;
+			}
+		case 'AgentConnect':
+			{
+				//increment the number of current calls for the queue with call in progress
+				q = findQueue(evt.queue)
+				q.currentCalls+=1
+
+				break
 			}
 		case 'QueueMember':
 			{ // update status and averageTalkTime
@@ -921,10 +1056,11 @@ function handle_manager_event(evt) {
 						a.queue += ", " + evt.queue;
 
 					// QueueMember event doesn't update "calls" - get it from AgentComplete
-					a.callstaken = getTotalCallsTaken(a.callMap);
+					let mongoAgent = getAgentFromStats(a.agent)
+					a.callstaken = (mongoAgent && mongoAgent.callstaken > 0) ? (getTotalCallsTaken(a.callMap) + mongoAgent.callstaken) : getTotalCallsTaken(a.callMap)
 
 					if (a.callstaken > 0) {
-						a.avgtalktime = (a.talktime / a.callstaken).toFixed(2);
+						a.avgtalktime = ((a.talktime / a.callstaken)/60).toFixed(2);
 					}
 				}
 				// wait until we processed all members
@@ -932,16 +1068,29 @@ function handle_manager_event(evt) {
 			}
 		case 'QueueParams':
 			{
+				// console.log("In queue params")
 				logger.debug(evt);
+
 				q = findQueue(evt.queue);
 				if (!q) {
-					q = {};
+					q = {queue:"",loggedin:0,available:0,callers:0,currentCalls:0,cumulativeHoldTime:0,cumulativeTalkTime:0,avgHoldTime:0,avgTalkTime:0,longestholdtime:0,completed:0,abandoned:0,totalCalls:0}
 					Queues.push(q);
 				}
 				q.queue = evt.queue;    // ybao: avoid creating multiple queue elements for the same queue
-				q.completed = Number(evt.completed); // params
-				q.abandoned = Number(evt.abandoned); // params
-				q.calls = Number(evt.calls); // params
+				q.abandoned = Number(evt.abandoned); // evt.abandoned = number of calls that have been abandoned for this queue
+				//check for stats in the database
+					//get this queue from the stored stats
+				let tempQ = findQueueFromStats(q.queue)
+				//use the call stats from Mongo
+				if(tempQ){
+					q.completed = Number(evt.completed) + tempQ.completed
+					q.abandoned = Number(evt.abandoned) + tempQ.abandoned
+					q.totalCalls = q.completed + q.abandoned
+				}else{
+					q.completed = Number(evt.completed)
+					q.abandoned = Number(evt.abandoned)
+					q.totalCalls = q.completed + q.abandoned
+				}
 				break;
 			}
 		case 'QueueSummary':
@@ -952,18 +1101,42 @@ function handle_manager_event(evt) {
 					if (evt.queue === Asterisk_queuenames[j]) {
 						q = findQueue(evt.queue);
 						if (!q) {
-							q = {};
+							q = {queue:"",loggedin:0,available:0,callers:0,currentCalls:0,cumulativeHoldTime:0,cumulativeTalkTime:0,avgHoldTime:0,avgTalkTime:0,longestholdtime:0,completed:0,abandoned:0,totalCalls:0};
 							Queues.push(q);
 						}
-						q.queue = evt.queue;
-						q.loggedin = evt.loggedin;
-						q.available = evt.available;
-						q.callers = Number(evt.callers);
+						q.queue = evt.queue; //evt.queue = name of the queue ("eg. ComplaintsQueue")
+						q.loggedin = Number(evt.loggedin); //evt.loggedin = number of agents currently logged in
+						q.available = Number(evt.available); //evt.available = number of agents available
+						q.callers = Number(evt.callers); //evt.callers = number of calls currently waiting in the queue to be answered
 
-						q.holdtime = Number((evt.holdtime) / 60).toFixed(2);
-						q.talktime = Number(evt.talktime / 60).toFixed(2);
+						let tempQ = findQueueFromStats(evt.queue)
+						/**
+						 * If the following fields are zero, we can assume that this is the first
+						 * time the server has started, so we set each field to it respective value from
+						 * Mongo
+						 */
+						if(tempQ){
+							if(q.cumulativeHoldTime == 0 && tempQ.cumulativeHoldTime > 0 ){
+								q.cumulativeHoldTime = tempQ.cumulativeHoldTime
+							}
+							if(q.cumulativeTalkTime == 0 && tempQ.cumulativeTalkTime > 0){
+								q.cumulativeTalkTime = tempQ.cumulativeTalkTime
+							}
+							if(q.longestholdtime == 0 && tempQ.longestholdtime > 0){
+								q.longestholdtime = tempQ.longestholdtime
+							}
+							if(q.completed == 0 && tempQ.completed > 0){
+								q.completed = tempQ.completed
+							}
+							if(q.abandoned == 0 && tempQ.abandoned > 0){
+								q.abandoned = tempQ.abandoned
+							}
+						}
+						if(q.completed > 0){
+							q.avgHoldTime = Number((q.cumulativeHoldTime/q.completed)/60).toFixed(2)
+							q.avgTalkTime = Number((q.cumulativeTalkTime/q.completed)/60).toFixed(2)
+						}
 						logger.debug("QueueSummary(): q.talktime: " + q.talktime);
-						q.longestholdtime = Number(evt.longestholdtime / 60).toFixed(2);
 					}
 				}
 				break;
@@ -1016,10 +1189,17 @@ function initialize() {
 	mapAgents();
 	callAmiActions();
 	resetAllCounters();
+
 	setInterval(function () {
-		callAmiActions();
-		mapAgents();
+			callAmiActions();
+			mapAgents();
 	}, pollInterval);
+
+	if (logStats && logStatsFreq>0) {
+		setInterval(function () {
+				backupStatsinDB();
+		}, logStatsFreq);
+	}
 }
 
 /**
@@ -1061,9 +1241,8 @@ function mapAgents() {
 					"name": data.data[i].first_name + " " + data.data[i].last_name,
 					"queues": queues
 				};
-				//if (AgentMap.has(ext))
-				//	AgentMap.delete(ext);
 				AgentMap.set(ext, usr);
+				// console.log(JSON.stringify(AgentMap,undefined,2))
 			}
 		}
 	});
@@ -1075,7 +1254,7 @@ function mapAgents() {
  * @returns {undefined} Not used
  */
 function getAgentsFromProvider(callback) {
-	var url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + "/getallagentrecs";
+	var url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ":" + parseInt(getConfigVal(AGENT_SERVICE_PORT)) + "/getallagentrecs";
 	request({
 		url: url,
 		json: true
@@ -1097,13 +1276,114 @@ function getAgentsFromProvider(callback) {
  */
 function resetAllCounters() {
 	for (var i = 0; i < Asterisk_queuenames.length; i++) {
+		logger.info('QueueReset: ' + Asterisk_queuenames[i]);
 		amiaction({
-			'action': 'QueueReset'
-		}, {
+			'action': 'QueueReset',
 			'Queue': Asterisk_queuenames[i]
-		});
+		})
 		logger.log(Asterisk_queuenames[i]);
 	}
+}
+
+/**
+ * Backup the Agents and Queues stats into mongoDB - this should be invoked periodically
+ * @returns {undefined} Not used
+ */
+function backupStatsinDB() {
+
+	var ts = new Date();
+
+	/* backup Agents and Queues stats field: using the same JSON elements as in original object
+ 	 *
+ 	 * Timestamp:
+	 * agentstats[]:
+	 * 	agent: "30001",		// by asterisk extension
+	 * 	talktime: 0,
+	 * 	avgtalktime: 0,
+	 * 	callstaken: 0
+	 * queuestats[]:
+	 * 	queue: "GeneralQuestionsQueue",
+	 * 	holdtime: "0.00"
+	 * 	talktime: "0.00"
+	 * 	longestholdtime: "0.00"
+	 * 	completed: 0
+	 * 	abandoned: 0
+	 * 	calls: 0
+	 */
+
+	var data = {};
+	data.Timestamp = ts.toISOString();
+
+	// adding Agents[] stats
+	data.agentstats = [];
+	Agents.forEach(function(element) {
+		var astats = {};
+		astats.agent = element.agent;
+		astats.talktime = element.talktime;
+		astats.holdtime = element.holdtime
+		astats.avgtalktime = element.avgtalktime;
+		astats.callstaken = element.callstaken;
+		data.agentstats.push(astats);
+	});
+
+	// adding Queues stats
+	data.queuestats = [];
+	Queues.forEach(function(element) {
+		var qstats = {};
+		qstats.queue = element.queue;
+		qstats.cumulativeHoldTime = element.cumulativeHoldTime;
+		qstats.cumulativeTalkTime = element.cumulativeTalkTime;
+		qstats.longestholdtime = element.longestholdtime;
+		qstats.completed = element.completed;
+		qstats.abandoned = element.abandoned;
+		qstats.totalCalls = element.totalCalls;
+		data.queuestats.push(qstats);
+	});
+
+
+	if (colStats != null) {
+		colStats.insertOne(data, function(err, result) {
+			if(err){
+				console.log("backupStatsinDB(): insert callstats into MongoDB, error: " + err)
+				logger.debug("backupStatsinDB(): insert callstats into MongoDB, error: " + err)
+				throw err;
+			}
+		});
+	}
+}
+
+/**
+ * Load persisted  Agents and Queues stats from mongoDB - this should be invoked when managementportal restarts
+ *
+ * Curent design assumes that this is invoked after Agents[] and Queues[] are fully populated - may need to verify
+ * whether this is always true
+ *
+ * @returns {undefined} Not used
+ */
+function loadStatsinDB() {
+
+
+	// Find the last stats entry backed up in mongoDB
+	if (colStats != null) {
+		var cursor = colStats.find().limit(1).sort({ $natural : -1 });
+
+		cursor.toArray(function(err, data) {
+			if (err) console.log("Stats find returned error: " + err);
+
+			if (data[0] != null) {
+
+
+				// for now only saving this, cannot copy them into Agents[] and Queues[] since they may be empty
+				AgentStats = data[0].agentstats;
+				QueueStats = data[0].queuestats;
+
+
+
+			}
+		})
+	}
+
+	console.log("---------------------------- Stats pulled out of mongoDB: ");
 }
 
 app.use(function (err, req, res, next) {
@@ -1166,7 +1446,6 @@ app.use('/agentassist', function (req, res) {
 
 //must come after above function
 //All get requests below are subjected to openam cookieShield
-//app.use(agent.shield(cookieShield));
 
 app.use(function(req, res, next){
 	res.locals = {
@@ -1186,34 +1465,8 @@ app.use('/', require('./routes'));
  * @param {type} callback Returns retrieved JSON
  * @returns {undefined} Not used
  */
-// function login(username, password, callback) {
-// 	var url = getConfigVal('agentservice:url') + ":" + parseInt(getConfigVal('agentservice:port')) + "/agentverify/";
-// 	var params = "?username=" + escape(username) + "&password=" + escape(password);
-// 	request({
-// 		url: url + params,
-// 		json: true
-// 	}, function (error, response, data) {
-// 		if (error) {
-// 			logger.error("login ERROR");
-// 			data = { "message": "failed" };
-// 		} else {
-// 			logger.info("Agent Verify: " + data.message);
-// 		}
-// 		callback(data);
-// 	});
-// }
-
-/**
- * Calls the RESTful service running on the provider host to verify the agent
- * username and password.
- *
- * @param {type} username Agent username
- * @param {type} password Agent password
- * @param {type} callback Returns retrieved JSON
- * @returns {undefined} Not used
- */
 function getUserInfo(username, callback) {
-	var url = 'https://' + getConfigVal('common:private_ip') + ":" + parseInt(getConfigVal('agent_service:port')) + '/getagentrec/' + username;
+	var url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ":" + parseInt(getConfigVal(AGENT_SERVICE_PORT)) + '/getagentrec/' + username;
 	request({
 		url: url,
 		json: true
@@ -1274,3 +1527,26 @@ app.get('/getVideomail', function (req, res) {
 		}
 	});
 });
+
+
+process.on('exit', function() {
+	console.log('exit signal received');
+	backupStatsinDB();
+});
+
+
+process.on('SIGINT', function() {
+	console.log('SIGINT signal received');
+	backupStatsinDB();
+});
+
+process.on('SIGTERM', function() {
+	console.log('SIGINT signal received');
+	backupStatsinDB();
+});
+
+process.on('uncaughtException', function() {
+	console.log('uncaughtException received');
+	backupStatsinDB();
+});
+

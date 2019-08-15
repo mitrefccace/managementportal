@@ -1,5 +1,4 @@
 var fs = require('fs');
-var randgen = require('randgen');
 var mongoose = require('mongoose');
 
 module.exports={
@@ -12,7 +11,6 @@ module.exports={
             }
             //Get actual date values and set the start and end times for the day
             var startDate = new Date();
-            var realDate = new Date();
             startDate.setHours(0,0,0,0);
             var counter = new Date(startDate.getTime());
             startDate/=1000;
@@ -78,34 +76,11 @@ module.exports={
         db.on('error', console.error.bind(console, 'connection error:'));
         db.once('open', function() {
             // we're connected!
-            var collectionName = "records";
             //insert recordArray into the database
             db.collection("records").insert(arrayOfRecords,function(){
                 db.close();
                 console.log('Done.');
             });
-            // var dbItems = db.collection("records").find();
-            // var iterator = 0;
-            // var minute=1;
-            // var avg=0;
-            // var sum=0;
-            // //open a file stream to output the averages to
-            // if(fs.existsSync('averageCallsPerMin.txt')){
-            //     fs.unlink('averageCallsPerMin.txt');
-            // }
-            // var avgFile=fs.createWriteStream('averageCallsPerMin.txt');
-            // dbItems.forEach(function(item){
-            //     if(iterator==60){
-            //         avg=sum/60;
-            //         avgFile.write("Minute: "+minute+ " Average: "+avg+'\n');
-            //         sum=0;
-            //         avg=0;
-            //         iterator=0;
-            //         minute++;
-            //     }
-            //     sum+=item.callers;
-            //     iterator++;
-            // });
         });
     }
 };
