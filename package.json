@@ -15,7 +15,13 @@
     "build": "find ./public/assets/ ! -type d ! -name '*.gitignore' -exec rm '{}' + && node ./build.js || true"
   },
   "devDependencies": {
-    "handlebars": "^4.1.2"
+    "clean-css": "^4.2.1",
+    "fstream": "^1.0.12",
+    "handlebars": "^4.1.2",
+    "jquery": "^3.4.1",
+    "lodash": "^4.17.15",
+    "lodash.template": "^4.5.0",
+    "tar": "^4.4.10"
   },
   "dependencies": {
     "admin-lte": "^2.3.6",
