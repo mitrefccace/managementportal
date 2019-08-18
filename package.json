@@ -1,7 +1,7 @@
 {
   "name": "managementportal",
   "description": "Management Dashboard foro ACE Product Family",
-  "version": "1.0.0-Beta",
+  "version": "1.0.0",
   "main": "server-db.js",
   "author": "",
   "license": "ISC",
