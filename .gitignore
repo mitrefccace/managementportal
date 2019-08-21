@@ -1,4 +1,4 @@
-# Ignore these files
+# Ignore these files and folders
 /config.json
 /config-aws.json
 /server-db.out
@@ -9,3 +9,4 @@ nbproject
 config_.json_MIKE
 .DS_Store
 .env
+/public/assets/

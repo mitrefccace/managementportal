@@ -24,7 +24,7 @@
     "tar": "^4.4.10"
   },
   "dependencies": {
-    "admin-lte": "^2.3.6",
+    "admin-lte": "2.3.6",
     "angular": "^1.7.5",
     "angular-moment-duration-format": "^0.1.0",
     "angular-route": "^1.7.5",
@@ -47,6 +47,7 @@
     "json2csv": "^4.3.2",
     "jsonwebtoken": "^8.3.0",
     "jwt-decode": "^2.2.0",
+    "lodash": "^4.17.15",
     "log4js": "^3.0.6",
     "moment": "^2.23.0",
     "mongodb": "^3.1.10",
