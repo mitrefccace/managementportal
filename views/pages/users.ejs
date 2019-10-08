@@ -349,6 +349,7 @@
 			$('#confirmPassword').hide();
 
 			$('#btnUpdateAgent').show();
+                        $(".glyphicon-eye-open").css("display","none"); //HERE
 			$('#btnDeleteAgent').show();
 			$('#btnAddAgent').hide();
 			$('#configModal').modal();
@@ -480,6 +481,7 @@
         function addUserModal() {
                 $("#addUserForm").trigger("reset");
 		$('#btnUpdateAgent').hide();
+                $(".glyphicon-eye-open").css("display",""); //HERE
 		$('#btnDeleteAgent').hide();
 		$('#btnAddAgent').show();
                 $('#configModal').modal();
