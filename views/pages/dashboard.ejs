@@ -15,10 +15,10 @@
 				<!-- Content Header (Page header) -->
 				<section class="content-header">
 					<h1>Management Dashboard</h1>
-					<div id="reportrange" class="dropdown-menu-left" >
+					<!--<div id="reportrange" class="dropdown-menu-left" >
 						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
 						<span></span> <b class="caret"></b>
-					</div>
+					</div>-->
 				</section>
 
 				<!-- Main content -->
@@ -300,21 +300,7 @@
 						socket.on('metrics', function (data) {
 							if (data.showCharts) {
 								$("#charts").removeClass('hidden');
-								$.plot("#queueSizeLineChart", [data.averageCallsInQueue, data.averageCallsInQueueTarget], {
-									lines:{show: true},
-									axisLabels: {show: true},
-									xaxis: {
-										mode: "time",
-										minTickSize: [2, "hour"],
-										timeformat: "%H:%M",
-										axisLabel: "Time"
-									},
-									yaxis: {
-										position: "left",
-										axisLabel: "Calls"
-									},
-									colors: ["#0022FF", "#FF4040"]
-								});
+                                                                //remove queueSizeLineChart for now
 							}
 							else {
 								$("#charts").addClass('hidden');
