@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongoose": "^4.10.5",
+    "mongoose": "^5.7.7",
     "randgen": "^0.1.0"
   }
 }
