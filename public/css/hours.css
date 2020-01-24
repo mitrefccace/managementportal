@@ -1,0 +1,4 @@
+/* Fix margin of select dropdown in Business Mode row */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    margin-top: -9px !important;
+}

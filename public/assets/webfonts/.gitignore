@@ -2,8 +2,3 @@
 # ignore everything in this folder BUT .gitignore
 *
 !.gitignore
-!/css/
-!/fonts/
-!/webfonts/
-!/images/
-!/js/

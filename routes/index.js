@@ -92,6 +92,22 @@ router.get('/cdr', agent.shield(cookieShield), function (req, res) {
 });
 
 /**
+ * Handles a GET request for /report. Checks user has
+ * a valid session and displays report page.
+ *
+ * @param {string} '/report'
+ * @param {function} 'agent.shield(cookieShield)'
+ * @param {function} function(req, res)
+ */
+router.get('/report', agent.shield(cookieShield), function (req, res) {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
+		res.render('pages/report');
+	} else {
+		res.redirect('./');
+	}
+});
+
+/**
  * Handles a GET request for /videomail. Checks user has
  * a valid session and displays videomail page.
  *
@@ -170,6 +186,27 @@ router.get('/users', agent.shield(cookieShield), function (req, res) {
         } else {
                 res.redirect('./');
         }
+});
+
+/**
+ * Handles a GET request for /admin. Checks user has
+ * a valid session and displays Administration page.
+ *
+ * @param {string} '/admin'
+ * @param {function} 'agent.shield(cookieShield)'
+ * @param {function} function(req, res)
+ */
+router.get('/admin', agent.shield(cookieShield), function (req, res) {
+	if (req.session.role === 'Manager'||req.session.role === 'Supervisor') {
+		getAgentInfo(null, function (info) {
+			if (info.message === "success") {
+				logger.info("Returned agent data[0]" + info.data[0].username);
+				res.render('pages/admin');
+			}
+		});
+	} else {
+		res.redirect('./');
+	}
 });
 
 

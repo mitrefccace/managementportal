@@ -9,4 +9,4 @@ nbproject
 config_.json_MIKE
 .DS_Store
 .env
-/public/assets/
+.vscode

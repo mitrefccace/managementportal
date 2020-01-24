@@ -6,84 +6,79 @@
     <% include ../partials/head %>
 </head>
 
-<body class="hold-transition skin-purple sidebar-mini">
-    <div class="wrapper">
-
-        <header class="main-header">
-            <% include ../partials/header %>
-        </header>
-        <!-- Left side column. contains the logo and sidebar -->
-        <aside class="main-sidebar">
-            <% include ../partials/sidebar %>
-        </aside>
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <section class="content-header">
-                <h1>Manage Agents</h1>
-            </section>
-
-            <!-- Main content -->
-            <section class="content">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="box">
-                            <div class="box-header with-border">
-                                <h3 class="box-title">Agents</h3>
-                            </div>
-                            <!-- /.box-header -->
-                            <div id="usertablediv" class="box-body table-responsive">
-                                <table id="usertable" class="table table-bordered table-hover" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th class="text">ID</th>
-                                            <th class="text">First Name</th>
-                                            <th class="text">Last Name</th>
-                                            <th class="text">Username</th>
-                                            <th class="text">Extension</th>
-					    <th class="text">Select</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% users.forEach(function(user) {  %>
-                                            <tr value="<%= user.agent_id %>">
-                                                <td>
-                                                    <%= user.agent_id %>
-                                                </td>
-                                                <td>
-                                                    <%= user.first_name %>
-                                                </td>
-                                                <td>
-                                                    <%= user.last_name %>
-                                                </td>
-                                                <td>
-                                                    <%= user.username %>
-                                                </td>
-                                                <td>
-                                                    <%= user.extension %>
-                                                </td>
-                                                <td>
-                                                </td>
-                                            </tr>
-
-                                            <% }) %>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.box-body -->
-                            <div class="box-footer">
-                                <button type="button" class="btn btn-primary" id="add_user_btn" onclick='addUserModal()'>Add New Agent</button>
-                                <button type="button" class="btn btn-primary" id="delete_user_btn">Delete Selected Agents</button>
+<body class="hold-transition sidebar-mini layout-fixed">
+        <div class="wrapper">
+                <% include ../partials/header %>
+                <% include ../partials/sidebar %>
+                <div class="content-wrapper">
+                    <div class="content-header">
+                        <div class="container-fluid">
+                            <div class="row mb-2">
+                                <div class="col-sm-12">
+                                    <h1 class="m-0 text-dark">Manage Agents</h1>
+                                </div>
                             </div>
                         </div>
-                        <!-- /.box -->
                     </div>
-            </section>
-            <!-- /.content -->
+                    <div class="content">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                                <h3 class="card-title">Agents</h3>
+                                        </div>
+                                        <div id="usertablediv" class="card-body table-responsive">
+                                            <table id="usertable" class="table table-hover table-condensed table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text">ID</th>
+                                                        <th class="text">First Name</th>
+                                                        <th class="text">Last Name</th>
+                                                        <th class="text">Username</th>
+                                                        <th class="text">Extension</th>
+                                                        <th class="text">Select</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% users.forEach(function(user) {  %>
+                                                    <tr style="cursor:pointer" value="<%= user.agent_id %>">
+                                                        <td>
+                                                            <%= user.agent_id %>
+                                                        </td>
+                                                        <td>
+                                                            <%= user.first_name %>
+                                                        </td>
+                                                        <td>
+                                                            <%= user.last_name %>
+                                                        </td>
+                                                        <td>
+                                                            <%= user.username %>
+                                                        </td>
+                                                        <td>
+                                                            <%= user.extension %>
+                                                        </td>
+                                                        <td>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="btn-group mt-4" role="group">
+                                                <button class="btn btn-primary" id="add_user_btn" onclick='addUserModal()'>Add New Agent</button>
+                                                <button class="btn btn-danger" id="delete_user_btn">Delete Selected Agents</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% include ../partials/footer %>
             </div>
-            <!-- /.content - wrapper -->
-
-            <% include ../partials/footer %>
-        </div>
         <!-- ./wrapper -->
 
 
@@ -93,108 +88,130 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
+                        <h5 class="modal-title" id="configModalLabel">Agent Information</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="modal-title" id="configModalLabel">Agent Information</h4>
                     </div>
-                    <form class="form-horizontal test-form toggle-disabled has-validation-callback disabled-without-errors" id="addUserForm">
                         <div class="modal-body">
-                            <div class="form-group">
-                                <label for="inputUsername" class="col-sm-2 control-label">Username</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputUsername" placeholder="Between 4 and 10 characters" data-minlength="4" data-maxlength="10"
-                                        required data-validation="length" data-validation-length="4-10">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputPassword" class="col-sm-2 control-label">Password</label>
-                                <div class="col-sm-10">
-                                    <input type="password" class="form-control" id="inputPassword" placeholder="Password" data-minlength="6"
-                                        data-maxlength="15" data-validation="custom" data-validation-regexp="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$"
-                                        required data-validation-error-msg="You did not enter a password">
-				    <span class="glyphicon glyphicon-eye-open"></span>
-                                        <p class="help-block">Password must be 6 to 15 characters and contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.</p>
+                            <div class="container-fluid">
+                                <form class="toggle-disabled" id="addUserForm">
+                                    <div class="form-group row">
+                                        <label for="inputUsername" class="col-sm-3 col-form-label">Username</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputUsername"
+                                                placeholder="Between 4 and 10 characters" data-minlength="4" data-maxlength="10"
+                                                required data-validation="length" data-validation-length="4-10">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputPassword" class="col-sm-3 col-form-label">Password</label>
+                                        <div class="col-sm-9">
+                                            <input type="password" class="form-control" id="inputPassword"
+                                                placeholder="Password" data-minlength="6" data-maxlength="15"
+                                                data-validation="custom"
+                                                data-validation-regexp="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$"
+                                                required data-validation-error-msg="You did not enter a password">
+                                            <span class="glyphicon glyphicon-eye-open"></span>
+                                            <small class="form-text text-muted">Password must be 6 to 15 characters and contain at least 1
+                                                uppercase letter, 1 lowercase letter, 1 number, and 1 special character.</small>
 
-                                </div>
-                            </div>
-                            <div class="form-group" id="confirmPassword">
-                                <label for="inputPassword2" class="col-sm-2 control-label">Confirm Password</label>
-                                <div class="col-sm-10">
-                                    <input type="password" class="form-control" id="inputPassword2" placeholder="Retype Password" data-minlength="6"
-                                        data-maxlength="15" data-validation="custom" data-validation-regexp="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$"
-                                        required data-validation-error-msg="You did not enter a password">
-				    <span class="glyphicon glyphicon-eye-open"></span>
-                                        <p class="help-block">Password must be 6 to 15 characters and contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.</p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row" id="confirmPassword">
+                                        <label for="inputPassword2" class="col-sm-3 col-form-label">Confirm Password</label>
+                                        <div class="col-sm-9">
+                                            <input type="password" class="form-control" id="inputPassword2"
+                                                placeholder="Retype Password" data-minlength="6" data-maxlength="15"
+                                                data-validation="custom"
+                                                data-validation-regexp="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$"
+                                                required data-validation-error-msg="You did not enter a password">
+                                            <span class="glyphicon glyphicon-eye-open"></span>
+                                            <small class="form-text text-muted">Password must be 6 to 15 characters and contain at least 1
+                                                uppercase letter, 1 lowercase letter, 1 number, and 1 special character.</small>
 
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputFirstname" class="col-sm-3 col-form-label">First Name</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputFirstname" data-maxlength="20"
+                                                placeholder="First name" required data-validation="length"
+                                                data-validation-length="max25">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputLastname" class="col-sm-3 col-form-label">Last Name</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputLastname" data-maxlength="20"
+                                                placeholder="Last name" required data-validation="length"
+                                                data-validation-length="max25">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputEmail" class="col-sm-3 col-form-label">Email</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputEmail" data-maxlength="40"
+                                                placeholder="Email Address" required data-validation="custom"
+                                                data-validation-regexp="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputPhone" class="col-sm-3 col-form-label">Phone</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputPhone" data-maxlength="12"
+                                                placeholder="Phone xxx-xxx-xxxx" required data-validation=custom
+                                                data-validation-regexp="^[1-9]\d{2}-\d{3}-\d{4}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputOrganization" class="col-sm-3 col-form-label">Organization</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputOrganization" data-maxlength="50"
+                                                placeholder="Organization name" required data-validation="length"
+                                                data-validation-length="max50">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 control-label">Extension</label>
+                                        <div class="col-sm-9">
+                                            <select class="form-control" id='inputExtension' data-maxlength="25"
+                                                placeholder="Select extension">
+                                                <option value='30001'>30001</option>
+                                                <option value='30002'>30002</option>
+                                                <option value='30003'>30003</option>
+                                                <option value='30004'>30004</option>
+                                                <option value='30005'>30005</option>
+                                                <option value='30006'>30006</option>
+                                                <option value='30007'>30007</option>
+                                                <option value='30008'>30008</option>
+                                                <option value='30009'>30009</option>
+                                                <option value='30010'>30010</option>
+                                                <option value='30011'>30011</option>
+                                                <option value='30012'>30012</option>
+                                                <option value='30013'>30013</option>
+                                                <option value='30014'>30014</option>
+                                                <option value='30015'>30015</option>
+                                                <option value='30016'>30016</option>
+                                                <option value='30017'>30017</option>
+                                                <option value='30018'>30018</option>
+                                                <option value='30019'>30019</option>
+                                                <option value='30020'>30020</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class=" form-group form-check">
+                                        <label class="form-check-label" for="inputComplaintsQueue">
+                                            <input class="form-check-input" type="checkbox" name="nameOfChoice" value="1" id="inputComplaintsQueue">
+                                            Answers Complaints Queue
+                                        </label>
+                                        <label class="form-check-label" for="inputGeneralQueue">
+                                            <input class="form-check-input" type="checkbox" name="nameOfChoice" value="2" id="inputGeneralQueue">
+                                            Answers General Questions Queue
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputFirstname" class="col-sm-2 control-label">First Name</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputFirstname" data-maxlength="20" placeholder="First name" required data-validation="length"
-                                        data-validation-length="max25">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputLastname" class="col-sm-2 control-label">Last Name</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputLastname" data-maxlength="20" placeholder="Last name" required data-validation="length"
-                                        data-validation-length="max25">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputEmail" class="col-sm-2 control-label">Email</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputEmail" data-maxlength="40" placeholder="Email Address" required data-validation="custom" data-validation-regexp="^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputPhone" class="col-sm-2 control-label">Phone</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputPhone" data-maxlength="12" placeholder="Phone xxx-xxx-xxxx" required data-validation=custom data-validation-regexp="^[1-9]\d{2}-\d{3}-\d{4}">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="inputOrganization" class="col-sm-2 control-label">Organization</label>
-                                <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="inputOrganization" data-maxlength="50" placeholder="Organization name" required data-validation="length"
-                                        data-validation-length="max50">
-                                </div>
-                            </div>
-			    <div class="form-group">
-                                <label class="col-sm-2 control-label">Extension</label>
-				    <div class="col-sm-10">
-                                    <select class="form-control" id='inputExtension' data-maxlength="25" placeholder="Select extension">
-                                        <option value='30001'>30001</option>
-                                        <option value='30002'>30002</option>
-                                        <option value='30003'>30003</option>
-                                        <option value='30004'>30004</option>
-                                        <option value='30005'>30005</option>
-                                        <option value='30006'>30006</option>
-                                        <option value='30007'>30007</option>
-                                        <option value='30008'>30008</option>
-                                        <option value='30009'>30009</option>
-                                        <option value='30010'>30010</option>
-                                        <option value='30011'>30011</option>
-                                        <option value='30012'>30012</option>
-                                        <option value='30013'>30013</option>
-                                        <option value='30014'>30014</option>
-                                        <option value='30015'>30015</option>
-                                        <option value='30016'>30016</option>
-                                        <option value='30017'>30017</option>
-                                        <option value='30018'>30018</option>
-                                        <option value='30019'>30019</option>
-                                        <option value='30020'>30020</option>
-                                    </select>
-				    </div>
-                             </div>
-                            <div class="form-checkbox-item">
-                                <label for="inputComplaintsQueue">Answers Complaints Queue</label>
-					<input type="checkbox" name="nameOfChoice" value="1" id="inputComplaintsQueue">
-                                <label for="inputGeneralQueue">Answers General Questions Queue</label>
-					<input type="checkbox" name="nameOfChoice" value="2" id="inputGeneralQueue">
-			    </div>
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
@@ -202,18 +219,18 @@
                             <button type="button" class="btn btn-primary" id='btnUpdateAgent'>Update Agent</button>
                             <button type="button" class="btn btn-danger" id='btnDeleteAgent'>Delete Agent</button>
                         </div>
-                    </form>
                 </div>
             </div>
         </div>
 
         <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
-
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Confirm Delete</h4>
+                        <h5 class="modal-title" id="myModalLabel">Confirm Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
 
                     <div class="modal-body">
@@ -227,21 +244,20 @@
                 </div>
             </div>
         </div>
-
         <div class="modal fade" id="confirm-bulk-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
-
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Confirm Bulk Delete</h4>
+                        <h5 class="modal-title" id="myModalLabel">Confirm Bulk Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">
+                            <span aria-hidden="true">&times;</span
+                        ></button>
                     </div>
 
                     <div class="modal-body">
                         <p>Do you want to proceed and delete the following selected agents?</p>
-			<p id="agentlist"></p>
+                        <p id="agentlist"></p>
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-danger" id="bulk_delete_btn">Delete</button>
@@ -249,313 +265,6 @@
                 </div>
             </div>
         </div>
-
-<script type="text/javascript">
-    var selectedUser = 0;
-    $(document).ready(function () {
-    $("#sidebaragentmanagement").addClass("active");
-	$('#admin_treeview').addClass('active');
-	$('#admin_users_treeview').addClass('active');
-
-	var table = $('#usertable').DataTable({
-	    "order": [],
-	    "columnDefs": [{
-		"targets": [0],
-		"visible": false,
-		"searchable": false
-	    }, {
-		"targets": [4],
-		"render": function (data, type, row) {
-		    if (data.length == 0) {
-			return "Never";
-		    } else {
-			return data;
-		    }
-		}
-	    }, {
-		"targets": [5],
-		"data": "selected",
-		"orderable": false,
-		"render": function ( data, type, row ) {
-			if ( type === 'display' ) {
-				return '<input type="checkbox" class="editor-active">';
-			}
-			return data;
-		   },
-		className: "dt-body-center"
-	   }],
-	   select: {
-		style:    'os',
-		selector: 'td:not(:last-child)'
-	   },
-	  // "tableTools": {
-		//"sRowSelect": "os",
-		//"sRowSelector": 'td:not(:last-child)' // no row selection on last column
-	   //}
-	   //"select": {
-		//"style": 'os',
-		//"sRowSelector": 'td:not(:last-child)'
-	   //},
-	   "rowCallback": function ( row, data ) {
-		$('input.editor-active', row).prop( 'checked', data.selected == 1 );
-		console.log("selected row: " + (data.selected==1));
-	   }
-
-	 });
-
-	$('#usertable tbody').on( 'change', 'input.editor-active', function () {
-		var data = table.row($(this).parents('tr')).data();
-		console.log("checkbox clicked with data: " + JSON.stringify(data));
-
-		data.selected = $(this).prop( 'checked' ) ? 1 : 0;
-		console.log("checkbox data: " + data.selected);
-	} );
-
-	$('#usertable tbody').on('click', 'td', function () {
-
-		var data = table.row($(this).parents('tr')).data();
-		var col = table.cell(this).index().column;
-
-		console.log("cell clicked with col: " + col + " data: " + JSON.stringify(data));
-
-		if (col != 5) {			// do not load agent info if the clicked cell is the checkbox
-			var url = "./GetAgent/" + data[3];
-			console.log("GetAgent url: " + url);
-			selectedUser = data[0];
-			$.get("./GetAgent", {
-					"username": data[3]
-				},
-				function (result, status) {
-					console.log("GetAgent returned: " + JSON.stringify(result));
-					$('#inputUsername').val(result.username);
-					$('#inputFirstname').val(result.first_name);
-					$('#inputLastname').val(result.last_name);
-					$('#inputEmail').val(result.email);
-					$('#inputPhone').val(result.phone);
-					$('#inputOrganization').val(result.organization);
-					$('#inputExtension').val(result.extension);
-					if (result.queue_name!=null) {
-						$('#inputComplaintsQueue').prop("checked", true);
-					}
-					if (result.queue2_name!=null) {
-						$('#inputGeneralQueue').prop("checked", true);
-					}
-					console.log('complaintsQueue value is: ' + $('#inputComplaintsQueue').val());
-					console.log('generalQueue value is: ' + $('#inputGeneralQueue').val());
-				});
-
-			$('#inputUsername').prop('disabled', true);
-			$('#inputPassword').prop('disabled', true);
-			$('#confirmPassword').hide();
-
-			$('#btnUpdateAgent').show();
-                        $(".glyphicon-eye-open").css("display","none"); //HERE
-			$('#btnDeleteAgent').show();
-			$('#btnAddAgent').hide();
-			$('#configModal').modal();
-		}
-	})
-
-	$("#btnAddAgent").click(function (event) {
-	    event.preventDefault();
-	    /* check if both password inputs match */
-	    var pass = $('#inputPassword').val();
-	    var pass2 = $('#inputPassword2').val();
-	    if (pass != pass2) {
-		alert("Re-entered password does not match!");
-		return;
-	    };
-
-	    $.post("./AddAgent", {
-		    "username": $('#inputUsername').val(),
-		    "password": $('#inputPassword').val(),
-		    "first_name": $('#inputFirstname').val(),
-		    "last_name": $('#inputLastname').val(),
-		    "email": $('#inputEmail').val(),
-		    "phone": $('#inputPhone').val(),
-		    "organization": $('#inputOrganization').val(),
-		    "extension": $('#inputExtension').val(),
-		    "queue_id": ($('#inputComplaintsQueue').prop('checked')) ? ($('#inputComplaintsQueue').val()) : 0,
-		    "queue2_id": ($('#inputGeneralQueue').prop('checked')) ? ($('#inputGeneralQueue').val()) : 0,
-		},
-		function (data, status) {
-			if (data.result == "success") {
-				console.log("Saved!!!!")
-				location.reload();
-			}
-			else
-			{
-				console.log("POST failed: " + JSON.stringify(data));
-				alert(data.message);
-			}
-		});
-
-	});
-
-	$("#btnDeleteAgent").click(function (event) {
-		event.preventDefault();
-		console.log("AgentId selected to delete: " + selectedUser);
-		$('#confirm-delete').modal();
-	});
-
-	$("#btnUpdateAgent").click(function (event) {
-	    event.preventDefault();
-
-	    $.post("./UpdateAgent", {
-		    "agent_id": selectedUser,
-		    "username": $('#inputUsername').val(),
-		    "first_name": $('#inputFirstname').val(),
-		    "last_name": $('#inputLastname').val(),
-		    "email": $('#inputEmail').val(),
-		    "phone": $('#inputPhone').val(),
-		    "organization": $('#inputOrganization').val(),
-		    "extension": $('#inputExtension').val(),
-		    "queue_id": ($('#inputComplaintsQueue').prop('checked')) ? ($('#inputComplaintsQueue').val()) : 0,
-		    "queue2_id": ($('#inputGeneralQueue').prop('checked')) ? ($('#inputGeneralQueue').val()) : 0,
-		},
-		function (data, status) {
-			if (data.result == "success") {
-				console.log("POST succ: " + JSON.stringify(data));
-				location.reload();
-			}
-			else
-			{
-				console.log("POST failed: " + JSON.stringify(data));
-				alert(data.message);
-			}
-		});
-	});
-
-	$("#delete_user_btn").click(function (event) {
-		getBulkDeleteAgentList();
-                $('#confirm-bulk-delete').modal();
-	});
-
-	$("#bulk_delete_btn").click(function (event) {
-	    event.preventDefault();
-
-		var data = table.rows().data();
-		data.each(function (value, index) {
-			if (value.selected===1) {
-				// console.log("Bulk delete: checked at index: ", index)
-				// console.log("agent id checked is: " + value[0] + " agent username is: " + value[3]);
-
-				// Issue delete at backend
-				$.post("./DeleteAgent", {
-					"id": value[0],
-					"username": value[3]
-				},
-				function (data, status) {
-					if (data.result != "success") {
-						console.log("DeleteAgent " + value[3] + " failed: " + JSON.stringify(data));
-						alert(data.message);
-					}
-				});
-			}
-			})
-
-                        location.reload();
-                })
-
-
-	function getBulkDeleteAgentList() {
-
-		console.log("getBulkDeleteAgentList() invoked");
-
-		var agentNames = "";
-		var data = table.rows().data();
-		data.each(function (value, index) {
-			if (value.selected===1) {
-				// console.log("Bulk delete: checked at index: ", index)
-				// console.log("agent id checked is: " + value[0] + " agent username is: " + value[3]);
-				agentNames += "  " + value[3];
-			}
-		})
-
-		// present dynamically generated agentlist
-		document.getElementById("agentlist").innerHTML = agentNames;
-		}
-
-        });
-
-        function addUserModal() {
-                $("#addUserForm").trigger("reset");
-		$('#btnUpdateAgent').hide();
-                $(".glyphicon-eye-open").css("display",""); //HERE
-		$('#btnDeleteAgent').hide();
-		$('#btnAddAgent').show();
-                $('#configModal').modal();
-
-		$('#inputUsername').prop('disabled', false);
-		$('#inputPassword').prop('disabled', false);
-		$('#confirmPassword').show();
-		$('#inputPassword2').prop('disabled', false);
-        }
-
-        function deleteUser() {
-                $.post("./DeleteAgent", {
-                        "id": selectedUser,
-                        "username": $('#inputUsername').val()
-                    },
-                    function (data, status) {
-                        console.log("Deleted!!!!")
-                        location.reload();
-                    });
-        }
-
-        $.validate({
-                modules: 'toggleDisabled',
-                disabledFormFilter: 'form.toggle-disabled',
-                showErrorDialogs: false
-        });
-
-	     /* $(".glyphicon-eye-open").on("click", function() {
-	    	$(this).toggleClass("glyphicon-eye-close");
-  	    		var type = $("#inputPassword").attr("type");
-	    	if (type == "text"){
-  	    		$("#inputPassword").prop('type','password');}
-	    	else{
-  	    		$("#inputPassword").prop('type','text'); }
-	    });  */
-
-	    $(".glyphicon-eye-open").on("mouseover mouseout", function(e) {
-	    	$(this).toggleClass("glyphicon-eye-close");
-		var field = $(this).parent().children('input');
-  	    	var type = $(field).attr("type");
-
-	    	if (type == "text"){
-  	    		$(field).prop('type','password');}
-	    	else{
-  	    		$(field).prop('type','text'); }
-	    });
-
-</script>
-<script type="text/javascript">
-    $.ajax({
-        url: './token',
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            if (data.message === "success") {
-                socket = io.connect('https://' + window.location.host, {
-                    path: nginxPath+'/socket.io',
-                    query: 'token=' + data.token,
-                    forceNew: true
-                });
-
-                //update version in footer
-                socket.on('adversion', function (data) {
-                    $('#ad-version').text(data.version);
-                    $('#ad-year').text(data.year);
-                });
-            }
-        },
-        error: function (xhr, status, error) {
-            console.log('Error');
-            $('#message').text('An Error Occured.');
-        }
-    });
-</script>
-
+    <script src="./js/controllers/users.js"></script>
 </body>
 </html>

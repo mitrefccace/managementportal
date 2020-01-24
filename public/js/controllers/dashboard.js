@@ -173,7 +173,7 @@ dbController.directive('highlightOnChange', function() {
 	      attrs.$observe( 'highlightOnChange', function ( val ) {
 	        if (val === 'yes') {
 	        	timer = setInterval(function () {
-	        		jQuery(element).addClass("danger");
+	        		jQuery(element).addClass("agent-assistance");
 	            	jQuery(element).fadeOut(500, function() {
 	            		jQuery(element).fadeIn(1500);
 	                });
@@ -181,7 +181,7 @@ dbController.directive('highlightOnChange', function() {
 	        }
 	        else {
 	        	if (timer) clearInterval(timer);
-	        	jQuery(element).removeClass("danger");
+	        	jQuery(element).removeClass("agent-assistance");
 	        }
 	      });
 	    }

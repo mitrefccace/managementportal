@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <% include ../partials/head %>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="./css/admin.css">
+    <link rel="stylesheet" href="./assets/css/angular-datatables.min.css">
+    <link rel="stylesheet" href="./assets/css/iziToast.min.css">
+    <link rel="stylesheet" href="./assets/css/adminlte.min.css">
+
+
+</head>
+
+<body class="hold-transition sidebar-mini" ng-app="admin">
+    <div class="wrapper">
+        <% include ../partials/header %>
+        <% include ../partials/sidebar %>
+        <div class="content-wrapper" ng-controller="adminController">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-12">
+                            <h1 class="m-0 text-dark">Administration</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Agents</h3>
+                                </div>
+                                <div id="usertablediv" class="card-body table-responsive">
+                                    <table id="agentTable" datatable="ng" dt-options="options"
+                                        class="table table-hover table-condensed table-bordered" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th class="text">Agent Name</th>
+                                                <th class="text">Registered Ext.</th>
+                                                <th class="text">Registered Queue</th>
+                                                <th class="text">Status</th>
+                                                <th class="text">Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Angular loop for adding all Agents received from the backend -->
+                                            <tr ng-repeat="a in Agents" ng-class="getSelectedClass(a)">
+                                                <td class="text-center"><span class="queue-info"
+                                                        ng-bind="a.name"></span></td>
+                                                <td class="text-center"><span class="queue-info"
+                                                        ng-bind="a.agent"></span></td>
+                                                <td class="text-center"><span class="queue-info"
+                                                        ng-bind="a.queue"></span></td>
+                                                <td class="text-center"><span class="queue-info"
+                                                        ng-bind="a.status"></span></td>
+                                                <td class="text-center"><input type="checkbox" name="selected"
+                                                        class="agentCheckbox" ng-click="updateSelection($event, a)">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="button" id="forceLogoutButton" class="btn btn-primary"
+                                        data-toggle="modal">Force Logout Agent</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.content -->
+        </div>
+        <!-- /.content - wrapper -->
+        <% include ../partials/footer %>
+    </div>
+
+    <!-- Modal for confirming the forceful logout of selected agents -->
+    <div id="logoutConfirmationModal" class="modal fade" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Are you sure?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="icon-box">
+                        <i class="fa fa-exclamation-triangle" id="warning-icon"></i>
+                    </div>
+                    <p>Do you really want to forcefully logout the selected agent(s)?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="forceLogoutModalButton" class="btn btn-warning">Force Logout</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal that appears if the force logout password is not present in the config -->
+    <div id="invalidForceLogoutPasswordModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">An error occurred!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="icon-box">
+                        <i class="fa fa-times-circle" id="error-icon"></i>
+                    </div>
+                    <p>Could not parse the force logout password. Please verify your configuration is correct.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Got it</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AngularJS -->
+    <script type="text/javascript" src="./assets/js/angular.min.js"></script>
+    <script type="text/javascript" src="./assets/js/angular-datatables.min.js"></script>
+    <!-- izitoast -->
+    <script type="text/javascript" src="./assets/js/iziToast.min.js"></script>
+    <!-- Load in the admin js file -->
+    <script type="text/javascript" src="./js/controllers/admin.js"></script>
+    <script type="text/javascript" src="./js/services/csrservices.js"></script>
+</body>
+
+</html>

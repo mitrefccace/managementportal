@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+	<% include ../partials/head %>
+</head>
+
+<body class="hold-transition skin-purple sidebar-mini">
+	<div class="wrapper">
+		<!-- Main Header -->
+		<% include ../partials/header %>
+		<% include ../partials/sidebar %>
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<div class="content-header">
+				<div class="container-fluid">
+					<div class="row mb-2">
+						<div class="col-lg-12">
+							<h1 class="m-0 text-dark">Report</h1>
+							<div id="reportrange">
+								<div data-toggle="tooltip" data-placement="left"
+									title="Select Date Range – The user can select a date range for the report. Predefined values are Today, Yesterday, Last 7 days, Last 30 days, This Month, Last Month, All Time (January 1st 2016 to Today), and Custom Range. Default selection is 'Last 7 days'">
+									<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+									<span></span>
+									<b class="caret"></b>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Main content -->
+			<div class="content">
+				<div class="container-fluid">
+					<!-- Report Table -->
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card">
+								<div class="card-header">
+									<h3 class="card-title">Call Summary Records</h3>
+
+									<div class="card-tools pull-right">
+										<button class="btn btn-tool" id="reportdownloadbtn">
+											<i class="fa fa-download" style="font-size: 1.75em"></i>
+										</button>
+										<i style="padding-right: 15px" class="fa fa-question-circle"
+											data-toggle="tooltip" data-placement="bottom"
+											title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range."></i>
+									</div>
+								</div>
+								<!-- /.box-header -->
+								<div id="reporttablediv" class="card-body table-responsive" style="overflow-x: scroll">
+									<table id="reporttable" class="table table-bordered table-hover" cellspacing="0"
+										width="100%">
+										<thead>
+											<tr>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Date">Date</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Calls Handled">Calls Handled</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Calls Abandoned">Calls Abandoned</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Videomails">Videomails</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Web Calls">Web Calls</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+								<!-- /.box-body -->
+							</div>
+							<!-- /.box -->
+						</div>
+					</div>
+					<!-- ./Report Table -->
+					<div id="report"></div>
+				</div>
+			</div>
+			<!-- /.content -->
+		</div>
+		<!-- /.content - wrapper -->
+		<% include ../partials/footer %>
+	</div>
+	<!-- ./wrapper -->
+
+	<!-- REQUIRED JS SCRIPTS -->
+	<!-- DataTables 1.10.12 -->
+	<script type="text/javascript" src="./assets/js/jquery.dataTables.min.js"></script>
+	<!-- Datatables-Bootstrap3 -->
+	<!-- DateRangePicker -->
+	<script type="text/javascript" src="./assets/js/daterangepicker.js"></script>
+	<script type="text/javascript" src="./js/controllers/report.js"></script>
+</body>
+
+</html>

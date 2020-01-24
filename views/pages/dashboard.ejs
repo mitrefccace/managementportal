@@ -6,205 +6,218 @@
 		<link href="/css/dashboard.css" rel="stylesheet">
 		<% include ../partials/head %>
 	</head>
-	<body class="hold-transition skin-purple sidebar-mini" ng-app="acrcsr-dashboard">
+	<body class="hold-transition sidebar-mini layout-fixed" ng-app="acrcsr-dashboard">
 		<div class="wrapper">
 			<% include ../partials/header %>
 			<% include ../partials/sidebar %>
 			<!-- Content Wrapper. Contains page content -->
 			<div class="content-wrapper" ng-controller="dashboardController">
 				<!-- Content Header (Page header) -->
-				<section class="content-header">
-					<h1>Management Dashboard</h1>
+				<div class="content-header">
+					<div class="container-fluid">
+						<div class="row mb-2">
+							<div class="col-sm-12">
+								<h1 class="m-0 text-dark">Management Dashboard</h1>
+							</div>
+						</div>
+					</div>
 					<!--<div id="reportrange" class="dropdown-menu-left" >
 						<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
 						<span></span> <b class="caret"></b>
 					</div>-->
-				</section>
+				</div>
+				<!-- ./content-header -->
 
 				<!-- Main content -->
-				<section class="content">
-					<!-- Page Content -->
-					<!-- Summary Boxes Row -->
-					<div class="row">
-						<div class="col-lg-3 col-xs-6">
-							<div class="small-box bg-aqua" data-toggle="tooltip" title="Calls Waiting - Number of calls waiting in all queues">
-								<div class="inner">
-									<h3 ng-bind="summary.callers| shownum"></h3>
-									<h4>Calls Waiting</h4>
-								</div>
-								<div class="icon">
-									<i class="ion ion-ios-call"></i>
-								</div>
-							</div>
-						</div><!-- ./col -->
-						<div class="col-lg-3 col-xs-6">
-							<div class="small-box bg-green" data-toggle="tooltip" title="Calls Handled - Number of calls completed in all queues">
-								<div class="inner">
-									<h3 ng-bind="summary.completed| shownum"></h3>
-									<h4>Calls Handled</h4>
-								</div>
-								<div class="icon">
-									<i class="ion ion-md-checkmark"></i>
-								</div>
-							</div>
-						</div><!-- ./col -->
-						<div class="col-lg-3 col-xs-6">
-							<div class="small-box bg-yellow" data-toggle="tooltip" title="Average Hold Time (minutes:seconds) – Average call holding time in all queues">
-								<div class="inner">
-									<h3 ng-bind="summary.avgholdtime | shownum | minsectimeformat"></h3>
-									<h4>Average Hold Time (m:s)</h4>
-								</div>
-								<div class="icon">
-									<i class="ion ion-md-clock"></i>
-								</div>
-							</div>
-						</div><!-- ./col -->
-						<div class="col-lg-3 col-xs-6">
-							<div class="small-box bg-red" data-toggle="tooltip" title="Calls Abandoned – Number of calls not answered in all queues">
-								<div class="inner">
-									<h3 ng-bind="summary.abandoned| shownum"></h3>
-									<h4>Calls Abandoned</h4>
-								</div>
-								<div class="icon">
-									<i class="ion ion-md-close-circle"></i>
-								</div>
-							</div>
-						</div><!-- ./col -->
-					</div><!-- /.row -->
-
-					<!-- Charts Row -->
-					<div class="row" >
-
-						<div class="col-md-4">
-							<!-- Agent Status PIE CHART -->
-							<div class="box">
-								<div class="box-header with-border">
-									<h3 class="box-title">Agent Status
-									</h3>
-									<div class="box-tools pull-right">
-										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-										</button>
+				<div class="content">
+					<div class="container-fluid">
+						<!-- Page Content -->
+						<!-- Summary Boxes Row -->
+						<div class="row">
+							<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+								<div class="small-box bg-info" data-toggle="tooltip" title="Calls Waiting - Number of calls waiting in all queues">
+									<div class="inner">
+										<h3 ng-bind="summary.callers| shownum"></h3>
+										<h4>Calls Waiting</h4>
+									</div>
+									<div class="icon">
+										<i class="ion ion-ios-call"></i>
 									</div>
 								</div>
-								<div class="box-body">
-									<div id="agentStatusPieChart" style="height:250px"></div>
+							</div><!-- ./col -->
+							<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+								<div class="small-box bg-green" data-toggle="tooltip" title="Calls Handled - Number of calls completed in all queues">
+									<div class="inner">
+										<h3 ng-bind="summary.completed| shownum"></h3>
+										<h4>Calls Handled</h4>
+									</div>
+									<div class="icon">
+										<i class="ion ion-md-checkmark"></i>
+									</div>
 								</div>
-								<!-- /.box-body -->
+							</div><!-- ./col -->
+							<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+								<div class="small-box bg-yellow" data-toggle="tooltip" title="Average Hold Time (minutes:seconds) – Average call holding time in all queues">
+									<div class="inner">
+										<h3 ng-bind="summary.avgholdtime | shownum | minsectimeformat"></h3>
+										<h4>Average Hold Time (m:s)</h4>
+									</div>
+									<div class="icon">
+										<i class="ion ion-md-clock"></i>
+									</div>
+								</div>
+							</div><!-- ./col -->
+							<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+								<div class="small-box bg-red" data-toggle="tooltip" title="Calls Abandoned – Number of calls not answered in all queues">
+									<div class="inner">
+										<h3 ng-bind="summary.abandoned| shownum"></h3>
+										<h4>Calls Abandoned</h4>
+									</div>
+									<div class="icon">
+										<i class="ion ion-md-close-circle"></i>
+									</div>
+								</div>
+							</div><!-- ./col -->
+						</div><!-- /.row -->
+
+						<!-- Charts Row -->
+						<div class="row" >
+
+							<div class="col-md-4">
+								<!-- Agent Status PIE CHART -->
+								<div class="card">
+									<div class="card-header">
+										<h3 class="card-title">Agent Status</h3>
+										<div class="card-tools">
+											<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i>
+											</button>
+										</div>
+									</div>
+									<div class="card-body">
+										<div id="agentStatusPieChart" style="height:250px"></div>
+									</div>
+									<!-- /.box-body -->
+								</div>
 							</div>
 						</div>
-					</div>
 
-					<!-- Queue Information Box -->
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="box">
-								<div class="box-header with-border">
-									<h3 class="box-title">Queue Information</h3>
-									<div class="box-tools pull-right">
-										<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-									</div>
-								</div><!-- /.box-header -->
-								<div class="box-body table-responsive no-padding" style="max-height: 250px; overflow-y: scroll">
-									<table class="table table-hover">
-										<tr>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Queue Name">Queue</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of agents (CSR) currently logged into the system">Logged In</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of agents currently in a ready state">Available Agents</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of calls currently in progress">Current Calls</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Total number of calls made">Total Calls</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Total number of calls answered by an agent">Calls Handled</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Total number of calls abandoned">Calls Abandoned</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Average talk time (minutes:seconds)">Average Talk Time (m:s)</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Average hold time (minutes:seconds)">Average Hold Time (m:s)</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="The longest hold (minutes:seconds)">Longest Hold Time (m:s)</th>
-										</tr>
-										<tr ng-repeat="q in Queues">
-											<td><span class="queue-info" ng-bind="q.queue"></span></td>
-											<td id="qname" class="text-center"><span class="queue-info" ng-bind="q.loggedin"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.available"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.currentCalls"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.totalCalls"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.completed"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.abandoned"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.avgTalkTime | shownum | minsectimeformat"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.avgHoldTime | shownum | minsectimeformat"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="q.longestholdtime | shownum | minsectimeformat"></span></td>
-										</tr>
-									</table>
-								</div><!-- /.box-body -->
-							</div><!-- /.box -->
-						</div><!-- ./col -->
-					</div><!-- ./Queue Information Table -->
+						<!-- Queue Information Box -->
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card">
+									<div class="card-header">
+										<h3 class="card-title">Queue Information</h3>
+										<div class="card-tools">
+											<button class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i></button>
+										</div>
+									</div><!-- /.box-header -->
+									<div class="card-body table-responsive p-0" style="max-height: 250px; overflow-y: scroll">
+										<table class="table table-hover table-condensed">
+											<thead>
+												<tr>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Queue Name">Queue</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of agents (CSR) currently logged into the system">Logged In</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of agents currently in a ready state">Available Agents</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of calls currently in progress">Current Calls</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Total number of calls made">Total Calls</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Total number of calls answered by an agent">Calls Handled</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Total number of calls abandoned">Calls Abandoned</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Average talk time (minutes:seconds)">Average Talk Time (m:s)</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Average hold time (minutes:seconds)">Average Hold Time (m:s)</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="The longest hold (minutes:seconds)">Longest Hold Time (m:s)</th>
+												</tr>
+											</thead>
+											<tr ng-repeat="q in Queues">
+												<td><span class="queue-info" ng-bind="q.queue"></span></td>
+												<td id="qname" class="text-center"><span class="queue-info" ng-bind="q.loggedin"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.available"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.currentCalls"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.totalCalls"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.completed"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.abandoned"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.avgTalkTime | shownum | minsectimeformat"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.avgHoldTime | shownum | minsectimeformat"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="q.longestholdtime | shownum | minsectimeformat"></span></td>
+											</tr>
+										</table>
+									</div><!-- /.box-body -->
+								</div><!-- /.box -->
+							</div><!-- ./col -->
+						</div><!-- ./Queue Information Table -->
 
-					<!-- Call Agent Summary Table -->
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="box">
-								<div class="box-header with-border">
-									<h3 class="box-title">Call Agent Summary</h3>
-									<div class="box-tools pull-right">
-										<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-									</div>
-								</div><!-- /.box-header -->
-								<div id="agentSummary" class="box-body table-responsive no-padding" style="max-height: 250px; overflow-y: scroll">
-									<table class="table table-hover">
-										<tr>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Name of the agent">Call Agent</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Extension assigned to the agent">Registered Ext.</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Asterisk queues assigned to the agent. All queue names are displayed if an agent is assigned to more than one queue.">Registered Queue</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of calls handled (answered and completed) by the agent">Calls Completed</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Talk Time divided by number of calls">Average Call Time (m:s)</th>
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="The cumulative time the agent has spent on calls">Talk Time (m:s)</th>
-											<!-- Placeholders for a future function -->
-											<!-- <th class="text-center"Calls Abandoned</th> -->
-											<!-- <th class="text-center">Hang-Ups</th> -->
-											<!-- <th class="text-center">Ring No Answer</th> -->
-											<th class="text-center" data-toggle="tooltip" data-container="body" title="Logged Off, Ready, Away, or In-Call">Status</th>
-										</tr>
-										<tr ng-repeat="a in Agents" highlight-on-change="{{a.help}}" ng-click="a.help = 'no'">
-											<td><span class="queue-info" ng-bind="a.name"></span></td>
+						<!-- Call Agent Summary Table -->
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card">
+									<div class="card-header">
+										<h3 class="card-title">Call Agent Summary</h3>
+										<div class="card-tools ">
+											<button class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i></button>
+										</div>
+									</div><!-- /.box-header -->
+									<div id="agentSummary" class="card-body table-responsive p-0" style="max-height: 250px; overflow-y: scroll">
+										<table class="table table-hover table-condensed table-head-fixed">
+											<thead>
+												<tr>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Name of the agent">Call Agent</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Extension assigned to the agent">Registered Ext.</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Asterisk queues assigned to the agent. All queue names are displayed if an agent is assigned to more than one queue.">Registered Queue</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Number of calls handled (answered and completed) by the agent">Calls Completed</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Talk Time divided by number of calls">Average Call Time (m:s)</th>
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="The cumulative time the agent has spent on calls">Talk Time (m:s)</th>
+													<!-- Placeholders for a future function -->
+													<!-- <th class="text-center"Calls Abandoned</th> -->
+													<!-- <th class="text-center">Hang-Ups</th> -->
+													<!-- <th class="text-center">Ring No Answer</th> -->
+													<th class="text-center" data-toggle="tooltip" data-container="body" title="Logged Off, Ready, Away, or In-Call">Status</th>
+												</tr>
+											</thead>
+											<tr ng-repeat="a in Agents" highlight-on-change="{{a.help}}" ng-click="a.help = 'no'">
+												<td><span class="queue-info" ng-bind="a.name"></span></td>
 
-											<td class="text-center"><span class="queue-info" ng-bind="a.agent"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.queue"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.callstaken"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.avgtalktime | shownum | minsectimeformat"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.totaltalktime | shownum | minsectimeformat"></span></td>
-											<td class="text-center"><span class="queue-info" ng-bind="a.status"></span></td>
-										</tr>
-									</table>
-								</div><!-- /.box-body -->
-							</div><!-- /.box -->
+												<td class="text-center"><span class="queue-info" ng-bind="a.agent"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="a.queue"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="a.callstaken"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="a.avgtalktime | shownum | minsectimeformat"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="a.totaltalktime | shownum | minsectimeformat"></span></td>
+												<td class="text-center"><span class="queue-info" ng-bind="a.status"></span></td>
+											</tr>
+										</table>
+									</div><!-- /.box-body -->
+								</div><!-- /.box -->
+							</div>
+						</div><!-- ./Call Agent Summary Table -->
+
+						<!-- Resource Status Table -->
+						<div class="row">
+							<div class="col-lg-4">
+								<div class="card">
+									<div class="card-header">
+										<h3 class="card-title">Resource Status Table</h3>
+										<br>
+										<small id="resourceupdated">Last updated:</small>
+										<div class="card-tools">
+											<button id="statusRefreshBtn" class="btn btn-tool" onclick="refreshResourceStatus()"><i id="statusRefreshIcon" class="fa fa-refresh"></i></button>
+											<button class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i></button>
+										</div>
+									</div><!-- /.box-header -->
+									<div class="card-body table-responsive p-0">
+										<table id="resourcetable" class="table table-hover">
+											<!-- place holder for resourcetable which will update later -->
+										</table>
+									</div><!-- /.box-body -->
+								</div><!-- /.box -->
+							</div>
+						</div><!-- ./Resource Status Table -->
+
+						<div class="row">
+							<div class="col-md-12" style="visibility:hidden; text-align: center">
+								<button id="reset"  type="button" class="btn bg-navy btn-flat margin" onclick="resetAllCounters()" >Reset All Counters</button>
+							</div>
 						</div>
-					</div><!-- ./Call Agent Summary Table -->
 
-					<!-- Resource Status Table -->
-					<div class="row">
-						<div class="col-lg-4">
-							<div class="box">
-								<div class="box-header">
-									<h3 class="box-title">Resource Status Table</h3>
-									<br>
-									<small id="resourceupdated">Last updated:</small>
-									<div class="box-tools pull-right">
-										<button id="statusRefreshBtn" class="btn btn-box-tool" onclick="refreshResourceStatus()"><i id="statusRefreshIcon" class="fa fa-refresh"></i></button>
-										<button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-									</div>
-								</div><!-- /.box-header -->
-								<div class="box-body table-responsive no-padding">
-									<table id="resourcetable" class="table table-hover">
-										<!-- place holder for resourcetable which will update later -->
-									</table>
-								</div><!-- /.box-body -->
-							</div><!-- /.box -->
-						</div>
-					</div><!-- ./Resource Status Table -->
-
-					<div class="row">
-						<div class="col-md-12" style="visibility:hidden; text-align: center">
-							<button id="reset"  type="button" class="btn bg-navy btn-flat margin" onclick="resetAllCounters()" >Reset All Counters</button>
-						</div>
-					</div>
-				</section><!-- /.content -->
+					</div> <!-- /. container-fluid-->
+				</div><!-- /.content -->
 			</div><!-- /.content-wrapper -->
 			<% include ../partials/footer %>
 		</div><!-- ./wrapper -->
@@ -224,12 +237,12 @@
 		<script type="text/javascript" src="./js/core-dashboard.js"></script>
 
 		<!-- flot -->
-		<script type="text/javascript" src="./assets/js/jquery.flot.min.js"></script>
-		<script type="text/javascript" src="./assets/js/jquery.flot.categories.min.js"></script>
-		<script type="text/javascript" src="./assets/js/jquery.flot.time.min.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery.flot.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery.flot.categories.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery.flot.time.js"></script>
 		<script type="text/javascript" src="./assets/js/jquery.flot.axislabels.js"></script>
-		<script type="text/javascript" src="./assets/js/jquery.flot.pie.min.js"></script>
-		<script type="text/javascript" src="./assets/js/jquery.flot.resize.min.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery.flot.pie.js"></script>
+		<script type="text/javascript" src="./assets/js/jquery.flot.resize.js"></script>
 		<!-- DateRangePicker -->
 		<script type="text/javascript" src="./assets/js/daterangepicker.js"></script>
 		<!-- Moment Duration Format -->
@@ -281,10 +294,12 @@
 									$(resSpan).html(data.resources[i].status);
 
 									if (data.resources[i].status) {
-										$(resSpan).addClass('label-success');
+										$(resSpan).addClass('badge');
+										$(resSpan).addClass('badge-success');
 										$(resSpan).html("Running");
 									} else {
-										$(resSpan).addClass('label-danger');
+										$(resSpan).addClass('badge');
+										$(resSpan).addClass('badge-danger');
 										$(resSpan).html("Unavailable");
 									}
 

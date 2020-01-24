@@ -5,7 +5,7 @@
 		<link rel="stylesheet" href="./css/videomail.css">
 		<% include ../partials/head %>
 	</head>
-  <body class="hold-transition skin-purple sidebar-mini">
+  <body class="hold-transition sidebar-mini">
     <div class="wrapper">
 			<!-- Main Header -->
 			<% include ../partials/header %>
@@ -13,160 +13,145 @@
 			<!-- Content Wrapper. Contains page content -->
 			<div class="content-wrapper">
 				<!-- Content Header (Page header) -->
-				<section class="content-header">
-					<h1>Videomail Dashboard</h1>
-				</section>
+				<div class="content-header">
+					<div class="container-fluid">
+						<h1 class="m-0 text-dark">Videomail Dashboard</h1>
+					</div>
+				</div>
 
 				<!-- Main content -->
-				<section class="content">
-					<!-- Videomail Playback -->
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="box col-lg-8 col-xs-12" id="videoBox" hidden>
-								<div class="box-header with-border">
-									<i class="fa fa-video-camera"></i>
-									<h3 class="box-title">Video</h3>
-									<div class="box-tools pull-right">
-										<button type="button" class="btn btn-box-tool" data-widget="collapse">
-											<i class="fa fa-minus"></i>
-										</button>
+				<div class="content">
+					<div class="container-fluid">
+						<!-- Videomail Playback -->
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card col-lg-8 col-xs-12" id="videoBox" hidden>
+									<div class="card-header">
+										<i class="fas fa-video"></i>
+										<h3 class="card-title">Video</h3>
+										<div class="card-tools">
+											<button type="button" class="btn btn-tool" data-card-widget="collapse">
+												<i class="fa fa-minus"></i>
+											</button>
+										</div>
 									</div>
-								</div>
-								<div class="box-body">
-									<div id="webcam">
-										<video id="remoteView" poster="images/ACEDirect-logo.png"></video>
-									</div>
-									<div id= "videomail-status-buttons">
-										<div id= "inner-videomail">
-											<button  id="play-video" type = "button" class = "btn btn-gray" onclick = "play_video()"> <i id= "play-video-icon" class="call-btn-icon fa fa-play"></i> </button>
-											<button type="button" class = "btn btn-gray" onclick = "enterFullscreen()"><i id= "fullscreen-icon" class="call-btn-icon fa fa-expand"></i> </button>
-											<span id="vmail-current-time" class="text-gray">0:00</span>
-											<span class="text-gray"> / </span>
-											<input type="hidden" id="seek-bar" value="0" hidden />
-											<span id="vmail-total-time" class="text-gray">1:30</span>
-											<span id = "videomail-status-dropdown" class="btn-group dropup">
-												<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-												<span><i id="status-icon" class="call-btn-icon fa fa-envelope"></i></span>&nbsp;&nbsp;&nbsp;
-												<span id="user-status" >Mark as...</span>
-												<span class="caret"></span>
-												</button>
-												<ul class="dropdown-menu">
-												<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'UNREAD')"><a href="#"><span>Unread</span></a></li>
-												<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'READ')"><a href="#"><span>Read</span></a></li>
-												<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'IN PROGRESS')"><a href="#"><span>In Progress</span></a></li>
-												<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'CLOSED')"><a href="#"><span>Closed</span></a></li>
-												</ul>
-											</span>
-											<button class="btn btn-danger" type="button" onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))">Permanently Delete</button>
-											<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Video</button>
+									<div class="card-body">
+										<div id="webcam">
+											<video id="remoteView" poster="images/ACEDirect-logo.png"></video>
+										</div>
+										<div id= "videomail-status-buttons">
+											<div id= "inner-videomail">
+												<button  id="play-video" type = "button" class = "btn btn-gray" onclick = "play_video()"> <i id= "play-video-icon" class="call-btn-icon fa fa-play"></i> </button>
+												<button type="button" class = "btn btn-gray" onclick = "enterFullscreen()"><i id= "fullscreen-icon" class="call-btn-icon fa fa-expand"></i> </button>
+												<span id="vmail-current-time" class="text-gray">0:00</span>
+												<span class="text-gray"> / </span>
+												<input type="hidden" id="seek-bar" value="0" hidden />
+												<span id="vmail-total-time" class="text-gray">1:30</span>
+												<span id = "videomail-status-dropdown" class="btn-group dropup">
+													<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+													<span><i id="status-icon" class="call-btn-icon fa fa-envelope"></i></span>&nbsp;&nbsp;&nbsp;
+													<span id="user-status" >Mark as...</span>
+													<span class="caret"></span>
+													</button>
+													<ul class="dropdown-menu">
+													<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'UNREAD')"><a href="#"><span>Unread</span></a></li>
+													<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'READ')"><a href="#"><span>Read</span></a></li>
+													<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'IN PROGRESS')"><a href="#"><span>In Progress</span></a></li>
+													<li onclick="videomail_status_change(document.getElementById('videomailId').getAttribute('name'),'CLOSED')"><a href="#"><span>Closed</span></a></li>
+													</ul>
+												</span>
+												<button class="btn btn-danger" type="button" onclick="videomail_deleted(document.getElementById('videomailId').getAttribute('name'))">Permanently Delete</button>
+												<button id="exit-btn" class="btn btn-primary" type="button" onclick="stopVideomail()">Close Video</button>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 
-					<!-- Videomail Status Chart -->
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="box" id="videomail-status">
-								<div class="box-header with-border">
-									<h3 class="box-title">Videomail Status</h3>
-									<div class="box-tools pull-right">
-										<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-										</button>
+						<!-- Videomail Status Chart -->
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card text-center" id="videomail-status">
+									<div class="card-header">
+										<h3 class="card-title">Videomail Status</h3>
+										<div class="card-tools pull-right">
+											<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i>
+											</button>
+										</div>
 									</div>
-								</div>
-								<div class="box-body col-4">
-									<div id="videomailStatusPieChart" style="height:200px"></div>
+									<div class="card-body">
+										<div id="videomailStatusPieChart" style="height:250px"></div>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 
-					<!-- Videomail Summary Table -->
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="box">
-								<div class="box-header with-border">
-									<h3 class="box-title">Videomail Inbox</h3>
-								</div><!-- /.box-header -->
-								<div class="box-body table-responsive" style="overflow:visible !important;">
-									<!-- Videomail Table -->
-									<div class="form-group" style='height: 90vh; max-height:90vh; overflow-y:scroll;'>
-										<label>Mailbox Messages</label>
-										<button type="button" class="btn btn-default" onclick="getVideomailRecs();">
-											<i id="refresh-icon" class="fa fa-refresh"></i>
-										</button>
-										<span id="videomail-filter-dropdown" class="dropdown dropdown-menu-left" style='float:right'>
-											<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-												<!--span><i id="status-icon" class="call-btn-icon fa fa-envelope"></i></span-->&nbsp;&nbsp;&nbsp;
-												<span id="videomail-filter">Filter Messages</span>
-														<span class="caret"></span>
-											</button>
-											<ul class="dropdown-menu">
-												<li onclick="filterVideomail('ALL');">
-													<a href="#">
-														<span>All</span>
-													</a>
-												</li>
-												<li onclick="filterVideomail('UNREAD');">
-													<a href="#">
-														<span>Unread</span>
-													</a>
-												</li>
-												<li onclick="filterVideomail('READ');">
-													<a href="#">
-														<span>Read</span>
-													</a>
-												</li>
-												<li onclick="filterVideomail('IN PROGRESS');">
-													<a href="#">
-														<span>In Progress</span>
-													</a>
-												</li>
-												<li onclick="filterVideomail('CLOSED');">
-													<a href="#">
-														<span>Closed</span>
-													</a>
-												</li>
-												<li onclick="filterVideomail('MARKED FOR DELETION');">
-													<a href="#">
-														<span>Marked for Deletion</span>
-													</a>
-												</li>
-											</ul>
-										</span>
-										<table class="table table-hover" id="Videomail_Table">
-											<thead>
-												<tr>
-													<th id="vmail-vrs-number">Videophone No.
-														<i id="video-id-sort" class="fa fa-sort"> </i>
-													</th>
-													<th id="vmail-date">Date
-														<i id="video-id-sort" class="fa fa-sort"> </i>
-													</th>
-													<th id="vmail-duration">Duration (sec)
-														<i id="video-id-sort" class="fa fa-sort"> </i>
-													</th>
-													<th id="vmail-agent">Processing Agent
-														<i id="video-id-sort" class="fa fa-sort"> </i>
-													</th>
-													<th id="vmail-status">Status
-														<i id="video-id-sort" class="fa fa-sort"> </i>
-													</th>
-												</tr>
-											</thead>
-											<tbody id='videomailTbody'>
-											</tbody>
-										</table>
-									</div><!-- /.form-group -->
+						<!-- Videomail Summary Table -->
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="card">
+									<div class="card-header">
+										<h3 class="card-title">Videomail Inbox</h3>
+									</div><!-- /.card-header -->
+									<div class="card-body table-responsive" style="overflow:visible !important;">
+										<!-- Videomail Table -->
+										<div class="form-group" style='height: 90vh; max-height:90vh; overflow-y:scroll;'>
+											<div class="row">
+												<div class="col-lg-12">
+													<p class="d-inline">Mailbox Messages</p>
+													<div class="btn-group mb-1 mr-1 float-right" role="group">
+														<button type="button" class="btn btn-default" onclick="getVideomailRecs();">
+															<i id="refresh-icon" class="fas fa-sync"></i>
+														</button>
+														<div class="btn-group" role="group">
+															<button class="btn btn-default dropdown-toggle" type="button" id="videomailDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+																Filter Messages
+																<span class="caret"></span>
+															</button>
+															<div class="dropdown-menu" aria-labelledby="videomailDropdownMenuButton">
+																<a class="dropdown-item" href="#" onclick="filterVideomail('ALL');">All</a>
+																<a class="dropdown-item" href="#" onclick="filterVideomail('UNREAD');">Unread</a>
+																<a class="dropdown-item" href="#" onclick="filterVideomail('READ');">Read</a>
+																<a class="dropdown-item" href="#" onclick="filterVideomail('IN PROGRESS');">In Progress</a>
+																<a class="dropdown-item" href="#" onclick="filterVideomail('CLOSED');">Closed</a>
+																<a class="dropdown-item" href="#" onclick="filterVideomail('MARKED FOR DELETION');">Marked for Deletion</a>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<table class="table table-hover" id="Videomail_Table">
+												<thead>
+													<tr>
+														<th id="vmail-vrs-number">Videophone No.
+															<i id="video-id-sort" class="fa fa-sort"> </i>
+														</th>
+														<th id="vmail-date">Date
+															<i id="video-id-sort" class="fa fa-sort"> </i>
+														</th>
+														<th id="vmail-duration">Duration (sec)
+															<i id="video-id-sort" class="fa fa-sort"> </i>
+														</th>
+														<th id="vmail-agent">Processing Agent
+															<i id="video-id-sort" class="fa fa-sort"> </i>
+														</th>
+														<th id="vmail-status">Status
+															<i id="video-id-sort" class="fa fa-sort"> </i>
+														</th>
+													</tr>
+												</thead>
+												<tbody id='videomailTbody'>
+												</tbody>
+											</table>
+										</div><!-- /.form-group -->
 
-								</div><!-- /.box-body -->
-							</div><!-- /.box -->
-						</div><!-- /.col-lg-12-->
-					</div><!-- /.row -->
-				</section><!-- /.content -->
+									</div><!-- /.card-body -->
+								</div><!-- /.card -->
+							</div><!-- /.col-lg-12-->
+						</div><!-- /.row -->
+					</div> <!-- ./container fluid-->
+				</div><!-- /.content -->
 			</div><!-- /.content - wrapper -->
       <% include ../partials/footer %>
     </div><!-- ./wrapper -->
@@ -176,8 +161,8 @@
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
+						<h3 class="modal-title">Videomail Retrieval Error</h3>
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h2 class="modal-title">Videomail Retrieval Error</h2>
 					</div>
 					<div class="modal-body text-center">
 						<h4 class="modal-title" id="videomailErrorBody"></h4>
@@ -203,12 +188,12 @@
     <script type="text/javascript" src="./js/controllers/videomail.js"></script>
 
 	<!-- flot -->
-	<script type="text/javascript" src="./assets/js/jquery.flot.min.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.categories.min.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.time.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.categories.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.time.js"></script>
 	<script type="text/javascript" src="./assets/js/jquery.flot.axislabels.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.pie.min.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.resize.min.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.pie.js"></script>
+	<script type="text/javascript" src="./assets/js/jquery.flot.resize.js"></script>
 
     <script type="text/javascript">
 		$(document).ready(function () {

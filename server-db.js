@@ -17,6 +17,7 @@ var tcpp = require('tcp-ping');
 var url = require('url');
 var mysql = require('mysql');
 var Json2csvParser = require('json2csv').Parser;
+var redis = require('redis');
 
 // additional helpers/utility functions
 var getConfigVal = require('./helpers/utility').getConfigVal;
@@ -40,6 +41,7 @@ const NGINX_FQDN 				= 		"nginx:fqdn";
 const COLOR_CONFIG_JSON_PATH	=		"../dat/color_config.json";
 const ASTERISK_SIP_PRIVATE_IP	=		"asterisk:sip:private_ip";
 const AGENT_SERVICE_PORT		=		"agent_service:port";
+const ACE_DIRECT_PORT			=		"ace_direct:https_listen_port"
 
 
 var app = express(); // create our app w/ express
@@ -59,6 +61,45 @@ var credentials = {
 	key: fs.readFileSync(getConfigVal('common:https:private_key')),
 	cert: fs.readFileSync(getConfigVal('common:https:certificate'))
 };
+
+// Redis Setup
+
+// Redis keys/mappings
+// Contains login name => JSON data passed from browser
+var redisStatusMap = 'statusMap';
+// Map of Agent information, key agent_id value JSON object
+var redisAgentInfoMap = 'agentInfoMap';
+
+// Create a connection to Redis
+var redisClient = redis.createClient(getConfigVal('database_servers:redis:port'), getConfigVal('database_servers:redis:host'));
+
+redisClient.on("error", function (err) {
+    logger.error("");
+    logger.error("**********************************************************");
+    logger.error("REDIS CONNECTION ERROR: Please make sure Redis is running.");
+    logger.error("**********************************************************");
+    logger.error("");
+	logger.error(err);
+    console.error("");
+    console.error("**********************************************************");
+    console.error("REDIS CONNECTION ERROR: Please make sure Redis is running.");
+    console.error("**********************************************************");
+    console.error("");
+    console.error(err);
+});
+
+//catch Redis warnings
+redisClient.on("warning", function(wrn) {
+  logger.warn('REDIS warning: ' + wrn);
+});
+
+redisClient.auth(getConfigVal('database_servers:redis:auth'));
+
+redisClient.on('connect', function () {
+	logger.info("Connected to Redis");
+	console.log("Connected to Redis");
+});
+
 
 //get the ACE Direct version
 var version = getConfigVal('common:version');
@@ -196,7 +237,7 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 				"Timestamp": ts.toISOString(),
 				"Role":"managementportal",
 				"Purpose": "Restarted"
-		}
+		};
 
 		if (logAMIEvents) {
 			// first check if collection "events" already exist, if not create one
@@ -467,7 +508,6 @@ io.sockets.on('connection', function (socket) {
 		if (data.start && data.end) {
 			url += '?start=' + data.start + '&end=' + data.end;
 		}
-
 		// ACR-CDR getallcdrrecs RESTful call to get CDR JSON string.
 		request({
 			url: url,
@@ -489,12 +529,46 @@ io.sockets.on('connection', function (socket) {
 				];
 				// Converts JSON object to a CSV file.
 				let json2csvParser = new Json2csvParser({csvFields});
-				let csv = json2csvParser.parse(cdrdata.data)
+				let csv = json2csvParser.parse(cdrdata.data);
 				//returns CSV of Call Data Records
 				io.to(socket.id).emit('cdrtable-csv', csv);
 			} else {
 				//returns JSON object of CDR
 				io.to(socket.id).emit('cdrtable-data', cdrdata);
+			}
+		});
+	});
+
+	// Socket for Report table
+	socket.on('reporttable-get-data', function (data) {
+		var url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal('acr_cdr:https_listen_port') + "/getallcdrrecs";
+		var format = data.format;
+		if (data.start && data.end) {
+			url += '?start=' + data.start + '&end=' + data.end;
+		}
+
+		// ACR-CDR getallcdrrecs RESTful call to get CDR JSON string.
+		request({
+			url: url,
+			json: true
+		}, function (err, res, reportdata) {
+			if (err) {
+				io.to(socket.id).emit('reporttable-error', {
+					"message": "Error Accessing Data Records"
+				});
+			} else if (format === 'csv') {
+				//csv field values
+				var csvFields = ['date', 'callshandled', 'callsabandoned',
+					'videomails', 'webcalls'
+				];
+				// Converts JSON object to a CSV file.
+				let json2csvParser = new Json2csvParser({csvFields});
+				let csv = json2csvParser.parse(reportdata.data);
+				//returns Report Data
+				io.to(socket.id).emit('reporttable-csv', csv);
+			} else {
+				//returns JSON object of Report
+				io.to(socket.id).emit('reporttable-data', reportdata);
 			}
 		});
 	});
@@ -676,6 +750,43 @@ io.sockets.on('connection', function (socket) {
 			console.log('Error: ' + ex);
 		}
 	});
+
+	// Forcefully logs out any agents that have been selected to be logged out in the Management Portal administration section
+	socket.on('forceLogout', function(agents){
+		// Check to see if the force logout password is present in the config
+		let forceLogoutPassword = getConfigVal('management_portal:force_logout_password')
+		if(!forceLogoutPassword){
+			// Emit the event to the front end since we cant find a config value for the force logout password
+			socket.emit('forceLogoutPasswordNotPresent')
+		}else{
+			// A password exists within the config file. Continue the force logout process
+			// Create the data to send to ace direct
+			let requestJson = {"agents":[]};
+			agents.forEach(function(agent){
+				requestJson.agents.push(agent);
+			})
+			// Send a post request to ace direct force logout route
+			let url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal(ACE_DIRECT_PORT) + "/forcelogout";
+			request({
+				method: 'POST',
+				url: url,
+				headers: {
+					'Content-Type': 'application/json',
+					// Pass in custom header containing the MP force logout password from the config file
+					'force_logout_password': forceLogoutPassword
+				},
+				body: requestJson,
+				json: true
+			}, function (error, response, data) {
+				if (error) {
+					logger.error("adserver error: " + error);
+				} else {
+					console.log(`forcelogout response: ${JSON.stringify(response, null, 2, true)}`)
+					console.log(`forcelogout response data: ${JSON.stringify(data, null, 2, true)}`)
+				}
+			});
+		}
+	})
 });
 
 //calls sendResourceStatus every minute
@@ -942,10 +1053,10 @@ function handle_manager_event(evt) {
 					if (AgentMap.has(agentInt)) {
 						logger.debug("Agents: New Agent");
 						evt.name = AgentMap.get(agentInt).name;
-						evt.talktime = 0
-						evt.holdtime = 0
-						evt.callstaken = 0
-						evt.avgtalktime = 0
+						evt.talktime = 0;
+						evt.holdtime = 0;
+						evt.callstaken = 0;
+						evt.avgtalktime = 0;
 						evt.queue = '--';
 						evt.status = "Logged Out";
 
@@ -960,20 +1071,20 @@ function handle_manager_event(evt) {
 						logger.debug("AMI event Agent not in AgentMap");
 					}
 				} else {
-					let mongoAgent = getAgentFromStats(a.agent)
+					let mongoAgent = getAgentFromStats(a.agent);
 					if(mongoAgent){
 						if(mongoAgent.talktime > 0 && a.talktime == 0){
-							a.talktime = mongoAgent.talktime
-							a.totaltalktime = (a.talktime/60).toFixed(2)
+							a.talktime = mongoAgent.talktime;
+							a.totaltalktime = (a.talktime/60).toFixed(2);
 						}
 						if(mongoAgent.holdtime > 0 && a.holdtime == 0){
-							a.holdtime = mongoAgent.holdtime
+							a.holdtime = mongoAgent.holdtime;
 						}
 						if(mongoAgent.callstaken > 0 && a.callstaken == 0){
-							a.callstaken = mongoAgent.callstaken
+							a.callstaken = mongoAgent.callstaken;
 						}
 						if(mongoAgent.avgtalktime > 0 && a.avgtalktime == 0){
-							a.avgtalktime = mongoAgent.avgtalktime
+							a.avgtalktime = mongoAgent.avgtalktime;
 						}
 					}
 					logger.debug("Existing agent"); // status always set to AGENT_LOGGEDOFF. Do not use this field
@@ -992,29 +1103,29 @@ function handle_manager_event(evt) {
 					logger.debug("AgentComplete: " + "talktime = " + evt.talktime + ", holdtime= " + evt.holdtime);
 
 					if (evt.talktime > 0) {
-						a.talktime += Number(evt.talktime)
-						a.totaltalktime = (a.talktime/60).toFixed(2)
+						a.talktime += Number(evt.talktime);
+						a.totaltalktime = (a.talktime/60).toFixed(2);
 					}
 
-					a.holdtime += Number(evt.holdtime)
+					a.holdtime += Number(evt.holdtime);
 					// increment the callsComplete - queueMember calls field didn't update.
 					incrementCallMap(a.callMap, evt.queue);
 
 					//find the queue associated with this agent complete event
-					q = findQueue(evt.queue)
-					let tempQ = findQueueFromStats(evt.queue)
+					q = findQueue(evt.queue);
+					let tempQ = findQueueFromStats(evt.queue);
 					//check if this hold time is longer than the corresponding queue's current longest hold time
-					let agentHoldTime = (Number(evt.holdtime)/60).toFixed(2)
+					let agentHoldTime = (Number(evt.holdtime)/60).toFixed(2);
 					if(q.longestholdtime < agentHoldTime){
 						//update the longest hold time
-						q.longestholdtime = agentHoldTime
+						q.longestholdtime = agentHoldTime;
 					}
 					//decrement the queue's calls in progress
 					if(q.currentCalls > 0){
-						q.currentCalls -= 1
+						q.currentCalls -= 1;
 					}
-					q.cumulativeHoldTime += Number(evt.holdtime)
-					q.cumulativeTalkTime += Number(evt.talktime)
+					q.cumulativeHoldTime += Number(evt.holdtime);
+					q.cumulativeTalkTime += Number(evt.talktime);
 					// do not send agent-resp till ends of QueueStatusComplete
 				} else{
 					logger.debug("AgentComplete: cannot find agent " + evt.membername);
@@ -1024,10 +1135,10 @@ function handle_manager_event(evt) {
 		case 'AgentConnect':
 			{
 				//increment the number of current calls for the queue with call in progress
-				q = findQueue(evt.queue)
-				q.currentCalls+=1
+				q = findQueue(evt.queue);
+				q.currentCalls+=1;
 
-				break
+				break;
 			}
 		case 'QueueMember':
 			{ // update status and averageTalkTime
@@ -1056,8 +1167,8 @@ function handle_manager_event(evt) {
 						a.queue += ", " + evt.queue;
 
 					// QueueMember event doesn't update "calls" - get it from AgentComplete
-					let mongoAgent = getAgentFromStats(a.agent)
-					a.callstaken = (mongoAgent && mongoAgent.callstaken > 0) ? (getTotalCallsTaken(a.callMap) + mongoAgent.callstaken) : getTotalCallsTaken(a.callMap)
+					let mongoAgent = getAgentFromStats(a.agent);
+					a.callstaken = (mongoAgent && mongoAgent.callstaken > 0) ? (getTotalCallsTaken(a.callMap) + mongoAgent.callstaken) : getTotalCallsTaken(a.callMap);
 
 					if (a.callstaken > 0) {
 						a.avgtalktime = ((a.talktime / a.callstaken)/60).toFixed(2);
@@ -1080,16 +1191,16 @@ function handle_manager_event(evt) {
 				q.abandoned = Number(evt.abandoned); // evt.abandoned = number of calls that have been abandoned for this queue
 				//check for stats in the database
 					//get this queue from the stored stats
-				let tempQ = findQueueFromStats(q.queue)
+				let tempQ = findQueueFromStats(q.queue);
 				//use the call stats from Mongo
 				if(tempQ){
-					q.completed = Number(evt.completed) + tempQ.completed
-					q.abandoned = Number(evt.abandoned) + tempQ.abandoned
-					q.totalCalls = q.completed + q.abandoned
+					q.completed = Number(evt.completed) + tempQ.completed;
+					q.abandoned = Number(evt.abandoned) + tempQ.abandoned;
+					q.totalCalls = q.completed + q.abandoned;
 				}else{
-					q.completed = Number(evt.completed)
-					q.abandoned = Number(evt.abandoned)
-					q.totalCalls = q.completed + q.abandoned
+					q.completed = Number(evt.completed);
+					q.abandoned = Number(evt.abandoned);
+					q.totalCalls = q.completed + q.abandoned;
 				}
 				break;
 			}
@@ -1109,7 +1220,7 @@ function handle_manager_event(evt) {
 						q.available = Number(evt.available); //evt.available = number of agents available
 						q.callers = Number(evt.callers); //evt.callers = number of calls currently waiting in the queue to be answered
 
-						let tempQ = findQueueFromStats(evt.queue)
+						let tempQ = findQueueFromStats(evt.queue);
 						/**
 						 * If the following fields are zero, we can assume that this is the first
 						 * time the server has started, so we set each field to it respective value from
@@ -1117,24 +1228,24 @@ function handle_manager_event(evt) {
 						 */
 						if(tempQ){
 							if(q.cumulativeHoldTime == 0 && tempQ.cumulativeHoldTime > 0 ){
-								q.cumulativeHoldTime = tempQ.cumulativeHoldTime
+								q.cumulativeHoldTime = tempQ.cumulativeHoldTime;
 							}
 							if(q.cumulativeTalkTime == 0 && tempQ.cumulativeTalkTime > 0){
-								q.cumulativeTalkTime = tempQ.cumulativeTalkTime
+								q.cumulativeTalkTime = tempQ.cumulativeTalkTime;
 							}
 							if(q.longestholdtime == 0 && tempQ.longestholdtime > 0){
-								q.longestholdtime = tempQ.longestholdtime
+								q.longestholdtime = tempQ.longestholdtime;
 							}
 							if(q.completed == 0 && tempQ.completed > 0){
-								q.completed = tempQ.completed
+								q.completed = tempQ.completed;
 							}
 							if(q.abandoned == 0 && tempQ.abandoned > 0){
-								q.abandoned = tempQ.abandoned
+								q.abandoned = tempQ.abandoned;
 							}
 						}
 						if(q.completed > 0){
-							q.avgHoldTime = Number((q.cumulativeHoldTime/q.completed)/60).toFixed(2)
-							q.avgTalkTime = Number((q.cumulativeTalkTime/q.completed)/60).toFixed(2)
+							q.avgHoldTime = Number((q.cumulativeHoldTime/q.completed)/60).toFixed(2);
+							q.avgTalkTime = Number((q.cumulativeTalkTime/q.completed)/60).toFixed(2);
 						}
 						logger.debug("QueueSummary(): q.talktime: " + q.talktime);
 					}
@@ -1320,7 +1431,7 @@ function backupStatsinDB() {
 		var astats = {};
 		astats.agent = element.agent;
 		astats.talktime = element.talktime;
-		astats.holdtime = element.holdtime
+		astats.holdtime = element.holdtime;
 		astats.avgtalktime = element.avgtalktime;
 		astats.callstaken = element.callstaken;
 		data.agentstats.push(astats);
@@ -1344,8 +1455,8 @@ function backupStatsinDB() {
 	if (colStats != null) {
 		colStats.insertOne(data, function(err, result) {
 			if(err){
-				console.log("backupStatsinDB(): insert callstats into MongoDB, error: " + err)
-				logger.debug("backupStatsinDB(): insert callstats into MongoDB, error: " + err)
+				console.log("backupStatsinDB(): insert callstats into MongoDB, error: " + err);
+				logger.debug("backupStatsinDB(): insert callstats into MongoDB, error: " + err);
 				throw err;
 			}
 		});
@@ -1371,14 +1482,9 @@ function loadStatsinDB() {
 			if (err) console.log("Stats find returned error: " + err);
 
 			if (data[0] != null) {
-
-
 				// for now only saving this, cannot copy them into Agents[] and Queues[] since they may be empty
 				AgentStats = data[0].agentstats;
 				QueueStats = data[0].queuestats;
-
-
-
 			}
 		})
 	}
@@ -1549,4 +1655,3 @@ process.on('uncaughtException', function() {
 	console.log('uncaughtException received');
 	backupStatsinDB();
 });
-

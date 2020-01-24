@@ -183,13 +183,13 @@ $('#vmail-agent').on('click', function(){
 
 function sortButtonToggle(buttonid){
 	if ($(buttonid).attr("class") === 'fa fa-sort'){
-		$(buttonid).addClass('fa-sort-asc').removeClass('fa-sort');
+		$(buttonid).addClass('fa-sort-up').removeClass('fa-sort');
 		return("asc");
-	} else if ($(buttonid).attr("class") === 'fa fa-sort-desc'){
-		$(buttonid).addClass('fa-sort-asc').removeClass('fa-sort-desc');
+	} else if ($(buttonid).attr("class") === 'fa fa-sort-down'){
+		$(buttonid).addClass('fa-sort-up').removeClass('fa-sort-down');
 		return("asc");
-	} else if ($(buttonid).attr("class") === 'fa fa-sort-asc'){
-		$(buttonid).addClass('fa-sort-desc').removeClass('fa-sort-asc');
+	} else if ($(buttonid).attr("class") === 'fa fa-sort-up'){
+		$(buttonid).addClass('fa-sort-down').removeClass('fa-sort-up');
 		return("desc");
 	}
 }

@@ -1,0 +1,19 @@
+
+/* Force Logout modal CSS */
+.modal-dialog .icon-box {
+    font-size: 8em;
+    margin: 0 auto;
+    z-index: 9;
+    text-align: center;
+}
+#warning-icon {
+    color: #f39c12;
+}
+#error-icon {
+    color: #f15e5e
+}
+/* Add the border back to the select entries bubble */
+.dataTables_length select {
+    border: 1px rgb(166, 166, 166) solid !important;
+
+}

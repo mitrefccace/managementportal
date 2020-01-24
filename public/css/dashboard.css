@@ -3,3 +3,22 @@
 .small-box:hover .icon {
     font-size:90px;
    }
+
+/* Override the table cell padding from Admin LTE to make it a little more compact */
+.table td, .table th {
+    padding-top: .60rem !important;
+    padding-bottom: .60rem !important;
+}
+/* Class that is added and removed periodically to call agent summary row an agent requests assistance  */
+.agent-assistance {
+    background-color: red;
+    /*
+    When the class is added to the table row, the top border would remain red throughout the opacity cycling
+    This fixes that.
+    */
+    border-top: 1px solid #dee2e6 !important;
+}
+/* Give the metrics cards a fixed height to avoid mismatched sizes */
+.small-box > .inner{
+    height: 120px;
+}
