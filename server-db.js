@@ -509,6 +509,7 @@ io.sockets.on('connection', function (socket) {
 			url += '?start=' + data.start + '&end=' + data.end;
 		}
 		// ACR-CDR getallcdrrecs RESTful call to get CDR JSON string.
+ console.log('CDRTABLE GET DATA');
 		request({
 			url: url,
 			json: true
@@ -724,16 +725,28 @@ io.sockets.on('connection', function (socket) {
 				json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
 				json_data = set_rgb_values(json_data, status, color_and_action[0]);
 			}
-			fs.writeFile(file_path, JSON.stringify(json_data, null, 2), 'utf-8');
+			fs.writeFile(file_path, JSON.stringify(json_data, null, 2), 'utf-8' , function (err) {
+                          if (err) {
+                            logger.error('ERROR writing: ' + file_path);
+                            throw err;
+                          } else {
+                            //successful write
+			    //send request to AD  server
+                            var url2 = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ":" + parseInt(getConfigVal(ACE_DIRECT_PORT)) + "/updatelightconfigs";
+                            request({
+                              url: url2,
+                              json: true
+                            }, function (err, res, data) {
+                              if (err) {
+                                logger.error('ERROR sending request to adserver /updatelightconfigs');
+                              } else {
+                                logger.debug('SUCCESS sending request to adserver /updatelightconfigs');
+                              }
+                            });
+                          }
+                        });
 
-			//send to server
-			request({
-				url: adUrl + '/updatelightconfigs'
-			}, function (err) {
-				if (err) {
-					logger.error('Error: ' + err);
-				}
-			});
+
 		} catch (ex) {
 			logger.error('Error: ' + ex);
 		}
