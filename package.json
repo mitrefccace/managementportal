@@ -24,6 +24,7 @@
     "tar": "^4.4.10"
   },
   "dependencies": {
+    "acorn": "^5.7.4",
     "admin-lte": "^3.0.1",
     "angular": "^1.7.9",
     "angular-datatables": "^0.6.2",
@@ -51,6 +52,7 @@
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.15",
     "log4js": "^3.0.6",
+    "minimist": "^1.2.2",
     "moment": "^2.23.0",
     "mongodb": "^3.3.4",
     "mysql": "^2.16.0",

@@ -36,12 +36,12 @@ var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
 
 //declare constants for various config values
-const COMMON_PRIVATE_IP 		= 		"common:private_ip";
-const NGINX_FQDN 				= 		"nginx:fqdn";
-const COLOR_CONFIG_JSON_PATH	=		"../dat/color_config.json";
-const ASTERISK_SIP_PRIVATE_IP	=		"asterisk:sip:private_ip";
-const AGENT_SERVICE_PORT		=		"agent_service:port";
-const ACE_DIRECT_PORT			=		"ace_direct:https_listen_port"
+const COMMON_PRIVATE_IP = "common:private_ip";
+const NGINX_FQDN = "nginx:fqdn";
+const COLOR_CONFIG_JSON_PATH = "../dat/color_config.json";
+const ASTERISK_SIP_PRIVATE_IP = "asterisk:sip:private_ip";
+const AGENT_SERVICE_PORT = "agent_service:port";
+const ACE_DIRECT_PORT = "ace_direct:https_listen_port"
 
 
 var app = express(); // create our app w/ express
@@ -74,23 +74,23 @@ var redisAgentInfoMap = 'agentInfoMap';
 var redisClient = redis.createClient(getConfigVal('database_servers:redis:port'), getConfigVal('database_servers:redis:host'));
 
 redisClient.on("error", function (err) {
-    logger.error("");
-    logger.error("**********************************************************");
-    logger.error("REDIS CONNECTION ERROR: Please make sure Redis is running.");
-    logger.error("**********************************************************");
-    logger.error("");
+	logger.error("");
+	logger.error("**********************************************************");
+	logger.error("REDIS CONNECTION ERROR: Please make sure Redis is running.");
+	logger.error("**********************************************************");
+	logger.error("");
 	logger.error(err);
-    console.error("");
-    console.error("**********************************************************");
-    console.error("REDIS CONNECTION ERROR: Please make sure Redis is running.");
-    console.error("**********************************************************");
-    console.error("");
-    console.error(err);
+	console.error("");
+	console.error("**********************************************************");
+	console.error("REDIS CONNECTION ERROR: Please make sure Redis is running.");
+	console.error("**********************************************************");
+	console.error("");
+	console.error(err);
 });
 
 //catch Redis warnings
-redisClient.on("warning", function(wrn) {
-  logger.warn('REDIS warning: ' + wrn);
+redisClient.on("warning", function (wrn) {
+	logger.warn('REDIS warning: ' + wrn);
 });
 
 redisClient.auth(getConfigVal('database_servers:redis:auth'));
@@ -109,8 +109,8 @@ logger.info("This is ACE Direct v" + version + ", Copyright " + year + ".");
 //NGINX path parameter
 var nginxPath = getConfigVal('nginx:mp_path');
 if (nginxPath.length === 0) {
-  //default for backwards compatibility
-  nginxPath = "/ManagementPortal";
+	//default for backwards compatibility
+	nginxPath = "/ManagementPortal";
 }
 
 var agent = new openamAgent.PolicyAgent({
@@ -163,9 +163,9 @@ var fqdn = '';
 if (nconf.get(NGINX_FQDN)) {
 	fqdn = getConfigVal(NGINX_FQDN);
 } else {
-    logger.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
-    console.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
-    process.exit(-99);
+	logger.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
+	console.error('*** ERROR: ' + NGINX_FQDN + ' is required in dat/config.json.');
+	process.exit(-99);
 }
 var fqdnTrimmed = fqdn.trim(); // Remove the newline
 var fqdnUrl = 'https://' + fqdnTrimmed + ':*';
@@ -216,12 +216,12 @@ var colStats = null;
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = getConfigVal('database_servers:mongodb:connection_uri');
 	// Initialize connection once
-	MongoClient.connect(mongodbUri, {forceServerObjectId:true, useNewUrlParser: true}, function (err, database) {
-    if (err) {
-      logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
-      console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
-      process.exit(-99);
-    }
+	MongoClient.connect(mongodbUri, { forceServerObjectId: true, useNewUrlParser: true }, function (err, database) {
+		if (err) {
+			logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+			console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
+			process.exit(-99);
+		}
 
 		console.log('MongoDB Connection Successful');
 		mongodb = database.db();
@@ -234,20 +234,20 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 		// prepare an entry into MongoDB to log the managementportal restart
 		var ts = new Date();
 		var data = {
-				"Timestamp": ts.toISOString(),
-				"Role":"managementportal",
-				"Purpose": "Restarted"
+			"Timestamp": ts.toISOString(),
+			"Role": "managementportal",
+			"Purpose": "Restarted"
 		};
 
 		if (logAMIEvents) {
 			// first check if collection "events" already exist, if not create one
-			mongodb.listCollections({name: 'events'}).toArray((err, collections) => {
+			mongodb.listCollections({ name: 'events' }).toArray((err, collections) => {
 				console.log("try to find events collection, colEvents length: " + collections.length);
 				if (collections.length == 0) {	// "stats" collection does not exist
 					console.log("Creating new events colleciton in MongoDB");
-					mongodb.createCollection("events",{capped: true, size:1000000, max:5000}, function(err, result) {
+					mongodb.createCollection("events", { capped: true, size: 1000000, max: 5000 }, function (err, result) {
 						if (err) throw err;
-        					console.log("Collection events is created capped size 100000, max 5000 entries");
+						console.log("Collection events is created capped size 100000, max 5000 entries");
 						colEvents = mongodb.collection('events');
 					});
 				}
@@ -256,8 +256,8 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 					console.log("Collection events exist");
 					colEvents = mongodb.collection('events');
 					// insert an entry to record the start of managementportal
-					colEvents.insertOne(data, function(err, result) {
-						if(err){
+					colEvents.insertOne(data, function (err, result) {
+						if (err) {
 							console.log("Insert a record into events collection of MongoDB, error: " + err);
 							logger.debug("Insert a record into events collection of MongoDB, error: " + err);
 							throw err;
@@ -270,14 +270,14 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 
 		if (logStats) {
 			// first check if collection "stats" already exist, if not create one
-			mongodb.listCollections({name: 'callstats'}).toArray((err, collections) => {
+			mongodb.listCollections({ name: 'callstats' }).toArray((err, collections) => {
 				console.log("try to find stats collection, colStats length: " + collections.length);
 				if (collections.length == 0) {	// "stats" collection does not exist
 					console.log("Creating new stats colleciton in MongoDB");
-					mongodb.createCollection("callstats",{capped: true, size:1000000, max:5000}, function(err, result) {
-						if (err){
-							console.log("Error creating collection for callstats in Mongo: "+ err);
-							logger.debug("Error creating collection for callstats in Mongo: "+ err);
+					mongodb.createCollection("callstats", { capped: true, size: 1000000, max: 5000 }, function (err, result) {
+						if (err) {
+							console.log("Error creating collection for callstats in Mongo: " + err);
+							logger.debug("Error creating collection for callstats in Mongo: " + err);
 							throw err;
 						}
 						logger.info("Collection stats is created capped size 100000, max 5000 entries");
@@ -509,7 +509,7 @@ io.sockets.on('connection', function (socket) {
 			url += '?start=' + data.start + '&end=' + data.end;
 		}
 		// ACR-CDR getallcdrrecs RESTful call to get CDR JSON string.
- console.log('CDRTABLE GET DATA');
+		console.log('CDRTABLE GET DATA');
 		request({
 			url: url,
 			json: true
@@ -529,7 +529,7 @@ io.sockets.on('connection', function (socket) {
 					'peeraccount'
 				];
 				// Converts JSON object to a CSV file.
-				let json2csvParser = new Json2csvParser({csvFields});
+				let json2csvParser = new Json2csvParser({ csvFields });
 				let csv = json2csvParser.parse(cdrdata.data);
 				//returns CSV of Call Data Records
 				io.to(socket.id).emit('cdrtable-csv', csv);
@@ -563,7 +563,7 @@ io.sockets.on('connection', function (socket) {
 					'videomails', 'webcalls'
 				];
 				// Converts JSON object to a CSV file.
-				let json2csvParser = new Json2csvParser({csvFields});
+				let json2csvParser = new Json2csvParser({ csvFields });
 				let csv = json2csvParser.parse(reportdata.data);
 				//returns Report Data
 				io.to(socket.id).emit('reporttable-csv', csv);
@@ -587,68 +587,55 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	// ######################################
-	// Videomail-specific socket.io events
-
-	function processFilter(filter) {
-		if (filter == 'ALL') {
-			return ('');
-		} else {
-			return ("'" + filter + "'");
-		}
-	}
-
 	//Retrieval of videomail records from the database
 	socket.on("get-videomail", function (data) {
 		logger.debug('entered get-videomail');
-		logger.debug('test');
-		var sortBy = data.sortBy;
-		var filterFlag = processFilter(data.filter);
-		var sortStr = '';
-		var queryStr = '';
+
+		let filterFlag = (data.filter === "ALL" || typeof data.filter === 'undefined') ? false : true;
+		let sort = (typeof data.sortBy === 'undefined') ? [] : data.sortBy.split(" ");
+
+		let vm_sql_select = `SELECT id, extension, callbacknumber, recording_agent, processing_agent, 
+			received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, 
+			video_filename, video_filepath FROM ${vmTable}`;
+		let vm_sql_where = `WHERE deleted = 0`;
+		let vm_sql_order = ``;
+		let vm_sql_params = [];
 
 		if (filterFlag) {
-			if (sortBy.includes('asc')) {
-				sortStr = sortBy.slice(0, sortBy.length - 4);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE status = " + filterFlag + " ORDER BY " + sortStr + " asc";
-			} else if (sortBy.includes('desc')) {
-				sortStr = sortBy.slice(0, sortBy.length - 5);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " WHERE status = " + filterFlag + " ORDER BY " + sortStr + " desc";
-			}
-		} else {
-			if (sortBy.includes('asc')) {
-				sortStr = sortBy.slice(0, sortBy.length - 4);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " ORDER BY " + sortStr + " asc";
-			} else if (sortBy.includes('desc')) {
-				sortStr = sortBy.slice(0, sortBy.length - 5);
-				queryStr = "SELECT id, extension, callbacknumber, recording_agent, processing_agent, DATE_FORMAT(convert_tz(received,@@session.time_zone,'-04:00'), '%a %m/%d/%Y %h:%i %p') as received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, video_filename, video_filepath FROM " + vmTable + " ORDER BY " + sortStr + " desc";
-			}
+			vm_sql_where += ` and status = ?`;
+			vm_sql_params.push(data.filter);
 		}
-		logger.debug(queryStr);
-		dbConnection.query(queryStr, function (err, result) {
+		if (sort.length == 2) {
+			vm_sql_order = ` ORDER BY ??`;
+			vm_sql_params.push(sort[0])
+			if (sort[1] == 'desc')
+				vm_sql_order += ` DESC`
+		}
+
+		let vm_sql_query = `${vm_sql_select} ${vm_sql_where} ${vm_sql_order};`
+		dbConnection.query(vm_sql_query, vm_sql_params, function (err, result) {
 			if (err) {
-				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
+				logger.error("GET-VIDEOMAIL ERROR: " + err.code);
 			} else {
 				io.to(socket.id).emit('got-videomail-recs', result);
 			}
 		});
-
 		// Get videomail status summary for pie chart
-		queryStr = "SELECT status AS 'label', COUNT(*) AS 'data' FROM " + vmTable + " GROUP BY status;";
-		logger.debug(queryStr);
-		dbConnection.query(queryStr, function (err, result) {
+		let vm_sql_count_query = `SELECT status AS 'label', COUNT(*) AS 'data' FROM ${vmTable} GROUP BY status;`;
+		dbConnection.query(vm_sql_count_query, function (err, result) {
 			if (err) {
-				logger.error("GET-VIDEOMAIL ERROR: ", err.code);
+				logger.error("GET-VIDEOMAIL ERROR: " + err.code);
 			} else {
+				logger.debug(result);
 				io.to(socket.id).emit('videomail-status', result);
 			}
 		});
 		// Additional status chart idea. Bar chart x-axis hour of day 0-23, y-axis number of videomails in each hour
 		// select extract(hour from received) as theHour, count(*) as numberOfItems from videomail group by extract(hour from received);
-
-		queryStr = "DELETE FROM " + vmTable + " WHERE TIMESTAMPDIFF(DAY, deleted_time, CURRENT_TIMESTAMP) >= 14;";
-		dbConnection.query(queryStr, function (err, result) {
+		let vm_sql_deleteOld = `DELETE FROM ${vmTable} WHERE TIMESTAMPDIFF(DAY, deleted_time, CURRENT_TIMESTAMP) >= 14;`
+		dbConnection.query(vm_sql_deleteOld, function (err, result) {
 			if (err) {
-				logger.error('DELETE-OLD-VIDEOMAIL ERROR: ', err.code);
+				logger.error('DELETE-OLD-VIDEOMAIL ERROR: ' + err.code);
 			} else {
 				logger.debug('Deleted old videomail');
 			}
@@ -658,11 +645,13 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent changes the status
 	socket.on("videomail-status-change", function (data) {
 		logger.debug('updating MySQL entry');
-		var queryStr = "UPDATE " + vmTable + " SET status = '" + data.status + "', processed = CURRENT_TIMESTAMP, processing_agent = 'manager', deleted = 0, deleted_time = NULL, deleted_by = NULL WHERE id = " + data.id;
-		logger.debug(queryStr);
-		dbConnection.query(queryStr, function (err, result) {
+		let vm_sql_query = `UPDATE ${vmTable} SET status = ?, processed = CURRENT_TIMESTAMP, 
+			processing_agent = 'manager', deleted = 0, deleted_time = NULL, deleted_by = NULL  WHERE id = ?;`
+		let vm_sql_params = [data.status, data.id];
+		logger.debug(vm_sql_query + " " + vm_sql_params);
+		dbConnection.query(vm_sql_query, vm_sql_params, function (err, result) {
 			if (err) {
-				logger.error('VIDEOMAIL-STATUS-CHANGE ERROR: ', err.code);
+				logger.error('VIDEOMAIL-STATUS-CHANGE ERROR: ' + err.code);
 			} else {
 				logger.debug(result);
 				io.to(socket.id).emit('changed-status', result);
@@ -673,11 +662,13 @@ io.sockets.on('connection', function (socket) {
 	//changes the videomail status to READ if it was UNREAD before
 	socket.on("videomail-read-onclick", function (data) {
 		logger.debug('updating MySQL entry');
-		var queryStr = "UPDATE " + vmTable + " SET status = 'READ', processed = CURRENT_TIMESTAMP, processing_agent = 'manager' WHERE id = " + data.id;
-		logger.debug(queryStr);
-		dbConnection.query(queryStr, function (err, result) {
+		let vm_sql_query = `UPDATE ${vmTable} SET status = 'READ', 
+		processed = CURRENT_TIMESTAMP, processing_agent = 'manager' WHERE id = ?;`
+		let vm_sql_params = [data.id];
+		logger.debug(vm_sql_query + " " + vm_sql_params);
+		dbConnection.query(vm_sql_query, vm_sql_params, function (err, result) {
 			if (err) {
-				logger.error('VIDEOMAIL-READ ERROR: ', err.code);
+				logger.error('VIDEOMAIL-READ ERROR: ' + err.code);
 			} else {
 				logger.debug(result);
 				io.to('my room').emit('changed-status', result);
@@ -688,12 +679,13 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent deletes the videomail. Keeps it in db but with a deleted flag
 	socket.on("videomail-deleted", function (data) {
 		logger.debug('updating MySQL entry');
-		var queryStr = "DELETE FROM " + vmTable + " WHERE id = " + data.id;
-		dbConnection.query(queryStr, function (err, result) {
+		let vm_sql_query = `DELETE FROM ${vmTable} WHERE id = ?;`
+		let vm_sql_params = [data.id];
+		logger.debug(vm_sql_query + " " + vm_sql_params);
+		dbConnection.query(vm_sql_query, vm_sql_params,function (err, result) {
 			if (err) {
-				logger.error('VIDEOMAIL-DELETE ERROR: ', err.code);
+				logger.error('VIDEOMAIL-DELETE ERROR: '+ err.code);
 			} else {
-				logger.debug(result);
 				io.to('my room').emit('changed-status', result);
 			}
 		});
@@ -725,26 +717,26 @@ io.sockets.on('connection', function (socket) {
 				json_data.statuses[status].blink = (color_and_action[1] == "blinking") ? true : false;
 				json_data = set_rgb_values(json_data, status, color_and_action[0]);
 			}
-			fs.writeFile(file_path, JSON.stringify(json_data, null, 2), 'utf-8' , function (err) {
-                          if (err) {
-                            logger.error('ERROR writing: ' + file_path);
-                            throw err;
-                          } else {
-                            //successful write
-			    //send request to AD  server
-                            var url2 = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ":" + parseInt(getConfigVal(ACE_DIRECT_PORT)) + "/updatelightconfigs";
-                            request({
-                              url: url2,
-                              json: true
-                            }, function (err, res, data) {
-                              if (err) {
-                                logger.error('ERROR sending request to adserver /updatelightconfigs');
-                              } else {
-                                logger.debug('SUCCESS sending request to adserver /updatelightconfigs');
-                              }
-                            });
-                          }
-                        });
+			fs.writeFile(file_path, JSON.stringify(json_data, null, 2), 'utf-8', function (err) {
+				if (err) {
+					logger.error('ERROR writing: ' + file_path);
+					throw err;
+				} else {
+					//successful write
+					//send request to AD  server
+					var url2 = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ":" + parseInt(getConfigVal(ACE_DIRECT_PORT)) + "/updatelightconfigs";
+					request({
+						url: url2,
+						json: true
+					}, function (err, res, data) {
+						if (err) {
+							logger.error('ERROR sending request to adserver /updatelightconfigs');
+						} else {
+							logger.debug('SUCCESS sending request to adserver /updatelightconfigs');
+						}
+					});
+				}
+			});
 
 
 		} catch (ex) {
@@ -765,17 +757,17 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	// Forcefully logs out any agents that have been selected to be logged out in the Management Portal administration section
-	socket.on('forceLogout', function(agents){
+	socket.on('forceLogout', function (agents) {
 		// Check to see if the force logout password is present in the config
 		let forceLogoutPassword = getConfigVal('management_portal:force_logout_password')
-		if(!forceLogoutPassword){
+		if (!forceLogoutPassword) {
 			// Emit the event to the front end since we cant find a config value for the force logout password
 			socket.emit('forceLogoutPasswordNotPresent')
-		}else{
+		} else {
 			// A password exists within the config file. Continue the force logout process
 			// Create the data to send to ace direct
-			let requestJson = {"agents":[]};
-			agents.forEach(function(agent){
+			let requestJson = { "agents": [] };
+			agents.forEach(function (agent) {
 				requestJson.agents.push(agent);
 			})
 			// Send a post request to ace direct force logout route
@@ -979,7 +971,7 @@ function findQueue(queue) {
  * @param {type} queue
  * @returns {unresolved} Not used
  */
-function findQueueFromStats(queue){
+function findQueueFromStats(queue) {
 	for (var i = 0; i < QueueStats.length; i++) {
 		if (QueueStats[i].queue === queue)
 			return QueueStats[i];
@@ -1042,12 +1034,12 @@ function handle_manager_event(evt) {
 	var q;
 
 	var ts = new Date();
-	var timestamp = {"Timestamp": ts.toISOString()};
+	var timestamp = { "Timestamp": ts.toISOString() };
 	var data = Object.assign(timestamp, evt);
 
 	if (colEvents != null) {
-		colEvents.insertOne(data, function(err, result) {
-			if(err){
+		colEvents.insertOne(data, function (err, result) {
+			if (err) {
 				logger.debug("handle_manager_event(): insert event into MongoDB, error: " + err);
 			}
 		});
@@ -1085,18 +1077,18 @@ function handle_manager_event(evt) {
 					}
 				} else {
 					let mongoAgent = getAgentFromStats(a.agent);
-					if(mongoAgent){
-						if(mongoAgent.talktime > 0 && a.talktime == 0){
+					if (mongoAgent) {
+						if (mongoAgent.talktime > 0 && a.talktime == 0) {
 							a.talktime = mongoAgent.talktime;
-							a.totaltalktime = (a.talktime/60).toFixed(2);
+							a.totaltalktime = (a.talktime / 60).toFixed(2);
 						}
-						if(mongoAgent.holdtime > 0 && a.holdtime == 0){
+						if (mongoAgent.holdtime > 0 && a.holdtime == 0) {
 							a.holdtime = mongoAgent.holdtime;
 						}
-						if(mongoAgent.callstaken > 0 && a.callstaken == 0){
+						if (mongoAgent.callstaken > 0 && a.callstaken == 0) {
 							a.callstaken = mongoAgent.callstaken;
 						}
-						if(mongoAgent.avgtalktime > 0 && a.avgtalktime == 0){
+						if (mongoAgent.avgtalktime > 0 && a.avgtalktime == 0) {
 							a.avgtalktime = mongoAgent.avgtalktime;
 						}
 					}
@@ -1117,7 +1109,7 @@ function handle_manager_event(evt) {
 
 					if (evt.talktime > 0) {
 						a.talktime += Number(evt.talktime);
-						a.totaltalktime = (a.talktime/60).toFixed(2);
+						a.totaltalktime = (a.talktime / 60).toFixed(2);
 					}
 
 					a.holdtime += Number(evt.holdtime);
@@ -1128,19 +1120,19 @@ function handle_manager_event(evt) {
 					q = findQueue(evt.queue);
 					let tempQ = findQueueFromStats(evt.queue);
 					//check if this hold time is longer than the corresponding queue's current longest hold time
-					let agentHoldTime = (Number(evt.holdtime)/60).toFixed(2);
-					if(q.longestholdtime < agentHoldTime){
+					let agentHoldTime = (Number(evt.holdtime) / 60).toFixed(2);
+					if (q.longestholdtime < agentHoldTime) {
 						//update the longest hold time
 						q.longestholdtime = agentHoldTime;
 					}
 					//decrement the queue's calls in progress
-					if(q.currentCalls > 0){
+					if (q.currentCalls > 0) {
 						q.currentCalls -= 1;
 					}
 					q.cumulativeHoldTime += Number(evt.holdtime);
 					q.cumulativeTalkTime += Number(evt.talktime);
 					// do not send agent-resp till ends of QueueStatusComplete
-				} else{
+				} else {
 					logger.debug("AgentComplete: cannot find agent " + evt.membername);
 				}
 				break;
@@ -1149,17 +1141,17 @@ function handle_manager_event(evt) {
 			{
 				//increment the number of current calls for the queue with call in progress
 				q = findQueue(evt.queue);
-				q.currentCalls+=1;
+				q.currentCalls += 1;
 
 				break;
 			}
 		case 'QueueMember':
 			{ // update status and averageTalkTime
 				logger.debug(evt);
-                if (evt.name == null) {
-			        logger.error("handle_manager_event(evt) QueueMember ERROR - evt.name is null or undefined");
-                    break;
-                }
+				if (evt.name == null) {
+					logger.error("handle_manager_event(evt) QueueMember ERROR - evt.name is null or undefined");
+					break;
+				}
 				name = evt.name.split("/");
 				a = findAgent(name[1]); // use full name e.g. PSSIP/30001 which is the extension
 				if (a) {
@@ -1184,7 +1176,7 @@ function handle_manager_event(evt) {
 					a.callstaken = (mongoAgent && mongoAgent.callstaken > 0) ? (getTotalCallsTaken(a.callMap) + mongoAgent.callstaken) : getTotalCallsTaken(a.callMap);
 
 					if (a.callstaken > 0) {
-						a.avgtalktime = ((a.talktime / a.callstaken)/60).toFixed(2);
+						a.avgtalktime = ((a.talktime / a.callstaken) / 60).toFixed(2);
 					}
 				}
 				// wait until we processed all members
@@ -1197,20 +1189,20 @@ function handle_manager_event(evt) {
 
 				q = findQueue(evt.queue);
 				if (!q) {
-					q = {queue:"",loggedin:0,available:0,callers:0,currentCalls:0,cumulativeHoldTime:0,cumulativeTalkTime:0,avgHoldTime:0,avgTalkTime:0,longestholdtime:0,completed:0,abandoned:0,totalCalls:0}
+					q = { queue: "", loggedin: 0, available: 0, callers: 0, currentCalls: 0, cumulativeHoldTime: 0, cumulativeTalkTime: 0, avgHoldTime: 0, avgTalkTime: 0, longestholdtime: 0, completed: 0, abandoned: 0, totalCalls: 0 }
 					Queues.push(q);
 				}
 				q.queue = evt.queue;    // ybao: avoid creating multiple queue elements for the same queue
 				q.abandoned = Number(evt.abandoned); // evt.abandoned = number of calls that have been abandoned for this queue
 				//check for stats in the database
-					//get this queue from the stored stats
+				//get this queue from the stored stats
 				let tempQ = findQueueFromStats(q.queue);
 				//use the call stats from Mongo
-				if(tempQ){
+				if (tempQ) {
 					q.completed = Number(evt.completed) + tempQ.completed;
 					q.abandoned = Number(evt.abandoned) + tempQ.abandoned;
 					q.totalCalls = q.completed + q.abandoned;
-				}else{
+				} else {
 					q.completed = Number(evt.completed);
 					q.abandoned = Number(evt.abandoned);
 					q.totalCalls = q.completed + q.abandoned;
@@ -1225,7 +1217,7 @@ function handle_manager_event(evt) {
 					if (evt.queue === Asterisk_queuenames[j]) {
 						q = findQueue(evt.queue);
 						if (!q) {
-							q = {queue:"",loggedin:0,available:0,callers:0,currentCalls:0,cumulativeHoldTime:0,cumulativeTalkTime:0,avgHoldTime:0,avgTalkTime:0,longestholdtime:0,completed:0,abandoned:0,totalCalls:0};
+							q = { queue: "", loggedin: 0, available: 0, callers: 0, currentCalls: 0, cumulativeHoldTime: 0, cumulativeTalkTime: 0, avgHoldTime: 0, avgTalkTime: 0, longestholdtime: 0, completed: 0, abandoned: 0, totalCalls: 0 };
 							Queues.push(q);
 						}
 						q.queue = evt.queue; //evt.queue = name of the queue ("eg. ComplaintsQueue")
@@ -1239,26 +1231,26 @@ function handle_manager_event(evt) {
 						 * time the server has started, so we set each field to it respective value from
 						 * Mongo
 						 */
-						if(tempQ){
-							if(q.cumulativeHoldTime == 0 && tempQ.cumulativeHoldTime > 0 ){
+						if (tempQ) {
+							if (q.cumulativeHoldTime == 0 && tempQ.cumulativeHoldTime > 0) {
 								q.cumulativeHoldTime = tempQ.cumulativeHoldTime;
 							}
-							if(q.cumulativeTalkTime == 0 && tempQ.cumulativeTalkTime > 0){
+							if (q.cumulativeTalkTime == 0 && tempQ.cumulativeTalkTime > 0) {
 								q.cumulativeTalkTime = tempQ.cumulativeTalkTime;
 							}
-							if(q.longestholdtime == 0 && tempQ.longestholdtime > 0){
+							if (q.longestholdtime == 0 && tempQ.longestholdtime > 0) {
 								q.longestholdtime = tempQ.longestholdtime;
 							}
-							if(q.completed == 0 && tempQ.completed > 0){
+							if (q.completed == 0 && tempQ.completed > 0) {
 								q.completed = tempQ.completed;
 							}
-							if(q.abandoned == 0 && tempQ.abandoned > 0){
+							if (q.abandoned == 0 && tempQ.abandoned > 0) {
 								q.abandoned = tempQ.abandoned;
 							}
 						}
-						if(q.completed > 0){
-							q.avgHoldTime = Number((q.cumulativeHoldTime/q.completed)/60).toFixed(2);
-							q.avgTalkTime = Number((q.cumulativeTalkTime/q.completed)/60).toFixed(2);
+						if (q.completed > 0) {
+							q.avgHoldTime = Number((q.cumulativeHoldTime / q.completed) / 60).toFixed(2);
+							q.avgTalkTime = Number((q.cumulativeTalkTime / q.completed) / 60).toFixed(2);
 						}
 						logger.debug("QueueSummary(): q.talktime: " + q.talktime);
 					}
@@ -1315,13 +1307,13 @@ function initialize() {
 	resetAllCounters();
 
 	setInterval(function () {
-			callAmiActions();
-			mapAgents();
+		callAmiActions();
+		mapAgents();
 	}, pollInterval);
 
-	if (logStats && logStatsFreq>0) {
+	if (logStats && logStatsFreq > 0) {
 		setInterval(function () {
-				backupStatsinDB();
+			backupStatsinDB();
 		}, logStatsFreq);
 	}
 }
@@ -1440,7 +1432,7 @@ function backupStatsinDB() {
 
 	// adding Agents[] stats
 	data.agentstats = [];
-	Agents.forEach(function(element) {
+	Agents.forEach(function (element) {
 		var astats = {};
 		astats.agent = element.agent;
 		astats.talktime = element.talktime;
@@ -1452,7 +1444,7 @@ function backupStatsinDB() {
 
 	// adding Queues stats
 	data.queuestats = [];
-	Queues.forEach(function(element) {
+	Queues.forEach(function (element) {
 		var qstats = {};
 		qstats.queue = element.queue;
 		qstats.cumulativeHoldTime = element.cumulativeHoldTime;
@@ -1466,8 +1458,8 @@ function backupStatsinDB() {
 
 
 	if (colStats != null) {
-		colStats.insertOne(data, function(err, result) {
-			if(err){
+		colStats.insertOne(data, function (err, result) {
+			if (err) {
 				console.log("backupStatsinDB(): insert callstats into MongoDB, error: " + err);
 				logger.debug("backupStatsinDB(): insert callstats into MongoDB, error: " + err);
 				throw err;
@@ -1489,9 +1481,9 @@ function loadStatsinDB() {
 
 	// Find the last stats entry backed up in mongoDB
 	if (colStats != null) {
-		var cursor = colStats.find().limit(1).sort({ $natural : -1 });
+		var cursor = colStats.find().limit(1).sort({ $natural: -1 });
 
-		cursor.toArray(function(err, data) {
+		cursor.toArray(function (err, data) {
 			if (err) console.log("Stats find returned error: " + err);
 
 			if (data[0] != null) {
@@ -1566,7 +1558,7 @@ app.use('/agentassist', function (req, res) {
 //must come after above function
 //All get requests below are subjected to openam cookieShield
 
-app.use(function(req, res, next){
+app.use(function (req, res, next) {
 	res.locals = {
 		"nginxPath": nginxPath
 	};
@@ -1648,23 +1640,23 @@ app.get('/getVideomail', function (req, res) {
 });
 
 
-process.on('exit', function() {
+process.on('exit', function () {
 	console.log('exit signal received');
 	backupStatsinDB();
 });
 
 
-process.on('SIGINT', function() {
+process.on('SIGINT', function () {
 	console.log('SIGINT signal received');
 	backupStatsinDB();
 });
 
-process.on('SIGTERM', function() {
+process.on('SIGTERM', function () {
 	console.log('SIGINT signal received');
 	backupStatsinDB();
 });
 
-process.on('uncaughtException', function() {
+process.on('uncaughtException', function () {
 	console.log('uncaughtException received');
 	backupStatsinDB();
 });
