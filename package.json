@@ -17,7 +17,6 @@
   "devDependencies": {
     "clean-css": "^4.2.1",
     "fstream": "^1.0.12",
-    "handlebars": "^4.5.3",
     "jquery": "^3.4.1",
     "lodash": "^4.17.15",
     "lodash.template": "^4.5.0",
@@ -43,6 +42,7 @@
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "flot-axislabels": "^1.0.0",
+    "handlebars": "^4.3.0",
     "ionicons": "^4.5.1",
     "izitoast": "^1.4.0",
     "jquery-form-validator": "^2.3.79",
