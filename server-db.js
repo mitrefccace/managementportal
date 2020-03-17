@@ -209,6 +209,7 @@ var logAMIEvents = nconf.get('database_servers:mongodb:logAMIevents');
 var logStats = nconf.get('database_servers:mongodb:logStats');
 var logStatsFreq = nconf.get('database_servers:mongodb:logStatsFreq');
 var mongodb;
+var dbconn = null;
 var colEvents = null;
 var colStats = null;
 
@@ -224,6 +225,7 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 		}
 
 		console.log('MongoDB Connection Successful');
+                dbconn = database;
 		mongodb = database.db();
 
 		// Start the application after the database connection is ready
@@ -1642,7 +1644,14 @@ app.get('/getVideomail', function (req, res) {
 
 process.on('exit', function () {
 	console.log('exit signal received');
+        console.log('DESTROYING MySQL DB CONNECTION');
+        dbConnection.destroy(); //destroy db connection
+        if ( typeof dbconn !== 'undefined' && dbconn ) {
+          console.log('DESTROYING MongoDB CONNECTION');
+          dbconn.close();
+        }
 	backupStatsinDB();
+        process.exit(0);
 });
 
 
