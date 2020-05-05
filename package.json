@@ -64,6 +64,7 @@
     "socket.io-client": "^2.2.0",
     "socketio-jwt": "^4.5.0",
     "tcp-ping": "^0.1.1",
+    "tempusdominus-core": "^5.0.3",
     "wickedpicker": "^0.4.3"
   }
 }

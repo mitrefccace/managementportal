@@ -23,6 +23,7 @@ var redis = require('redis');
 var getConfigVal = require('./helpers/utility').getConfigVal;
 var logger = require('./helpers/logger');
 var metrics = require('./controllers/metrics');
+var report = require('./controllers/report');
 var set_rgb_values = require('./helpers/utility').set_rgb_values;
 
 var port = null; // set the port
@@ -41,7 +42,7 @@ const NGINX_FQDN = "nginx:fqdn";
 const COLOR_CONFIG_JSON_PATH = "../dat/color_config.json";
 const ASTERISK_SIP_PRIVATE_IP = "asterisk:sip:private_ip";
 const AGENT_SERVICE_PORT = "agent_service:port";
-const ACE_DIRECT_PORT = "ace_direct:https_listen_port"
+const ACE_DIRECT_PORT = "ace_direct:https_listen_port";
 
 
 var app = express(); // create our app w/ express
@@ -232,7 +233,6 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 		httpsServer.listen(port);
 		console.log('https web server listening on ' + port);
 
-
 		// prepare an entry into MongoDB to log the managementportal restart
 		var ts = new Date();
 		var data = {
@@ -266,7 +266,6 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 						}
 					});
 				}
-
 			});
 		}
 
@@ -291,7 +290,6 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 					colStats = mongodb.collection('callstats');
 					loadStatsinDB();
 				}
-
 			});
 		}
 	});
@@ -544,26 +542,19 @@ io.sockets.on('connection', function (socket) {
 
 	// Socket for Report table
 	socket.on('reporttable-get-data', function (data) {
-		var url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal('acr_cdr:https_listen_port') + "/getallcdrrecs";
 		var format = data.format;
-		if (data.start && data.end) {
-			url += '?start=' + data.start + '&end=' + data.end;
-		}
 
-		// ACR-CDR getallcdrrecs RESTful call to get CDR JSON string.
-		request({
-			url: url,
-			json: true
-		}, function (err, res, reportdata) {
-			if (err) {
-				io.to(socket.id).emit('reporttable-error', {
-					"message": "Error Accessing Data Records"
-				});
-			} else if (format === 'csv') {
+		// console.log("reportStartDate: " + data.start);
+		// console.log("reportEndDate: " + data.end);
+		// console.log("reportFormat: " + format);
+
+		var reportStartDate = new Date(data.start);
+		var reportEndDate = new Date(data.end);
+		report.createReport(mongodb, reportStartDate.getTime(), reportEndDate.getTime(), function (reportdata) {
+			if (format === 'csv') {
 				//csv field values
 				var csvFields = ['date', 'callshandled', 'callsabandoned',
-					'videomails', 'webcalls'
-				];
+					'videomails', 'webcalls'];
 				// Converts JSON object to a CSV file.
 				let json2csvParser = new Json2csvParser({ csvFields });
 				let csv = json2csvParser.parse(reportdata.data);
@@ -596,8 +587,8 @@ io.sockets.on('connection', function (socket) {
 		let filterFlag = (data.filter === "ALL" || typeof data.filter === 'undefined') ? false : true;
 		let sort = (typeof data.sortBy === 'undefined') ? [] : data.sortBy.split(" ");
 
-		let vm_sql_select = `SELECT id, extension, callbacknumber, recording_agent, processing_agent, 
-			received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id, 
+		let vm_sql_select = `SELECT id, extension, callbacknumber, recording_agent, processing_agent,
+			received, processed, video_duration, status, deleted, src_channel, dest_channel, unique_id,
 			video_filename, video_filepath FROM ${vmTable}`;
 		let vm_sql_where = `WHERE deleted = 0`;
 		let vm_sql_order = ``;
@@ -609,12 +600,12 @@ io.sockets.on('connection', function (socket) {
 		}
 		if (sort.length == 2) {
 			vm_sql_order = ` ORDER BY ??`;
-			vm_sql_params.push(sort[0])
+			vm_sql_params.push(sort[0]);
 			if (sort[1] == 'desc')
-				vm_sql_order += ` DESC`
+				vm_sql_order += ` DESC`;
 		}
 
-		let vm_sql_query = `${vm_sql_select} ${vm_sql_where} ${vm_sql_order};`
+		let vm_sql_query = `${vm_sql_select} ${vm_sql_where} ${vm_sql_order};`;
 		dbConnection.query(vm_sql_query, vm_sql_params, function (err, result) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: " + err.code);
@@ -634,7 +625,7 @@ io.sockets.on('connection', function (socket) {
 		});
 		// Additional status chart idea. Bar chart x-axis hour of day 0-23, y-axis number of videomails in each hour
 		// select extract(hour from received) as theHour, count(*) as numberOfItems from videomail group by extract(hour from received);
-		let vm_sql_deleteOld = `DELETE FROM ${vmTable} WHERE TIMESTAMPDIFF(DAY, deleted_time, CURRENT_TIMESTAMP) >= 14;`
+		let vm_sql_deleteOld = `DELETE FROM ${vmTable} WHERE TIMESTAMPDIFF(DAY, deleted_time, CURRENT_TIMESTAMP) >= 14;`;
 		dbConnection.query(vm_sql_deleteOld, function (err, result) {
 			if (err) {
 				logger.error('DELETE-OLD-VIDEOMAIL ERROR: ' + err.code);
@@ -647,8 +638,8 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent changes the status
 	socket.on("videomail-status-change", function (data) {
 		logger.debug('updating MySQL entry');
-		let vm_sql_query = `UPDATE ${vmTable} SET status = ?, processed = CURRENT_TIMESTAMP, 
-			processing_agent = 'manager', deleted = 0, deleted_time = NULL, deleted_by = NULL  WHERE id = ?;`
+		let vm_sql_query = `UPDATE ${vmTable} SET status = ?, processed = CURRENT_TIMESTAMP,
+			processing_agent = 'manager', deleted = 0, deleted_time = NULL, deleted_by = NULL  WHERE id = ?;`;
 		let vm_sql_params = [data.status, data.id];
 		logger.debug(vm_sql_query + " " + vm_sql_params);
 		dbConnection.query(vm_sql_query, vm_sql_params, function (err, result) {
@@ -664,8 +655,8 @@ io.sockets.on('connection', function (socket) {
 	//changes the videomail status to READ if it was UNREAD before
 	socket.on("videomail-read-onclick", function (data) {
 		logger.debug('updating MySQL entry');
-		let vm_sql_query = `UPDATE ${vmTable} SET status = 'READ', 
-		processed = CURRENT_TIMESTAMP, processing_agent = 'manager' WHERE id = ?;`
+		let vm_sql_query = `UPDATE ${vmTable} SET status = 'READ',
+		processed = CURRENT_TIMESTAMP, processing_agent = 'manager' WHERE id = ?;`;
 		let vm_sql_params = [data.id];
 		logger.debug(vm_sql_query + " " + vm_sql_params);
 		dbConnection.query(vm_sql_query, vm_sql_params, function (err, result) {
@@ -681,7 +672,7 @@ io.sockets.on('connection', function (socket) {
 	//updates videomail records when the agent deletes the videomail. Keeps it in db but with a deleted flag
 	socket.on("videomail-deleted", function (data) {
 		logger.debug('updating MySQL entry');
-		let vm_sql_query = `DELETE FROM ${vmTable} WHERE id = ?;`
+		let vm_sql_query = `DELETE FROM ${vmTable} WHERE id = ?;`;
 		let vm_sql_params = [data.id];
 		logger.debug(vm_sql_query + " " + vm_sql_params);
 		dbConnection.query(vm_sql_query, vm_sql_params,function (err, result) {
@@ -761,17 +752,17 @@ io.sockets.on('connection', function (socket) {
 	// Forcefully logs out any agents that have been selected to be logged out in the Management Portal administration section
 	socket.on('forceLogout', function (agents) {
 		// Check to see if the force logout password is present in the config
-		let forceLogoutPassword = getConfigVal('management_portal:force_logout_password')
+		let forceLogoutPassword = getConfigVal('management_portal:force_logout_password');
 		if (!forceLogoutPassword) {
 			// Emit the event to the front end since we cant find a config value for the force logout password
-			socket.emit('forceLogoutPasswordNotPresent')
+			socket.emit('forceLogoutPasswordNotPresent');
 		} else {
 			// A password exists within the config file. Continue the force logout process
 			// Create the data to send to ace direct
 			let requestJson = { "agents": [] };
 			agents.forEach(function (agent) {
 				requestJson.agents.push(agent);
-			})
+			});
 			// Send a post request to ace direct force logout route
 			let url = 'https://' + getConfigVal(COMMON_PRIVATE_IP) + ':' + getConfigVal(ACE_DIRECT_PORT) + "/forcelogout";
 			request({
@@ -788,12 +779,12 @@ io.sockets.on('connection', function (socket) {
 				if (error) {
 					logger.error("adserver error: " + error);
 				} else {
-					console.log(`forcelogout response: ${JSON.stringify(response, null, 2, true)}`)
-					console.log(`forcelogout response data: ${JSON.stringify(data, null, 2, true)}`)
+					console.log(`forcelogout response: ${JSON.stringify(response, null, 2, true)}`);
+					console.log(`forcelogout response data: ${JSON.stringify(data, null, 2, true)}`);
 				}
 			});
 		}
-	})
+	});
 });
 
 //calls sendResourceStatus every minute
@@ -1191,7 +1182,7 @@ function handle_manager_event(evt) {
 
 				q = findQueue(evt.queue);
 				if (!q) {
-					q = { queue: "", loggedin: 0, available: 0, callers: 0, currentCalls: 0, cumulativeHoldTime: 0, cumulativeTalkTime: 0, avgHoldTime: 0, avgTalkTime: 0, longestholdtime: 0, completed: 0, abandoned: 0, totalCalls: 0 }
+					q = { queue: "", loggedin: 0, available: 0, callers: 0, currentCalls: 0, cumulativeHoldTime: 0, cumulativeTalkTime: 0, avgHoldTime: 0, avgTalkTime: 0, longestholdtime: 0, completed: 0, abandoned: 0, totalCalls: 0 };
 					Queues.push(q);
 				}
 				q.queue = evt.queue;    // ybao: avoid creating multiple queue elements for the same queue
@@ -1398,7 +1389,7 @@ function resetAllCounters() {
 		amiaction({
 			'action': 'QueueReset',
 			'Queue': Asterisk_queuenames[i]
-		})
+		});
 		logger.log(Asterisk_queuenames[i]);
 	}
 }
@@ -1408,7 +1399,6 @@ function resetAllCounters() {
  * @returns {undefined} Not used
  */
 function backupStatsinDB() {
-
 	var ts = new Date();
 
 	/* backup Agents and Queues stats field: using the same JSON elements as in original object
@@ -1479,8 +1469,6 @@ function backupStatsinDB() {
  * @returns {undefined} Not used
  */
 function loadStatsinDB() {
-
-
 	// Find the last stats entry backed up in mongoDB
 	if (colStats != null) {
 		var cursor = colStats.find().limit(1).sort({ $natural: -1 });
@@ -1493,7 +1481,7 @@ function loadStatsinDB() {
 				AgentStats = data[0].agentstats;
 				QueueStats = data[0].queuestats;
 			}
-		})
+		});
 	}
 
 	console.log("---------------------------- Stats pulled out of mongoDB: ");
