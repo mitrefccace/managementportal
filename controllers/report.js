@@ -20,7 +20,7 @@ function formatDate(date) {
 	return [year, month, day].join('-');
 }
 
-exports.createReport = function (db, reportStartDate, reportEndDate, callback) {
+exports.createReport = function (db, reportStartDate, reportEndDate, timezone, callback) {
 	logger.debug('CreateReport');
 	logger.debug('start and end: ' + reportStartDate + ', ' + reportEndDate);
 	logger.debug('start and end: ' + new Date(reportStartDate) + ', ' + new Date(reportEndDate));
@@ -33,7 +33,7 @@ exports.createReport = function (db, reportStartDate, reportEndDate, callback) {
 		// A record from ACE Direct in mongodb.
 		//
 		// {
-		// 	"Timestamp" : "2020-4-25T17:04:47.995Z",
+		// 	"Timestamp" : ISODate("2020-4-25T17:04:47.995Z"),
 		// 	"Event" : "Web"
 		// }
 		//
@@ -42,9 +42,10 @@ exports.createReport = function (db, reportStartDate, reportEndDate, callback) {
 		// MongoDB query for report data
 		db.collection('calldata').aggregate(
 			[
-				//{ $match:{"$Timestamp":{$gt:reportStartDate, $lt:reportEndDate}}},
+				{ $match:{"Timestamp":{$gte:new Date(reportStartDate), $lte:new Date(reportEndDate)}}},
 				{ $match : { Event : {$exists:true} } },
-				{ $project: { day: { $substr: ["$Timestamp", 0, 9] }, event: "$Event" } },
+				// timezone in $dateToString requires mongodb 3.6 or higher
+				{ $project: {"day": { $dateToString: { "format": "%Y-%m-%d", "date": "$Timestamp", "timezone": timezone}}, event:"$Event"} },
 				{
 					$group: {
 						_id: { date: "$day", event: "$event" },
@@ -53,13 +54,14 @@ exports.createReport = function (db, reportStartDate, reportEndDate, callback) {
 				},
 				{ $sort: { _id: -1 } },
 				{ $project: { _id: 0, date: "$_id.date", type: { $concat: ["$_id.event", ":", { $substr: ["$number", 0, -1] }] } } }
+
 				// Operator $toString is in mongodb 4.x. Use $substr with mongodb 3.x
 				//{   $project : {_id: 0, date: "$_id.date", type: {$concat: [ "$_id.event", ":", {$toString: "$number"}] } } }
 			]
 		)
 		.toArray()
 		.then(function (results) {
-			//console.log(JSON.stringify(results, null,'\t'));
+			//console.log("Results " + JSON.stringify(results, null,'\t'));
 
 			var tableData = {};
 			var report = {};

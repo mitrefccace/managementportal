@@ -11,8 +11,9 @@
   },
   "scripts": {
     "test": "echo \"Error \" && exit 1",
+    "clean": "rm -rf node_modules",
     "start": "node server-db.js",
-    "build": "find ./public/assets/ ! -type d ! -name '*.gitignore' -exec rm '{}' + && node ./build.js || true"
+    "build": "npm run clean && npm install && find ./public/assets/ ! -type d ! -name '*.gitignore' -exec rm '{}' + && node ./build.js || true"
   },
   "devDependencies": {
     "clean-css": "^4.2.1",

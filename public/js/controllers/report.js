@@ -1,8 +1,10 @@
 var socket; // = io.connect('http://' + window.location.host); // opens socket.io connection
 
 // sets the Date Range picker start and end date
-var start = moment().subtract(6, 'days');
-var end = moment(); //today
+// Summary report is shown for start and end based on local time start and end of day.
+var start = moment().startOf('day').subtract(6, 'days');
+var end = moment().endOf('day'); //today
+var timezone = getTimeZoneOffset();
 
 $.ajax({
 	url: './token',
@@ -22,12 +24,14 @@ $.ajax({
 				$('#ad-year').text(data.year);
 			});
 
+
 			socket.on('connect', function () {
 				// Emit for Report Data set to be called on page ready.
 				socket.emit('reporttable-get-data', {
 					"format": "json",
 					"start": start,
-					"end": end
+					"end": end,
+					"timezone": timezone
 				});
 			});
 
@@ -64,6 +68,18 @@ $.ajax({
 		$('#message').text('An Error Occured.');
 	}
 });
+
+function getTimeZoneOffset() {
+	var mins = moment().utcOffset();
+    var h = Math.abs(mins) / 60 | 0,
+		m = Math.abs(mins) % 60 | 0;
+
+	var offset = "00:00";
+	if (mins != 0) {
+		offset = moment.utc().hours(h).minutes(m).format("hh:mm");
+	}
+    return (mins < 0 ? '-' + offset : '+' + offset);
+}
 
 function downloadFile(data, fileName) {
 	var csvData = data;
@@ -144,13 +160,15 @@ function DateRangePickerSetup() {
 	cb(start, end);
 
 	// Click event for new date range selected
+	// Summary report is shown for start and end based on local time start and end of day.
 	$('#reportrange').on('apply.daterangepicker', function (evt, picker) {
 		var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).endOf('day').format();
 		socket.emit('reporttable-get-data', {
 			"format": "json",
 			"start": startdate,
-			"end": enddate
+			"end": enddate,
+			"timezone": timezone
 		});
 	});
 }
@@ -159,14 +177,16 @@ $(document).ready(function () {
 	$("#sidebarreport").addClass("active");
 
 	//click event for downloading CSV file
+	// Summary report is for start and end based on local time start and end of day.
 	$('#reportdownloadbtn').click(function () {
 		var picker = $('#reportrange').data('daterangepicker');
 		var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).endOf('day').format();
 		socket.emit('reporttable-get-data', {
 			"format": "csv",
 			"start": startdate,
-			"end": enddate
+			"end": enddate,
+			"timezone": timezone
 		});
 	});
 

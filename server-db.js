@@ -550,7 +550,8 @@ io.sockets.on('connection', function (socket) {
 
 		var reportStartDate = new Date(data.start);
 		var reportEndDate = new Date(data.end);
-		report.createReport(mongodb, reportStartDate.getTime(), reportEndDate.getTime(), function (reportdata) {
+		var timezone = data.timezone;
+		report.createReport(mongodb, reportStartDate.getTime(), reportEndDate.getTime(), timezone, function (reportdata) {
 			if (format === 'csv') {
 				//csv field values
 				var csvFields = ['date', 'callshandled', 'callsabandoned',
