@@ -37,7 +37,7 @@
 									</div>
 									<div class="card-body">
 										<div id="webcam">
-											<video id="remoteView" poster="images/ACEDirect-logo.png"></video>
+											<video id="remoteView" poster="images/acedirect-logo.png"></video>
 										</div>
 										<div id= "videomail-status-buttons">
 											<div id= "inner-videomail">
@@ -180,6 +180,27 @@
 			<div id="callbacknum"> </div>
 		</div>
 
+<style>
+.legend {
+		display: block;
+		-webkit-padding-start: 2px;
+		-webkit-padding-end: 2px;
+		border-width: initial;
+		border-style: none;
+		border-color: initial;
+		border-image: initial;
+		padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+}
+.legendLayer .background {
+    fill: rgba(255, 255, 255, 0.85);
+    stroke: rgba(0, 0, 0, 0.85);
+    stroke-width: 1;
+}
+</style>
+
     <!-- REQUIRED JS SCRIPTS -->
     <!--bootstrap-select-->
     <script type="text/javascript" src="./assets/js/bootstrap-select.min.js"></script>
@@ -188,12 +209,15 @@
     <script type="text/javascript" src="./js/controllers/videomail.js"></script>
 
 	<!-- flot -->
-	<script type="text/javascript" src="./assets/js/jquery.flot.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.categories.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.time.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.axislabels.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.pie.js"></script>
-	<script type="text/javascript" src="./assets/js/jquery.flot.resize.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.canvaswrapper.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.colorhelpers.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.saturated.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.browser.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.drawSeries.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.uiConstants.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.legend.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js//jquery.flot.pie.js"></script>
 
     <script type="text/javascript">
 		$(document).ready(function () {

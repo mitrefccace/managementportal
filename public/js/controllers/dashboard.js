@@ -79,7 +79,7 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 			$scope.summary.callers = 0;
 			$scope.summary.completed = 0;
 			$scope.summary.abandoned = 0;
-			let totalHoldTime = 0
+			let totalHoldTime = 0;
 			for (var i=0; i<$scope.Queues.length; i++) {
 				$scope.summary.callers += Number($scope.Queues[i].callers);
 
@@ -87,7 +87,7 @@ var dbController = angular.module('dashboardModule', ['csrService', 'angularDura
 
 				$scope.summary.abandoned += $scope.Queues[i].abandoned;
 
-				totalHoldTime += Number($scope.Queues[i].cumulativeHoldTime)
+				totalHoldTime += Number($scope.Queues[i].cumulativeHoldTime);
 			}
 
 			if ($scope.summary.completed > 0 && totalHoldTime > 0) {

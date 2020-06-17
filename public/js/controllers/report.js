@@ -45,6 +45,8 @@ $.ajax({
 					$('#reporttable').dataTable().fnClearTable();
 					$('#reporttable').resize();
 				}
+
+				updateCallStatusLineChart(data);
 			});
 
 			// Receives the report data in CSV format
@@ -68,6 +70,43 @@ $.ajax({
 		$('#message').text('An Error Occured.');
 	}
 });
+
+function updateCallStatusLineChart(data) {
+	$(function() {
+
+		// Enhancement - put in check for too much data to chart
+		var handled = [], abandoned = [], videomail = [], webcall = [];
+		for (var i = 0; i < data.data.length; i+= 1) {
+			var date = new Date(data.data[i].date);
+			handled.push([date, data.data[i].callshandled]);
+			abandoned.push([date, data.data[i].callsabandoned]);
+			videomail.push([date, data.data[i].videomails]);
+			webcall.push([date, data.data[i].webcalls]);
+		}
+
+		var legendContainer = document.getElementById("legendContainer");
+        var legendSettings = {
+				position: "nw",
+                show: true,
+                noColumns: 2,
+				container: legendContainer
+		};
+
+		var chartdata = [
+			{color: "forestgreen", lines: {show: true, lineWidth: 3}, data: handled, label: "Calls Handled"},
+			{color: "red", lines: {show: true, lineWidth: 3}, data: abandoned, label: "Calls Abandoned"},
+			{color: "blue", lines: {show: true, lineWidth: 3}, data: videomail, label: "Videomail"},
+			{color: "black", lines: {show: true, lineWidth: 3}, data: webcall, label: "Webcalls"},
+        ];
+
+		$.plot("#callSummaryLineChart", chartdata,
+			{
+				legend: legendSettings,
+				xaxis: { mode: "time", timeBase: "milliseconds"}
+			}
+		);
+	});
+}
 
 function getTimeZoneOffset() {
 	var mins = moment().utcOffset();
@@ -152,7 +191,7 @@ function DateRangePickerSetup() {
 			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
 			'This Month': [moment().startOf('month'), moment().endOf('month')],
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-			'All Time': [moment("2016-01-01"), end]
+			'All Time': [moment("2020-03-01"), end] // This is a new management portal feature starting March 2020. No data before then.
 		}
 	}, cb);
 
