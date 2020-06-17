@@ -40,7 +40,7 @@ const FONT = [
 const WEB_FONT = [
     'admin-lte/plugins/fontawesome-free/webfonts/fa-solid-900.woff',
     'admin-lte/plugins/fontawesome-free/webfonts/fa-solid-900.woff2',
-]
+];
 
 const JS = [
     //admin lte
@@ -73,12 +73,20 @@ const JS = [
     //datatables.net
     'datatables.net/js/jquery.dataTables.min.js',
     //jquery-flot
-    'jquery.flot/jquery.flot.js',
-    'jquery.flot/jquery.flot.categories.js',
-    'jquery.flot/jquery.flot.time.js',
-    'jquery.flot/jquery.flot.pie.js',
-    'jquery.flot/jquery.flot.resize.js',
-
+    'flot/lib/globalize.js',
+    'flot/source/jquery.flot.js',
+    'flot/source/jquery.canvaswrapper.js',
+    'flot/source/jquery.colorhelpers.js',
+    'flot/source/jquery.flot.categories.js',
+    'flot/source/jquery.flot.time.js',
+    'flot/source/jquery.flot.pie.js',
+    'flot/source/jquery.flot.resize.js',
+    'flot/source/jquery.flot.saturated.js',
+    'flot/source/jquery.flot.browser.js',
+    'flot/source/jquery.flot.drawSeries.js',
+    'flot/source/jquery.flot.uiConstants.js',
+    'flot/source/jquery.flot.symbol.js',
+    'flot/source/jquery.flot.legend.js',
 
     //izitoast
     'izitoast/dist/js/iziToast.min.js',
@@ -103,7 +111,7 @@ const IMAGES = [
     'datatables/media/images/sort_asc.png',
     'datatables/media/images/sort_desc.png',
     'datatables/media/images/sort_both.png'
-]
+];
 
 
 if (!fs.existsSync('./public/assets')) {
@@ -126,59 +134,59 @@ if (!fs.existsSync('./public/assets/images')) {
 }
 JS.map(asset => {
     let filename = asset.substring(asset.lastIndexOf("/") + 1);
-    let from = path.resolve(__dirname, `./node_modules/${asset}`)
-    let to = path.resolve(__dirname, `./public/assets/js/${filename}`)
+    let from = path.resolve(__dirname, `./node_modules/${asset}`);
+    let to = path.resolve(__dirname, `./public/assets/js/${filename}`);
     if (fs.existsSync(from)) {
         fs.createReadStream(from).pipe(fs.createWriteStream(to));
     } else {
-        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`)
-        process.exit(1)
+        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`);
+        process.exit(1);
     }
 });
 
 CSS.map(asset => {
     let filename = asset.substring(asset.lastIndexOf("/") + 1);
-    let from = path.resolve(__dirname, `./node_modules/${asset}`)
-    let to = path.resolve(__dirname, `./public/assets/css/${filename}`)
+    let from = path.resolve(__dirname, `./node_modules/${asset}`);
+    let to = path.resolve(__dirname, `./public/assets/css/${filename}`);
     if (fs.existsSync(from)) {
         fs.createReadStream(from).pipe(fs.createWriteStream(to));
     } else {
-        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`)
-        process.exit(1)
+        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`);
+        process.exit(1);
     }
 });
 
 FONT.map(asset => {
     let filename = asset.substring(asset.lastIndexOf("/") + 1);
-    let from = path.resolve(__dirname, `./node_modules/${asset}`)
-    let to = path.resolve(__dirname, `./public/assets/fonts/${filename}`)
+    let from = path.resolve(__dirname, `./node_modules/${asset}`);
+    let to = path.resolve(__dirname, `./public/assets/fonts/${filename}`);
     if (fs.existsSync(from)) {
         fs.createReadStream(from).pipe(fs.createWriteStream(to));
     } else {
-        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`)
-        process.exit(1)
+        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`);
+        process.exit(1);
     }
 });
 WEB_FONT.map(asset => {
     let filename = asset.substring(asset.lastIndexOf("/") + 1);
-    let from = path.resolve(__dirname, `./node_modules/${asset}`)
-    let to = path.resolve(__dirname, `./public/assets/webfonts/${filename}`)
+    let from = path.resolve(__dirname, `./node_modules/${asset}`);
+    let to = path.resolve(__dirname, `./public/assets/webfonts/${filename}`);
     if (fs.existsSync(from)) {
         fs.createReadStream(from).pipe(fs.createWriteStream(to));
     } else {
-        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`)
-        process.exit(1)
+        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`);
+        process.exit(1);
     }
 });
 
 IMAGES.map(asset => {
     let filename = asset.substring(asset.lastIndexOf("/") + 1);
-    let from = path.resolve(__dirname, `./node_modules/${asset}`)
-    let to = path.resolve(__dirname, `./public/assets/images/${filename}`)
+    let from = path.resolve(__dirname, `./node_modules/${asset}`);
+    let to = path.resolve(__dirname, `./public/assets/images/${filename}`);
     if (fs.existsSync(from)) {
         fs.createReadStream(from).pipe(fs.createWriteStream(to));
     } else {
-        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`)
-        process.exit(1)
+        console.log(`${from} does not exist.\nUpdate the build.js script with the correct file paths.`);
+        process.exit(1);
     }
 });

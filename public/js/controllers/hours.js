@@ -9,16 +9,16 @@ $('#business_mode_dropdown').select2({
 
 var updateTime = function () {
     var timeFormat = 'h:mm A';
-    $('#current_local').html(moment().format(timeFormat))
+    $('#current_local').html(moment().format(timeFormat));
 
     var dst = 0;
     if (moment().isDST())
         dst = 1;
 
-    $('#current_est').html(moment().utcOffset(-5 + dst).format(timeFormat))
-    $('#current_cst').html(moment().utcOffset(-6 + dst).format(timeFormat))
-    $('#current_mst').html(moment().utcOffset(-7 + dst).format(timeFormat))
-    $('#current_pst').html(moment().utcOffset(-8 + dst).format(timeFormat))
+    $('#current_est').html(moment().utcOffset(-5 + dst).format(timeFormat));
+    $('#current_cst').html(moment().utcOffset(-6 + dst).format(timeFormat));
+    $('#current_mst').html(moment().utcOffset(-7 + dst).format(timeFormat));
+    $('#current_pst').html(moment().utcOffset(-8 + dst).format(timeFormat));
 
 
 };
@@ -49,7 +49,7 @@ var setOperatingHours = function (data) {
     });
 
     $("#business_mode_dropdown").val(data.business_mode).change();
-}
+};
 
 var setOperatingStatus = function (isOpen) {
     if (isOpen) {
@@ -57,7 +57,7 @@ var setOperatingStatus = function (isOpen) {
     } else {
         $('#opStatus').html('Closed').addClass('badge-danger').removeClass('badge-success');
     }
-}
+};
 
 function formatTime(timeStr) {
     var d = new Date();
@@ -71,7 +71,7 @@ function formatTime(timeStr) {
 
 function formatTimeToUTC(timeStr) {
     var d = new Date();
-    var hours = timeStr.split(':')[0]
+    var hours = timeStr.split(':')[0];
     var mins = (timeStr.split(':')[1]).substring(0, 3);
     var ampm = (timeStr.split(':')[1]).slice(-2);
      if ((ampm == 'PM' && parseInt(hours) != 12)||(ampm == 'AM' && parseInt(hours) == 12))
@@ -80,7 +80,7 @@ function formatTimeToUTC(timeStr) {
     d.setHours(hours);
     d.setMinutes(mins);
 
-    return d.getUTCHours() + ':' + (d.getUTCMinutes() < 10 ? '0' : '') + d.getUTCMinutes()
+    return d.getUTCHours() + ':' + (d.getUTCMinutes() < 10 ? '0' : '') + d.getUTCMinutes();
 }
 
 $.ajax({
@@ -125,13 +125,13 @@ $(".timepicker").change(function () {
 
     if (tStart != "" && tEnd != "") {
 
-        let sTimeUTC = formatTimeToUTC(tStart)
-        let eTimeUTC = formatTimeToUTC(tEnd)
+        let sTimeUTC = formatTimeToUTC(tStart);
+        let eTimeUTC = formatTimeToUTC(tEnd);
 
-        let shour = sTimeUTC.split(':')[0]
-        let smin = sTimeUTC.split(':')[1]
-        let ehour = eTimeUTC.split(':')[0]
-        let emin = eTimeUTC.split(':')[1]
+        let shour = sTimeUTC.split(':')[0];
+        let smin = sTimeUTC.split(':')[1];
+        let ehour = eTimeUTC.split(':')[0];
+        let emin = eTimeUTC.split(':')[1];
 
         let openUtc = moment.utc().hour(shour).minutes(smin);
         let closeUtc = moment.utc().hour(ehour).minutes(emin);
@@ -151,7 +151,7 @@ $(".timepicker").change(function () {
 });
 
 function getTimezoneAdjustment(time, timezone) {
-    return moment(time).utcOffset(timezone).format('h:mm A')
+    return moment(time).utcOffset(timezone).format('h:mm A');
 }
 
 function formatTimeRange(start, end) {

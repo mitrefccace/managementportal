@@ -1,8 +1,10 @@
 var socket; // = io.connect('http://' + window.location.host); // opens socket.io connection
 
 // sets the Date Range picker start and end date
-var start = moment().subtract(6, 'days');
-var end = moment(); //today
+// Summary report is shown for start and end based on local time start and end of day.
+var start = moment().startOf('day').subtract(6, 'days');
+var end = moment().endOf('day'); //today
+var timezone = getTimeZoneOffset();
 
 $.ajax({
 	url: './token',
@@ -22,12 +24,14 @@ $.ajax({
 				$('#ad-year').text(data.year);
 			});
 
+
 			socket.on('connect', function () {
 				// Emit for Report Data set to be called on page ready.
 				socket.emit('reporttable-get-data', {
 					"format": "json",
 					"start": start,
-					"end": end
+					"end": end,
+					"timezone": timezone
 				});
 			});
 
@@ -41,6 +45,8 @@ $.ajax({
 					$('#reporttable').dataTable().fnClearTable();
 					$('#reporttable').resize();
 				}
+
+				updateCallStatusLineChart(data);
 			});
 
 			// Receives the report data in CSV format
@@ -64,6 +70,55 @@ $.ajax({
 		$('#message').text('An Error Occured.');
 	}
 });
+
+function updateCallStatusLineChart(data) {
+	$(function() {
+
+		// Enhancement - put in check for too much data to chart
+		var handled = [], abandoned = [], videomail = [], webcall = [];
+		for (var i = 0; i < data.data.length; i+= 1) {
+			var date = new Date(data.data[i].date);
+			handled.push([date, data.data[i].callshandled]);
+			abandoned.push([date, data.data[i].callsabandoned]);
+			videomail.push([date, data.data[i].videomails]);
+			webcall.push([date, data.data[i].webcalls]);
+		}
+
+		var legendContainer = document.getElementById("legendContainer");
+        var legendSettings = {
+				position: "nw",
+                show: true,
+                noColumns: 2,
+				container: legendContainer
+		};
+
+		var chartdata = [
+			{color: "forestgreen", lines: {show: true, lineWidth: 3}, data: handled, label: "Calls Handled"},
+			{color: "red", lines: {show: true, lineWidth: 3}, data: abandoned, label: "Calls Abandoned"},
+			{color: "blue", lines: {show: true, lineWidth: 3}, data: videomail, label: "Videomail"},
+			{color: "black", lines: {show: true, lineWidth: 3}, data: webcall, label: "Webcalls"},
+        ];
+
+		$.plot("#callSummaryLineChart", chartdata,
+			{
+				legend: legendSettings,
+				xaxis: { mode: "time", timeBase: "milliseconds"}
+			}
+		);
+	});
+}
+
+function getTimeZoneOffset() {
+	var mins = moment().utcOffset();
+    var h = Math.abs(mins) / 60 | 0,
+		m = Math.abs(mins) % 60 | 0;
+
+	var offset = "00:00";
+	if (mins != 0) {
+		offset = moment.utc().hours(h).minutes(m).format("hh:mm");
+	}
+    return (mins < 0 ? '-' + offset : '+' + offset);
+}
 
 function downloadFile(data, fileName) {
 	var csvData = data;
@@ -136,7 +191,7 @@ function DateRangePickerSetup() {
 			'Last 30 Days': [moment().subtract(29, 'days'), moment()],
 			'This Month': [moment().startOf('month'), moment().endOf('month')],
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-			'All Time': [moment("2016-01-01"), end]
+			'All Time': [moment("2020-03-01"), end] // This is a new management portal feature starting March 2020. No data before then.
 		}
 	}, cb);
 
@@ -144,13 +199,15 @@ function DateRangePickerSetup() {
 	cb(start, end);
 
 	// Click event for new date range selected
+	// Summary report is shown for start and end based on local time start and end of day.
 	$('#reportrange').on('apply.daterangepicker', function (evt, picker) {
 		var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).endOf('day').format();
 		socket.emit('reporttable-get-data', {
 			"format": "json",
 			"start": startdate,
-			"end": enddate
+			"end": enddate,
+			"timezone": timezone
 		});
 	});
 }
@@ -159,14 +216,16 @@ $(document).ready(function () {
 	$("#sidebarreport").addClass("active");
 
 	//click event for downloading CSV file
+	// Summary report is for start and end based on local time start and end of day.
 	$('#reportdownloadbtn').click(function () {
 		var picker = $('#reportrange').data('daterangepicker');
 		var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
-		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).add(1, 'days').format();
+		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).endOf('day').format();
 		socket.emit('reporttable-get-data', {
 			"format": "csv",
 			"start": startdate,
-			"end": enddate
+			"end": enddate,
+			"timezone": timezone
 		});
 	});
 

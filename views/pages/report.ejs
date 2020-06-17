@@ -21,7 +21,7 @@
 							<h1 class="m-0 text-dark">Report</h1>
 							<div id="reportrange">
 								<div data-toggle="tooltip" data-placement="left"
-									title="Select Date Range – The user can select a date range for the report. Predefined values are Today, Yesterday, Last 7 days, Last 30 days, This Month, Last Month, All Time (January 1st 2016 to Today), and Custom Range. Default selection is 'Last 7 days'">
+									title="Select Date Range – The user can select a date range for the report. Predefined values are Today, Yesterday, Last 7 days, Last 30 days, This Month, Last Month, All Time (March 1st 2020 to Today), and Custom Range. Default selection is 'Last 7 days'">
 									<i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
 									<span></span>
 									<b class="caret"></b>
@@ -77,6 +77,25 @@
 					</div>
 					<!-- ./Report Table -->
 					<div id="report"></div>
+					<div class="row" >
+						<div class="col-lg-12">
+							<!-- Call Summary Line Chart -->
+							<div class="card">
+								<div class="card-header">
+									<h3 class="card-title">Call Summary Chart</h3>
+									<div class="card-tools">
+										<button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fa fa-minus"></i>
+										</button>
+									</div>
+								</div>
+								<div class="card-body">
+									<div id="callSummaryLineChart" style="height:450px"></div>
+        							<div id="legendContainer" class="legend" style="width:9em;height:8em;border-style:solid;border-color:threedface;background-color: #fff;"></div>
+								</div>
+								<!-- /.box-body -->
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 			<!-- /.content -->
@@ -85,11 +104,43 @@
 		<% include ../partials/footer %>
 	</div>
 	<!-- ./wrapper -->
+<style>
+.legend {
+		display: block;
+		-webkit-padding-start: 2px;
+		-webkit-padding-end: 2px;
+		border-width: initial;
+		border-style: none;
+		border-color: initial;
+		border-image: initial;
+		padding-left: 10px;
+        padding-right: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+}
+.legendLayer .background {
+    fill: rgba(255, 255, 255, 0.85);
+    stroke: rgba(0, 0, 0, 0.85);
+    stroke-width: 1;
+}
+</style>
 
 	<!-- REQUIRED JS SCRIPTS -->
 	<!-- DataTables 1.10.12 -->
 	<script type="text/javascript" src="./assets/js/jquery.dataTables.min.js"></script>
 	<!-- Datatables-Bootstrap3 -->
+	<!-- flot -->
+	<script language="javascript" type="text/javascript" src="./assets/js/globalize.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.canvaswrapper.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.colorhelpers.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.saturated.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.browser.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.drawSeries.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.uiConstants.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.time.js"></script>
+	<script language="javascript" type="text/javascript" src="./assets/js/jquery.flot.legend.js"></script>
+
 	<!-- DateRangePicker -->
 	<script type="text/javascript" src="./assets/js/daterangepicker.js"></script>
 	<script type="text/javascript" src="./js/controllers/report.js"></script>
