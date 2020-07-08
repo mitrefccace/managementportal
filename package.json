@@ -25,7 +25,7 @@
   "dependencies": {
     "acorn": "^5.7.4",
     "admin-lte": "^3.0.5",
-    "angular": "^1.7.9",
+    "angular": "^1.8.0",
     "angular-datatables": "^0.6.4",
     "angular-moment-duration-format": "^0.2.1",
     "angular-route": "^1.7.9",

@@ -7,6 +7,7 @@ const CSS = [
     // 'admin-lte/bootstrap/css/bootstrap.min.css',
     // 'admin-lte/dist/css/AdminLTE.min.css',
     'admin-lte/dist/css/adminlte.min.css',
+    'admin-lte/dist/css/adminlte.min.css.map',
     // 'admin-lte/dist/css/skins/_all-skins.min.css',
     'admin-lte/plugins/select2/css/select2.min.css',
     //angular-datatables
@@ -54,8 +55,10 @@ const JS = [
     'admin-lte/plugins/select2/js/select2.min.js',
     // 'admin-lte/dist/js/app.min.js',
     'admin-lte/dist/js/adminlte.min.js',
+    'admin-lte/dist/js/adminlte.min.js.map',
     //angular
     'angular/angular.min.js',
+    'angular/angular.min.js.map',
     //angular datatables
     'angular-datatables/dist/angular-datatables.min.js',
     //angular-ui-bootstrap
@@ -64,8 +67,10 @@ const JS = [
     'angular-moment-duration-format/angular-moment-duration-format.min.js',
     //angular-route
     'angular-route/angular-route.min.js',
+    'angular-route/angular-route.min.js.map',
     //bootstrap (from admin-lte)
     'admin-lte/plugins/bootstrap/js/bootstrap.min.js',
+    'admin-lte/plugins/bootstrap/js/bootstrap.min.js.map',
     //bootstrap date range picker
     'bootstrap-daterangepicker/daterangepicker.js',
     //bootstrap-select
@@ -101,8 +106,10 @@ const JS = [
     'moment-duration-format/lib/moment-duration-format.js',
     //moment
     'moment/min/moment.min.js',
+    'moment/min/moment.min.js.map',
     //popper
     'admin-lte/plugins/popper/umd/popper.min.js',
+    'admin-lte/plugins/popper/umd/popper.min.js.map',
     //wickedpicker
     'wickedpicker/dist/wickedpicker.min.js'
 
