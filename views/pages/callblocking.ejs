@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../partials/head %>
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+        <script>
+            var callblocks = '<%- callblocks %>';
+        </script>
+        <div class="wrapper">
+                <% include ../partials/header %>
+                <% include ../partials/sidebar %>
+                <div class="content-wrapper">
+                    <div class="content-header">
+                        <div class="container-fluid">
+                            <div class="row mb-2">
+                                <div class="col-sm-12">
+                                    <h1 class="m-0 text-dark">Call Blocking</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                                <h3 class="card-title">Call Blocks</h3>
+                                        </div>
+                                        <div id="callblocktablediv" class="card-body table-responsive">
+                                            <table id="callblocktable" class="table table-hover table-condensed table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text">ID</th>
+                                                        <th class="text">Date Blocked</th>
+                                                        <th class="text">VRS Number</th>
+                                                        <th class="text">Reason</th>
+                                                        <!-- <th class="text">Blocked</th> -->
+                                                        <th class="text">Username</th>
+                                                        <th class="text">Select</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% callblocks.forEach(function(callblock) {  %>
+                                                    <tr style="cursor:pointer" value="<%= callblock.id %>">
+                                                        <td>
+                                                            <%= callblock.id %>
+                                                        </td>
+                                                        <td>
+                                                            <%= callblock.timeUpdated %>
+                                                        </td>
+                                                        <td>
+                                                            <!-- TODO Formatter for vrs number -->
+                                                            <%= callblock.vrs %>
+                                                        </td>
+                                                        <td>
+                                                            <%= callblock.reason %>
+                                                        </td>
+                                                        <!--<td> -->
+                                                        <!-- <%= callblock.blocked %> -->
+                                                        <!--  </td> -->
+                                                        <td>
+                                                             <%= callblock.username %>
+                                                        </td>
+                                                        <td>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="btn-group mt-4" role="group">
+                                                <button class="btn btn-primary" id="add_callblock_btn" onclick='addCallBlockModal()'>Add New Call Block</button>
+                                                <button class="btn btn-danger" id="delete_callblock_btn">Unblock Selected</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% include ../partials/footer %>
+            </div>
+        <!-- ./wrapper -->
+
+        <!-- modals -->
+        <div class="modal fade" id="configModal" tabindex="-1" role="dialog" aria-labelledby="configModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="configModalLabel">Call Block Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <form class="toggle-disabled" id="addCallBlockForm">
+                                    <div class="form-group row">
+                                        <label for="inputVRS" class="col-sm-3 col-form-label">VRS</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="inputVRS" data-maxlength="12"
+                                                placeholder="VRS xxx-xxx-xxxx" required data-validation=custom
+                                                data-validation-regexp="^[1-9]\d{2}-\d{3}-\d{4}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="inputReason" class="col-sm-3 col-form-label">Reason</label>
+                                        <div class="col-sm-9">
+                                            <textarea class="form-control" id="inputReason" rows="10"
+                                                placeholder="Optional. Up to 255 characters" data-minlength="0" data-maxlength="255"
+                                                required data-validation="length" data-validation-length="0-255"></textarea>
+                                        </div>
+                                    </div>
+                                    <!--<div class="form-group row">
+                                        <label for="remainingC" class="col-sm-3 col-form-label"></label>
+                                        <div class="col-sm-9">
+                                            <div id="remainingC">Remaining characters: 255</div>
+                                        </div>
+                                    </div> -->
+                                </form>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" id='btnAddCallBlock'>Add Call Block</button>
+                            <button type="button" class="btn btn-primary" id='btnUpdateCallBlock'>Update</button>
+                            <button type="button" class="btn btn-danger" id='btnDeleteCallBlock'>Unblock</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="myModalLabel">Confirm Unblock</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Do you want to proceed?</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" onclick='deleteCallBlock()'>Unblock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="confirm-bulk-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabelBulk" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="myModalLabelBulk">Confirm Bulk Unblock</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" aria-hidden="true">
+                            <span aria-hidden="true">&times;</span
+                        ></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Do you want to proceed and unblock selected blocked numbers?</p>
+                        <p id="callblocklist"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="bulk_delete_btn">Unblock</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script src="./js/controllers/callblocking.js"></script>
+</body>
+</html>

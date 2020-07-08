@@ -101,7 +101,7 @@ $(document).ready(function () {
             $('#btnAddAgent').hide();
             $('#configModal').modal();
         }
-    })
+    });
 
     $("#btnAddAgent").click(function (event) {
         event.preventDefault();
@@ -111,7 +111,7 @@ $(document).ready(function () {
         if (pass != pass2) {
             alert("Re-entered password does not match!");
             return;
-        };
+        }
 
         $.post("./AddAgent", {
             "username": $('#inputUsername').val(),
@@ -127,7 +127,7 @@ $(document).ready(function () {
         },
             function (data, status) {
                 if (data.result == "success") {
-                    console.log("Saved!!!!")
+                    console.log("Saved!!!!");
                     location.reload();
                 }
                 else {
@@ -197,15 +197,14 @@ $(document).ready(function () {
                         }
                     });
             }
-        })
+        });
 
         location.reload();
-    })
+    });
 
 
     function getBulkDeleteAgentList() {
-
-        console.log("getBulkDeleteAgentList() invoked");
+        //console.log("getBulkDeleteAgentList() invoked");
 
         var agentNames = "";
         var data = table.rows().data();
@@ -215,7 +214,7 @@ $(document).ready(function () {
                 // console.log("agent id checked is: " + value[0] + " agent username is: " + value[3]);
                 agentNames += "  " + value[3];
             }
-        })
+        });
 
         // present dynamically generated agentlist
         document.getElementById("agentlist").innerHTML = agentNames;
@@ -243,7 +242,7 @@ function deleteUser() {
         "username": $('#inputUsername').val()
     },
         function (data, status) {
-            console.log("Deleted!!!!")
+            console.log("Deleted!!!!");
             location.reload();
         });
 }

@@ -187,6 +187,7 @@ var dbPassword = getConfigVal('database_servers:mysql:password');
 var dbName = getConfigVal('database_servers:mysql:ad_database_name');
 var dbPort = parseInt(getConfigVal('database_servers:mysql:port'));
 var vmTable = "videomail";
+var callBlockTable = "call_block";
 
 // Create MySQL connection and connect to the database
 var dbConnection = mysql.createConnection({
@@ -786,6 +787,225 @@ io.sockets.on('connection', function (socket) {
 			});
 		}
 	});
+
+	socket.on("get-callblocks", function (dataIn) {
+		logger.debug('entered get-callblocks');
+
+		let queryStr = `SELECT vrs, admin_username, reason, timeUpdated, call_block_id, false as selected FROM ${callBlockTable}`;
+		let vm_sql_params = [];
+
+		dbConnection.query(queryStr, vm_sql_params, function (err, result) {
+			let data = {};
+			if (err) {
+				logger.error("GET-CALLBLOCKS ERROR: " + err.code);
+				data.message ="";
+			} else {
+				data.message = "Success";
+				data.data = result;
+				io.to(socket.id).emit('got-callblocks-recs', data);
+			}
+		});
+	});
+
+	socket.on("add-callblock", function (dataIn) {
+		logger.debug('entered add-callblock');
+		var token = socket.decoded_token;
+
+		let queryStr = `INSERT INTO ${callBlockTable} (vrs, admin_username, reason, timeUpdated) VALUES (?,?,?,?);`;
+		let values = [dataIn.data.vrs, token.username, dataIn.data.reason, new Date()];
+		dbConnection.query(queryStr, values, function(err, result) {
+			let data = {};
+			if(err) {
+				logger.error('Error with adding blocked number: ', err.code);
+				data.message ="";
+				io.to(socket.id).emit('add-callblock-rec', data);
+			} else {
+
+				let obj = {
+						'Action': 'DBPut',
+						'ActionID' : Date.now(),
+						'Family' : 'blockcaller',
+						'Key' : "1" + dataIn.data.vrs,
+						'Val' : 1
+				};
+				console.log(JSON.stringify(obj, null, 2));
+
+				ami.action(obj, function (err, res) {
+					if (err) {
+						logger.error('AMI amiaction error ');
+						console.log(JSON.stringify(err, null, 2));
+
+						data.message ="";
+						io.to(socket.id).emit('add-callblock-rec', data);
+					}
+					else {
+						console.log(JSON.stringify(res, null, 2));
+
+						data.message = "Success";
+						data.data = result;
+						io.to(socket.id).emit('add-callblock-rec', data);
+					}
+				});
+
+				// obj = {
+				// 	'Action':'DBGet',
+				// 	'ActionID' : Date.now(),
+				// 	'Family' : 'blockcaller',
+				// 	'Key' : "1" + dataIn.data.vrs,
+				// };
+				// console.log(JSON.stringify(obj, null, 2));
+
+				// ami.action(obj, function (err, res) {
+				// 	if (err) {
+				// 		logger.error('AMI amiaction error ');
+				// 		console.log(JSON.stringify(err, null, 2));
+				// 	}
+				// 	else {
+				// 		console.log(JSON.stringify(res, null, 2));
+				// 	}
+				// });
+			}
+		});
+	});
+
+	socket.on("update-callblock", function (dataIn) {
+		logger.debug('entered update-callblock');
+
+		let queryStr = `UPDATE ${callBlockTable} SET reason = "` + dataIn.data.reason + '" WHERE call_block_id = ' + dataIn.data.id;
+		let vm_sql_params = [];
+
+		dbConnection.query(queryStr, vm_sql_params, function (err, result) {
+			let data = {};
+			if (err) {
+				logger.error("UPDATE-CALLBLOCKS ERROR: " + err.code);
+				data.message ="";
+				io.to(socket.id).emit('update-callblock-rec', data);
+			} else {
+				data.message = "Success";
+				data.data = result;
+				io.to(socket.id).emit('update-callblock-rec', data);
+			}
+		});
+	});
+
+	socket.on("delete-callblock", function (dataIn) {
+		logger.debug('entered delete-callblock');
+		console.log(JSON.stringify(dataIn, null, 2));
+		let queryStr = "";
+		// if (dataIn.data.bulk){
+			queryStr = `DELETE FROM ${callBlockTable} WHERE call_block_id IN (` + dataIn.data.id + `)`;
+		// }
+		// else {
+		// 	queryStr = `DELETE FROM ${callBlockTable} WHERE call_block_id = ` + dataIn.data.id;
+		// }
+		let vm_sql_params = [];
+
+		dbConnection.query(queryStr, vm_sql_params, function (err, result) {
+			let data = {};
+			if (err) {
+				logger.error("DELETE-CALLBLOCKS ERROR: " + err.code);
+				data.message ="";
+				io.to(socket.id).emit('delete-callblock-rec', {});
+			} else {
+				if (dataIn.data.bulk) {
+					var myarray = dataIn.data.vrs.split(',');
+
+					for(var i = 0; i < myarray.length; i++)
+					{
+						console.log(myarray[i]);
+
+						let obj = {
+							'Action': 'DBDel',
+							'ActionID' : Date.now(),
+							'Family' : 'blockcaller',
+							'Key' : "1" + myarray[i]
+						};
+						console.log(JSON.stringify(obj, null, 2));
+
+						ami.action(obj, function (err, res) {
+							if (err) {
+								logger.error('AMI amiaction error ');
+								console.log(JSON.stringify(err, null, 2));
+
+								data.message ="";
+								io.to(socket.id).emit('delete-callblock-rec', {});
+							}
+							else {
+								console.log(JSON.stringify(res, null, 2));
+
+								data.message = "Success";
+								data.data = result;
+								io.to(socket.id).emit('delete-callblock-rec', data);
+							}
+						});
+
+						obj = {
+							'Action':'DBGet',
+							'ActionID' : Date.now(),
+							'Family' : 'blockcaller',
+							'Key' : "1" + myarray[i],
+						};
+						console.log(JSON.stringify(obj, null, 2));
+
+						ami.action(obj, function (err, res) {
+							if (err) {
+								logger.error('AMI amiaction error ');
+								console.log(JSON.stringify(err, null, 2));
+							}
+							else {
+								console.log(JSON.stringify(res, null, 2));
+							}
+						});
+					}
+				}
+				else {
+					let obj = {
+						'Action': 'DBDel',
+						'ActionID' : Date.now(),
+						'Family' : 'blockcaller',
+						'Key' : "1" + dataIn.data.vrs
+					};
+					console.log(JSON.stringify(obj, null, 2));
+
+					ami.action(obj, function (err, res) {
+						if (err) {
+							logger.error('AMI amiaction error ');
+							console.log(JSON.stringify(err, null, 2));
+
+							data.message ="";
+							io.to(socket.id).emit('delete-callblock-rec', {});
+						}
+						else {
+							console.log(JSON.stringify(res, null, 2));
+
+							data.message = "Success";
+							data.data = result;
+							io.to(socket.id).emit('delete-callblock-rec', data);
+						}
+					});
+
+					obj = {
+						'Action':'DBGet',
+						'ActionID' : Date.now(),
+						'Family' : 'blockcaller',
+						'Key' : "1" + dataIn.data.vrs,
+					};
+					console.log(JSON.stringify(obj, null, 2));
+
+					ami.action(obj, function (err, res) {
+						if (err) {
+							logger.error('AMI amiaction error ');
+							console.log(JSON.stringify(err, null, 2));
+						}
+						else {
+							console.log(JSON.stringify(res, null, 2));
+						}
+					});
+				}
+			}
+		});
+	});
+
 });
 
 //calls sendResourceStatus every minute
@@ -1516,6 +1736,7 @@ app.use(function (req, res, next) {
 				if (user.message === "success") {
 					req.session.agent_id = user.data[0].agent_id;
 					req.session.role = user.data[0].role;
+					req.session.username = user.data[0].username;
 					return next();
 				} else {
 					res.redirect('./');
