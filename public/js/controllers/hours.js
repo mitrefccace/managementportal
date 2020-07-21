@@ -40,13 +40,17 @@ function updateHoursOfOperation() {
 
 
 var setOperatingHours = function (data) {
+    /*
     $("#start_time").wickedpicker({
         now: formatTime(data.start)
     });
-
+    
     $("#end_time").wickedpicker({
         now: formatTime(data.end)
     });
+    */
+    $("#start_time").val(formatTime(data.start));
+    $("#end_time").val(formatTime(data.end));
 
     $("#business_mode_dropdown").val(data.business_mode).change();
 };
@@ -66,7 +70,7 @@ function formatTime(timeStr) {
     mins = mins.substring(0, 3);
     d.setUTCMinutes(mins);
 
-    return d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+    return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
 }
 
 function formatTimeToUTC(timeStr) {
@@ -74,7 +78,7 @@ function formatTimeToUTC(timeStr) {
     var hours = timeStr.split(':')[0];
     var mins = (timeStr.split(':')[1]).substring(0, 3);
     var ampm = (timeStr.split(':')[1]).slice(-2);
-     if ((ampm == 'PM' && parseInt(hours) != 12)||(ampm == 'AM' && parseInt(hours) == 12))
+    if ((ampm == 'PM' && parseInt(hours) != 12) || (ampm == 'AM' && parseInt(hours) == 12))
         hours = parseInt(hours) + 12;
 
     d.setHours(hours);
@@ -90,7 +94,7 @@ $.ajax({
     success: function (data) {
         if (data.message === "success") {
             socket = io.connect('https://' + window.location.host, {
-                path: nginxPath+'/socket.io',
+                path: nginxPath + '/socket.io',
                 query: 'token=' + data.token,
                 forceNew: true
             });
@@ -98,8 +102,8 @@ $.ajax({
 
             //update version,hours in footer
             socket.on('adversion', function (data) {
-              $('#ad-version').text(data.version);
-              $('#ad-year').text(data.year);
+                $('#ad-version').text(data.version);
+                $('#ad-year').text(data.year);
             });
 
             socket.on("hours-of-operation-response", function (data) {
