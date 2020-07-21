@@ -188,6 +188,7 @@ var dbName = getConfigVal('database_servers:mysql:ad_database_name');
 var dbPort = parseInt(getConfigVal('database_servers:mysql:port'));
 var vmTable = "videomail";
 var callBlockTable = "call_block";
+var callBlockVrsPrefix = "1";
 
 // Create MySQL connection and connect to the database
 var dbConnection = mysql.createConnection({
@@ -813,6 +814,7 @@ io.sockets.on('connection', function (socket) {
 
 		let queryStr = `INSERT INTO ${callBlockTable} (vrs, admin_username, reason, timeUpdated) VALUES (?,?,?,?);`;
 		let values = [dataIn.data.vrs, token.username, dataIn.data.reason, new Date()];
+
 		dbConnection.query(queryStr, values, function(err, result) {
 			let data = {};
 			if(err) {
@@ -825,45 +827,26 @@ io.sockets.on('connection', function (socket) {
 						'Action': 'DBPut',
 						'ActionID' : Date.now(),
 						'Family' : 'blockcaller',
-						'Key' : "1" + dataIn.data.vrs,
+						'Key' : callBlockVrsPrefix + dataIn.data.vrs,
 						'Val' : 1
 				};
-				console.log(JSON.stringify(obj, null, 2));
 
 				ami.action(obj, function (err, res) {
 					if (err) {
 						logger.error('AMI amiaction error ');
-						console.log(JSON.stringify(err, null, 2));
+						logger.error(JSON.stringify(err, null, 2));
 
 						data.message ="";
 						io.to(socket.id).emit('add-callblock-rec', data);
 					}
 					else {
-						console.log(JSON.stringify(res, null, 2));
+						logger.debug(JSON.stringify(res, null, 2));
 
 						data.message = "Success";
 						data.data = result;
 						io.to(socket.id).emit('add-callblock-rec', data);
 					}
 				});
-
-				// obj = {
-				// 	'Action':'DBGet',
-				// 	'ActionID' : Date.now(),
-				// 	'Family' : 'blockcaller',
-				// 	'Key' : "1" + dataIn.data.vrs,
-				// };
-				// console.log(JSON.stringify(obj, null, 2));
-
-				// ami.action(obj, function (err, res) {
-				// 	if (err) {
-				// 		logger.error('AMI amiaction error ');
-				// 		console.log(JSON.stringify(err, null, 2));
-				// 	}
-				// 	else {
-				// 		console.log(JSON.stringify(res, null, 2));
-				// 	}
-				// });
 			}
 		});
 	});
@@ -890,16 +873,9 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on("delete-callblock", function (dataIn) {
 		logger.debug('entered delete-callblock');
-		console.log(JSON.stringify(dataIn, null, 2));
-		let queryStr = "";
-		// if (dataIn.data.bulk){
-			queryStr = `DELETE FROM ${callBlockTable} WHERE call_block_id IN (` + dataIn.data.id + `)`;
-		// }
-		// else {
-		// 	queryStr = `DELETE FROM ${callBlockTable} WHERE call_block_id = ` + dataIn.data.id;
-		// }
-		let vm_sql_params = [];
 
+		let	queryStr = `DELETE FROM ${callBlockTable} WHERE call_block_id IN (` + dataIn.data.id + `)`;
+		let vm_sql_params = [];
 		dbConnection.query(queryStr, vm_sql_params, function (err, result) {
 			let data = {};
 			if (err) {
@@ -918,7 +894,7 @@ io.sockets.on('connection', function (socket) {
 							'Action': 'DBDel',
 							'ActionID' : Date.now(),
 							'Family' : 'blockcaller',
-							'Key' : "1" + myarray[i]
+							'Key' : callBlockVrsPrefix + myarray[i]
 						};
 						console.log(JSON.stringify(obj, null, 2));
 
@@ -943,7 +919,7 @@ io.sockets.on('connection', function (socket) {
 							'Action':'DBGet',
 							'ActionID' : Date.now(),
 							'Family' : 'blockcaller',
-							'Key' : "1" + myarray[i],
+							'Key' : callBlockVrsPrefix + myarray[i],
 						};
 						console.log(JSON.stringify(obj, null, 2));
 
@@ -963,20 +939,19 @@ io.sockets.on('connection', function (socket) {
 						'Action': 'DBDel',
 						'ActionID' : Date.now(),
 						'Family' : 'blockcaller',
-						'Key' : "1" + dataIn.data.vrs
+						'Key' : callBlockVrsPrefix + dataIn.data.vrs
 					};
-					console.log(JSON.stringify(obj, null, 2));
 
 					ami.action(obj, function (err, res) {
 						if (err) {
 							logger.error('AMI amiaction error ');
-							console.log(JSON.stringify(err, null, 2));
+							logger.error(JSON.stringify(err, null, 2));
 
 							data.message ="";
 							io.to(socket.id).emit('delete-callblock-rec', {});
 						}
 						else {
-							console.log(JSON.stringify(res, null, 2));
+							logger.debug(JSON.stringify(res, null, 2));
 
 							data.message = "Success";
 							data.data = result;
@@ -984,28 +959,147 @@ io.sockets.on('connection', function (socket) {
 						}
 					});
 
-					obj = {
-						'Action':'DBGet',
-						'ActionID' : Date.now(),
-						'Family' : 'blockcaller',
-						'Key' : "1" + dataIn.data.vrs,
-					};
-					console.log(JSON.stringify(obj, null, 2));
+					// obj = {
+					// 	'Action':'DBGet',
+					// 	'ActionID' : Date.now(),
+					// 	'Family' : 'blockcaller',
+					// 	'Key' : callBlockVrsPrefix + dataIn.data.vrs,
+					// };
+					// console.log(JSON.stringify(obj, null, 2));
 
-					ami.action(obj, function (err, res) {
-						if (err) {
-							logger.error('AMI amiaction error ');
-							console.log(JSON.stringify(err, null, 2));
-						}
-						else {
-							console.log(JSON.stringify(res, null, 2));
-						}
-					});
+					// ami.action(obj, function (err, res) {
+					// 	if (err) {
+					// 		logger.error('AMI amiaction error ');
+					// 		console.log(JSON.stringify(err, null, 2));
+					// 	}
+					// 	else {
+					// 		console.log(JSON.stringify(res, null, 2));
+					// 	}
+					// });
 				}
 			}
 		});
 	});
 
+	socket.on("sync-callblocks", function (dataIn) {
+		logger.debug('entered sync-callblocks');
+
+		let queryStr = `SELECT vrs FROM ${callBlockTable}`;
+		let vm_sql_params = [];
+
+		dbConnection.query(queryStr, vm_sql_params, function (err, result) {
+			let data = {};
+			if (err) {
+				logger.error("SYNC-CALLBLOCKS ERROR: " + err.code);
+
+				data.message ="";
+				io.to(socket.id).emit('sync-callblock-recs', data);
+			} else {
+				let mysqlVrsNumbers = result.map(a => callBlockVrsPrefix + a.vrs);
+				logger.debug("mysql blocked VRS Numbers: " + JSON.stringify(mysqlVrsNumbers, null, 2));
+
+				// Get VRS numbers from asterisk db
+				let obj = {
+					'Action': 'Command',
+					'Command' : 'database show blockcaller'
+				};
+
+				ami.action(obj, function (err, res) {
+					if (err) {
+						logger.error('AMI amiaction error ');
+						logger.error(JSON.stringify(err, null, 2));
+
+						data.message ="";
+						io.to(socket.id).emit('sync-callblock-recs', data);
+					}
+					else {
+						// {
+						// 	"response": "Success",
+						// 	"actionid": "1594741905590",
+						// 	"message": "Command output follows",
+						// 	"output": [
+						// 	  "/blockcaller/13213077251                          : 1                        ",
+						// 	  "/blockcaller/14444444444                          : 1                        ",
+						// 	  "2 results found."
+						// 	]
+						// }
+
+						if (res.response == "Success") {
+							let asteriskVRSNumbers = [];
+							// Extract VRS numbers from Output lines containing "blockcaller"
+							res.output.forEach(line => {
+								if (line.includes("blockcaller")) {
+									let vrs = line.replace("/blockcaller/", "").slice(0, 11);
+									asteriskVRSNumbers.push(vrs);
+								}
+							});
+							logger.debug("asterisk blocked VRS Numbers: " + JSON.stringify(asteriskVRSNumbers, null, 2));
+
+							let mysqlOnlyCallblock = mysqlVrsNumbers.filter(x => asteriskVRSNumbers.indexOf(x) === -1);
+							let asteriskOnlyCallblock = asteriskVRSNumbers.filter(x => mysqlVrsNumbers.indexOf(x) === -1);
+							logger.info("mysqlOnlyCallblock: " + JSON.stringify(mysqlOnlyCallblock, null, 2));
+							logger.info("asteriskOnlyCallblock: " + JSON.stringify(asteriskOnlyCallblock, null, 2));
+
+							// If mysql has VRS numbers not in asterisk, Add them to asterisk
+							mysqlOnlyCallblock.forEach(element => {
+								let obj = {
+									'Action': 'DBPut',
+									'ActionID' : Date.now(),
+									'Family' : 'blockcaller',
+									'Key' : element,
+									'Val' : 1
+								};
+
+								ami.action(obj, function (err, res) {
+									if (err) {
+										logger.error('AMI amiaction error ');
+										logger.error(JSON.stringify(err, null, 2));
+
+										data.message ="";
+										io.to(socket.id).emit('sync-callblock-recs', data);
+									}
+									else {
+										logger.info("Added " + element + " to asterisk callblock");
+									}
+								});
+							});
+
+							// If asterisk has VRS numbers not in mysql, Delete them from asterisk
+							asteriskOnlyCallblock.forEach(element => {
+								let obj = {
+									'Action': 'DBDel',
+									'ActionID' : Date.now(),
+									'Family' : 'blockcaller',
+									'Key' : element
+								};
+
+								ami.action(obj, function (err, res) {
+									if (err) {
+										logger.error('AMI amiaction error ');
+										logger.error(JSON.stringify(err, null, 2));
+
+										data.message ="";
+										io.to(socket.id).emit('sync-callblock-recs', data);
+									}
+									else {
+										logger.info("Removed " + element + " from asterisk callblock");
+									}
+								});
+							});
+
+							data.message = "Success";
+							data.data = result;
+							io.to(socket.id).emit('sync-callblocks-recs', data);
+						}
+						else {
+							data.message ="";
+							io.to(socket.id).emit('sync-callblock-recs', data);
+						}
+					}
+				});
+			}
+		});
+	});
 });
 
 //calls sendResourceStatus every minute
@@ -1851,7 +1945,6 @@ app.get('/getVideomail', function (req, res) {
 	});
 });
 
-
 process.on('exit', function () {
 	console.log('exit signal received');
         console.log('DESTROYING MySQL DB CONNECTION');
@@ -1863,7 +1956,6 @@ process.on('exit', function () {
 	backupStatsinDB();
         process.exit(0);
 });
-
 
 process.on('SIGINT', function () {
 	console.log('SIGINT signal received');

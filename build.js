@@ -24,8 +24,6 @@ const CSS = [
     'ionicons/dist/css/ionicons.min.css',
     //izitoast
     'izitoast/dist/css/iziToast.min.css',
-    //wickedpicker
-    'wickedpicker/dist/wickedpicker.min.css'
 
 ];
 const FONT = [
@@ -33,9 +31,7 @@ const FONT = [
     //font awesome fonts
     'ionicons/dist/fonts/ionicons.woff',
     'ionicons/dist/fonts/ionicons.woff2',
-    'ionicons/dist/fonts/ionicons.ttf',
-    'wickedpicker/fonts/fontello.ttf',
-    'wickedpicker/fonts/fontello.woff'
+    'ionicons/dist/fonts/ionicons.ttf'
 ];
 // separate some of the fonts since they look in the web fonts directory for them
 const WEB_FONT = [
@@ -110,8 +106,6 @@ const JS = [
     //popper
     'admin-lte/plugins/popper/umd/popper.min.js',
     'admin-lte/plugins/popper/umd/popper.min.js.map',
-    //wickedpicker
-    'wickedpicker/dist/wickedpicker.min.js'
 
 ];
 const IMAGES = [

@@ -18,7 +18,7 @@
   "devDependencies": {
     "clean-css": "^4.2.3",
     "fstream": "^1.0.12",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "lodash.template": "^4.5.0",
     "tar": "^4.4.13"
   },
@@ -68,7 +68,6 @@
     "socketio-jwt": "^4.5.0",
     "tcp-ping": "^0.1.1",
     "tempusdominus-core": "^5.0.3",
-    "utf-8-validate": "^5.0.2",
-    "wickedpicker": "^0.4.3"
+    "utf-8-validate": "^5.0.2"
   }
 }
