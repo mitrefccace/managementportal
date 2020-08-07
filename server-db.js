@@ -9,7 +9,7 @@ var fs = require('fs');
 var https = require('https');
 var MongoClient = require('mongodb').MongoClient;
 var nconf = require('nconf');
-var openamAgent = require('openam-agent');
+var openamAgent = require('@forgerock/openam-agent');
 var request = require('request');
 var session = require('express-session');
 var socketioJwt = require('socketio-jwt');
@@ -25,6 +25,7 @@ var logger = require('./helpers/logger');
 var metrics = require('./controllers/metrics');
 var report = require('./controllers/report');
 var set_rgb_values = require('./helpers/utility').set_rgb_values;
+var validator = require('./utils/validator');
 
 var port = null; // set the port
 var ami = null; // Asterisk AMI
@@ -617,7 +618,7 @@ io.sockets.on('connection', function (socket) {
 			}
 		});
 		// Get videomail status summary for pie chart
-		let vm_sql_count_query = `SELECT status AS 'label', COUNT(*) AS 'data' FROM ${vmTable} GROUP BY status;`;
+		let vm_sql_count_query = `SELECT status AS 'label', COUNT(*) AS 'data' FROM ${vmTable} WHERE deleted = 0 GROUP BY status;`;
 		dbConnection.query(vm_sql_count_query, function (err, result) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: " + err.code);
@@ -812,43 +813,50 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('entered add-callblock');
 		var token = socket.decoded_token;
 
-		let queryStr = `INSERT INTO ${callBlockTable} (vrs, admin_username, reason, timeUpdated) VALUES (?,?,?,?);`;
-		let values = [dataIn.data.vrs, token.username, dataIn.data.reason, new Date()];
+		let data = {};
+		if (validator.isVrsNumberValid(dataIn.data.vrs)) {
+			let queryStr = `INSERT INTO ${callBlockTable} (vrs, admin_username, reason, timeUpdated) VALUES (?,?,?,?);`;
+			let values = [dataIn.data.vrs, token.username, dataIn.data.reason, new Date()];
 
-		dbConnection.query(queryStr, values, function(err, result) {
-			let data = {};
-			if(err) {
-				logger.error('Error with adding blocked number: ', err.code);
-				data.message ="";
-				io.to(socket.id).emit('add-callblock-rec', data);
-			} else {
+			dbConnection.query(queryStr, values, function(err, result) {
+				if(err) {
+					logger.error('Error with adding blocked number: ', err.code);
+					data.message ="";
+					io.to(socket.id).emit('add-callblock-rec', data);
+				} else {
 
-				let obj = {
-						'Action': 'DBPut',
-						'ActionID' : Date.now(),
-						'Family' : 'blockcaller',
-						'Key' : callBlockVrsPrefix + dataIn.data.vrs,
-						'Val' : 1
-				};
+					let obj = {
+							'Action': 'DBPut',
+							'ActionID' : Date.now(),
+							'Family' : 'blockcaller',
+							'Key' : callBlockVrsPrefix + dataIn.data.vrs,
+							'Val' : 1
+					};
 
-				ami.action(obj, function (err, res) {
-					if (err) {
-						logger.error('AMI amiaction error ');
-						logger.error(JSON.stringify(err, null, 2));
+					ami.action(obj, function (err, res) {
+						if (err) {
+							logger.error('AMI amiaction error ');
+							logger.error(JSON.stringify(err, null, 2));
 
-						data.message ="";
-						io.to(socket.id).emit('add-callblock-rec', data);
-					}
-					else {
-						logger.debug(JSON.stringify(res, null, 2));
+							data.message ="";
+							io.to(socket.id).emit('add-callblock-rec', data);
+						}
+						else {
+							logger.debug(JSON.stringify(res, null, 2));
 
-						data.message = "Success";
-						data.data = result;
-						io.to(socket.id).emit('add-callblock-rec', data);
-					}
-				});
-			}
-		});
+							data.message = "Success";
+							data.data = result;
+							io.to(socket.id).emit('add-callblock-rec', data);
+						}
+					});
+				}
+			});
+		}
+		else {
+			data.message = "Invalid VRS number, cannot add.";
+			data.data = "Invalid VRS number, cannot add.";
+			io.to(socket.id).emit('add-callblock-rec', data);
+		}
 	});
 
 	socket.on("update-callblock", function (dataIn) {

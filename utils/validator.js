@@ -60,6 +60,15 @@ module.exports = {
         }
         return isFormatCorrect;
     },
+    isVrsNumberValid: function (phone) {
+        let isFormatCorrect = false;
+        if (phone) {
+            let legalChars = /^\d{10}$/;
+            isFormatCorrect = ((phone.length == 10) && (legalChars.test(phone)));
+
+        }
+        return isFormatCorrect;
+    },
     isPhoneValid: function (phone) {
         let isFormatCorrect = false;
         if (phone) {

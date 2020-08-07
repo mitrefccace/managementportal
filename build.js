@@ -91,9 +91,6 @@ const JS = [
 
     //izitoast
     'izitoast/dist/js/iziToast.min.js',
-    //jquery-form-validator
-    'jquery-form-validator/form-validator/jquery.form-validator.min.js',
-    'jquery-form-validator/form-validator/toggleDisabled.js',
     //flot-axislabels
     'flot-axislabels/jquery.flot.axislabels.js',
     //jwt-decode
@@ -106,6 +103,8 @@ const JS = [
     //popper
     'admin-lte/plugins/popper/umd/popper.min.js',
     'admin-lte/plugins/popper/umd/popper.min.js.map',
+    //bootstrap-select
+    'bootstrap-select/dist/js/bootstrap-select.min.js.map',
 
 ];
 const IMAGES = [

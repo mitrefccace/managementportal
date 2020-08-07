@@ -15,7 +15,7 @@ $(document).ready(function () {
         }, {
             "targets": [1],
             "data": "timeUpdated",
-            "render": function (data, type, full, meta) {
+            "render": function (data, type) {
                 if (type == "display") {
                     return moment(data).local().format('YYYY/MM/DD LTS');
                 }
@@ -25,7 +25,7 @@ $(document).ready(function () {
         }, {
             "targets": [2],
             "data": "vrs",
-            "render": function (data, type, full, meta) {
+            "render": function (data, type) {
                 if (type == "display") {
                     let vidNumber = formatVRS(data);
                     return vidNumber;
@@ -48,7 +48,7 @@ $(document).ready(function () {
             "data": "selected",
             "width": "5%",
             "orderable": false,
-            "render": function (data, type, row) {
+            "render": function (data, type) {
                 if (type === 'display') {
                     return '<input type="checkbox" class="editor-active">';
                 }
@@ -89,7 +89,6 @@ $(document).ready(function () {
             $('#inputVRS').prop('disabled', true);
 
             $('#btnUpdateCallBlock').show();
-            //$(".glyphicon-eye-open").css("display", "none");
             $('#btnDeleteCallBlock').show();
             $('#btnAddCallBlock').hide();
             $('#configModal').modal();
@@ -134,7 +133,7 @@ $(document).ready(function () {
         $("#configModal").modal("hide");
     });
 
-    $("#delete_callblock_btn").click(function (event) {
+    $("#delete_callblock_btn").click(function () {
         getBulkDeleteCallBlockList();
         $('#confirm-bulk-delete').modal();
         $("#confirm-delete").modal("hide");
@@ -198,22 +197,6 @@ $(document).ready(function () {
         document.getElementById("callblocklist").innerHTML = callBlockVrsNumbers;
     }
 
-    // var len = 0;
-    // var maxchar = 255;
-    // $('#inputReason').keyup(function(){
-    //     console.log('here');
-    //     len = this.value.length;
-    //     if (len > maxchar){
-    //         return false;
-    //     }
-    //     else if (len > 0){
-    //         $("#remainingC").html("Remaining characters: " + (maxchar - len));
-    //     }
-    //     else {
-    //         $("#remainingC").html("Remaining characters: " + (maxchar));
-    //     }
-    // });
-
     connect_socket();
 });
 
@@ -221,7 +204,6 @@ function addCallBlockModal() {
     $('#inputVRS').prop('disabled', false);
     $("#addCallBlockForm").trigger("reset");
     $('#btnUpdateCallBlock').hide();
-    //$(".glyphicon-eye-open").css("display", "");
     $('#btnDeleteCallBlock').hide();
     $('#btnAddCallBlock').show();
     $('#configModal').modal();
@@ -241,25 +223,6 @@ function deleteCallBlock() {
     $("#confirm-delete").modal("hide");
     $("#configModal").modal("hide");
 }
-
-$.validate({
-    modules: 'toggleDisabled',
-    disabledFormFilter: 'form.toggle-disabled',
-    showErrorDialogs: false
-});
-
-// $(".glyphicon-eye-open").on("mouseover mouseout", function (e) {
-//     $(this).toggleClass("glyphicon-eye-close");
-//     var field = $(this).parent().children('input');
-//     var type = $(field).attr("type");
-
-//     if (type == "text") {
-//         $(field).prop('type', 'password');
-//     }
-//     else {
-//         $(field).prop('type', 'text');
-//     }
-// });
 
 function connect_socket() {
     $.ajax({
@@ -321,7 +284,7 @@ function connect_socket() {
                 });
             }
         },
-        error: function (xhr, status, error) {
+        error: function () {
             console.log('Error');
             $('#message').text('An Error Occured.');
         }
