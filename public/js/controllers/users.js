@@ -45,25 +45,24 @@ $(document).ready(function () {
         //},
         "rowCallback": function (row, data) {
             $('input.editor-active', row).prop('checked', data.selected == 1);
-            console.log("selected row: " + (data.selected == 1));
+            //console.log("selected row: " + (data.selected == 1));
         }
 
     });
 
     $('#usertable tbody').on('change', 'input.editor-active', function () {
         var data = table.row($(this).parents('tr')).data();
-        console.log("checkbox clicked with data: " + JSON.stringify(data));
+        //console.log("checkbox clicked with data: " + JSON.stringify(data));
 
         data.selected = $(this).prop('checked') ? 1 : 0;
-        console.log("checkbox data: " + data.selected);
+        //console.log("checkbox data: " + data.selected);
     });
 
     $('#usertable tbody').on('click', 'td', function () {
 
         var data = table.row($(this).parents('tr')).data();
         var col = table.cell(this).index().column;
-
-        console.log("cell clicked with col: " + col + " data: " + JSON.stringify(data));
+        //console.log("cell clicked with col: " + col + " data: " + JSON.stringify(data));
 
         if (col != 5) {			// do not load agent info if the clicked cell is the checkbox
             var url = "./GetAgent/" + data[3];
@@ -246,21 +245,6 @@ function deleteUser() {
             location.reload();
         });
 }
-
-$.validate({
-    modules: 'toggleDisabled',
-    disabledFormFilter: 'form.toggle-disabled',
-    showErrorDialogs: false
-});
-
-/* $(".glyphicon-eye-open").on("click", function() {
-    $(this).toggleClass("glyphicon-eye-close");
-            var type = $("#inputPassword").attr("type");
-    if (type == "text"){
-            $("#inputPassword").prop('type','password');}
-    else{
-            $("#inputPassword").prop('type','text'); }
-});  */
 
 $(".glyphicon-eye-open").on("mouseover mouseout", function (e) {
     $(this).toggleClass("glyphicon-eye-close");

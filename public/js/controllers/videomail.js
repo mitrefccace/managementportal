@@ -74,9 +74,17 @@ function connect_socket() {
 										return(series.data[0][1]);
 									}
 								}
-						 	}
-						 },
-						 legend: {show: true}
+							},
+							lines: {
+								show: true,
+								fill: true
+							 }
+						},
+						legend: {
+							show: true,
+							position: 'ne',
+							noColumns: 2,
+						}
 					});
 				});
 			} else {

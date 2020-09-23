@@ -1,6 +1,8 @@
 'use strict';
 
 // node modules
+var dbconn = null;
+var dbConnection = null;
 var AsteriskManager = require('asterisk-manager');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
@@ -9,7 +11,7 @@ var fs = require('fs');
 var https = require('https');
 var MongoClient = require('mongodb').MongoClient;
 var nconf = require('nconf');
-var openamAgent = require('openam-agent');
+var openamAgent = require('@forgerock/openam-agent');
 var request = require('request');
 var session = require('express-session');
 var socketioJwt = require('socketio-jwt');
@@ -25,6 +27,7 @@ var logger = require('./helpers/logger');
 var metrics = require('./controllers/metrics');
 var report = require('./controllers/report');
 var set_rgb_values = require('./helpers/utility').set_rgb_values;
+var validator = require('./utils/validator');
 
 var port = null; // set the port
 var ami = null; // Asterisk AMI
@@ -35,6 +38,38 @@ var QueueStats = [];	// last stored stats on queues
 
 var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
+
+
+//CLEAN UP function; must be at the top!
+//for exits, abnormal ends, signals, uncaught exceptions
+var cleanup = require('./cleanup').Cleanup(myCleanup);
+function myCleanup() {
+  //clean up code on exit, exception, SIGINT, etc.
+  console.log('');
+  console.log('***Exiting***');
+
+  //backup MongoDB stats
+  if (dbconn) {
+    console.log('Backing up MongoDB stats...');
+    backupStatsinDB(); //need to synchronize?
+  }
+
+  //MySQL DB cleanup
+  if (dbConnection) {
+    console.log('Cleaning up MySQL DB connection...');
+    dbConnection.destroy();
+  }
+
+  //MongoDB cleanup
+  if (dbconn) {
+    console.log('Cleaning up MongoDB connection...');
+    dbconn.close();
+  }
+
+  console.log('byeee.');
+  console.log('');
+};
+
 
 //declare constants for various config values
 const COMMON_PRIVATE_IP = "common:private_ip";
@@ -191,7 +226,7 @@ var callBlockTable = "call_block";
 var callBlockVrsPrefix = "1";
 
 // Create MySQL connection and connect to the database
-var dbConnection = mysql.createConnection({
+dbConnection = mysql.createConnection({
 	host: dbHost,
 	user: dbUser,
 	password: dbPassword,
@@ -212,7 +247,6 @@ var logAMIEvents = nconf.get('database_servers:mongodb:logAMIevents');
 var logStats = nconf.get('database_servers:mongodb:logStats');
 var logStatsFreq = nconf.get('database_servers:mongodb:logStatsFreq');
 var mongodb;
-var dbconn = null;
 var colEvents = null;
 var colStats = null;
 
@@ -617,7 +651,7 @@ io.sockets.on('connection', function (socket) {
 			}
 		});
 		// Get videomail status summary for pie chart
-		let vm_sql_count_query = `SELECT status AS 'label', COUNT(*) AS 'data' FROM ${vmTable} GROUP BY status;`;
+		let vm_sql_count_query = `SELECT status AS 'label', COUNT(*) AS 'data' FROM ${vmTable} WHERE deleted = 0 GROUP BY status;`;
 		dbConnection.query(vm_sql_count_query, function (err, result) {
 			if (err) {
 				logger.error("GET-VIDEOMAIL ERROR: " + err.code);
@@ -812,43 +846,50 @@ io.sockets.on('connection', function (socket) {
 		logger.debug('entered add-callblock');
 		var token = socket.decoded_token;
 
-		let queryStr = `INSERT INTO ${callBlockTable} (vrs, admin_username, reason, timeUpdated) VALUES (?,?,?,?);`;
-		let values = [dataIn.data.vrs, token.username, dataIn.data.reason, new Date()];
+		let data = {};
+		if (validator.isVrsNumberValid(dataIn.data.vrs)) {
+			let queryStr = `INSERT INTO ${callBlockTable} (vrs, admin_username, reason, timeUpdated) VALUES (?,?,?,?);`;
+			let values = [dataIn.data.vrs, token.username, dataIn.data.reason, new Date()];
 
-		dbConnection.query(queryStr, values, function(err, result) {
-			let data = {};
-			if(err) {
-				logger.error('Error with adding blocked number: ', err.code);
-				data.message ="";
-				io.to(socket.id).emit('add-callblock-rec', data);
-			} else {
+			dbConnection.query(queryStr, values, function(err, result) {
+				if(err) {
+					logger.error('Error with adding blocked number: ', err.code);
+					data.message ="";
+					io.to(socket.id).emit('add-callblock-rec', data);
+				} else {
 
-				let obj = {
-						'Action': 'DBPut',
-						'ActionID' : Date.now(),
-						'Family' : 'blockcaller',
-						'Key' : callBlockVrsPrefix + dataIn.data.vrs,
-						'Val' : 1
-				};
+					let obj = {
+							'Action': 'DBPut',
+							'ActionID' : Date.now(),
+							'Family' : 'blockcaller',
+							'Key' : callBlockVrsPrefix + dataIn.data.vrs,
+							'Val' : 1
+					};
 
-				ami.action(obj, function (err, res) {
-					if (err) {
-						logger.error('AMI amiaction error ');
-						logger.error(JSON.stringify(err, null, 2));
+					ami.action(obj, function (err, res) {
+						if (err) {
+							logger.error('AMI amiaction error ');
+							logger.error(JSON.stringify(err, null, 2));
 
-						data.message ="";
-						io.to(socket.id).emit('add-callblock-rec', data);
-					}
-					else {
-						logger.debug(JSON.stringify(res, null, 2));
+							data.message ="";
+							io.to(socket.id).emit('add-callblock-rec', data);
+						}
+						else {
+							logger.debug(JSON.stringify(res, null, 2));
 
-						data.message = "Success";
-						data.data = result;
-						io.to(socket.id).emit('add-callblock-rec', data);
-					}
-				});
-			}
-		});
+							data.message = "Success";
+							data.data = result;
+							io.to(socket.id).emit('add-callblock-rec', data);
+						}
+					});
+				}
+			});
+		}
+		else {
+			data.message = "Invalid VRS number, cannot add.";
+			data.data = "Invalid VRS number, cannot add.";
+			io.to(socket.id).emit('add-callblock-rec', data);
+		}
 	});
 
 	socket.on("update-callblock", function (dataIn) {
@@ -1945,29 +1986,3 @@ app.get('/getVideomail', function (req, res) {
 	});
 });
 
-process.on('exit', function () {
-	console.log('exit signal received');
-        console.log('DESTROYING MySQL DB CONNECTION');
-        dbConnection.destroy(); //destroy db connection
-        if ( typeof dbconn !== 'undefined' && dbconn ) {
-          console.log('DESTROYING MongoDB CONNECTION');
-          dbconn.close();
-        }
-	backupStatsinDB();
-        process.exit(0);
-});
-
-process.on('SIGINT', function () {
-	console.log('SIGINT signal received');
-	backupStatsinDB();
-});
-
-process.on('SIGTERM', function () {
-	console.log('SIGINT signal received');
-	backupStatsinDB();
-});
-
-process.on('uncaughtException', function () {
-	console.log('uncaughtException received');
-	backupStatsinDB();
-});

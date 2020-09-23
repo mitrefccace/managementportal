@@ -33,10 +33,12 @@
 .btn:not(.btn-primary)
 {
     background-color: white;
+    width:230px;
 }
 .dropdown-menu > li > a
 {
     color: #333;
+    width: 230px;
 }
 .dropup-menu > li > a
 {

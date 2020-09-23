@@ -1,6 +1,7 @@
 var selectedCallBlock = 0;
 var selectedCallBlockVrs = 0;
 $(document).ready(function () {
+    $('#cbmsg').text('');
     $("#sidebarcallblocking").addClass("active");
     $('#admin_treeview').addClass('active');
     //$('#admin_users_treeview').addClass('active');
@@ -15,7 +16,7 @@ $(document).ready(function () {
         }, {
             "targets": [1],
             "data": "timeUpdated",
-            "render": function (data, type, full, meta) {
+            "render": function (data, type) {
                 if (type == "display") {
                     return moment(data).local().format('YYYY/MM/DD LTS');
                 }
@@ -25,7 +26,7 @@ $(document).ready(function () {
         }, {
             "targets": [2],
             "data": "vrs",
-            "render": function (data, type, full, meta) {
+            "render": function (data, type) {
                 if (type == "display") {
                     let vidNumber = formatVRS(data);
                     return vidNumber;
@@ -48,7 +49,7 @@ $(document).ready(function () {
             "data": "selected",
             "width": "5%",
             "orderable": false,
-            "render": function (data, type, row) {
+            "render": function (data, type) {
                 if (type === 'display') {
                     return '<input type="checkbox" class="editor-active">';
                 }
@@ -75,6 +76,7 @@ $(document).ready(function () {
     });
 
     $('#callblocktable tbody').on('click', 'td', function () {
+        $('#cbmsg').text('');
         let data = table.row($(this).parents('tr')).data();
         let col = table.cell(this).index().column;
 
@@ -89,38 +91,54 @@ $(document).ready(function () {
             $('#inputVRS').prop('disabled', true);
 
             $('#btnUpdateCallBlock').show();
-            //$(".glyphicon-eye-open").css("display", "none");
             $('#btnDeleteCallBlock').show();
             $('#btnAddCallBlock').hide();
             $('#configModal').modal();
         }
     });
 
+    function addCallBlock(event) {
+      event.preventDefault();
+
+      $('#inputVRS').prop('disabled', false);
+
+      let data = {};
+      data.vrs = $('#inputVRS').val().replace(/-/g, "");
+      data.reason = $('#inputReason').val();
+
+      //TODO put in check to alert user if vrs number already in DB
+
+      socket.emit('add-callblock', {
+          "data": data
+      });
+
+      $("#configModal").modal("hide");
+    }
+
     $("#btnAddCallBlock").click(function (event) {
-        event.preventDefault();
-
-        $('#inputVRS').prop('disabled', false);
-
-        let data = {};
-        data.vrs = $('#inputVRS').val().replace(/-/g, "");
-        data.reason = $('#inputReason').val();
-
-        //TODO put in check to alert user if vrs number already in DB
-
-        socket.emit('add-callblock', {
-            "data": data
-        });
-
-        $("#configModal").modal("hide");
+        $('#cbmsg').text('');
+        addCallBlock(event);
+    });
+    $("#inputVRS").keyup(function(event) {
+      if (event.keyCode === 13) {
+        $("#btnAddCallBlock").click();
+      }
+    });
+    $("#inputReason").keyup(function(event) {
+      if (event.keyCode === 13) {
+        $("#btnAddCallBlock").click();
+      }
     });
 
     $("#btnDeleteCallBlock").click(function (event) {
+        $('#cbmsg').text('');
         event.preventDefault();
         console.log("CallBlockId selected to delete: " + selectedCallBlock);
         $('#confirm-delete').modal();
     });
 
     $("#btnUpdateCallBlock").click(function (event) {
+        $('#cbmsg').text('');
         event.preventDefault();
 
         let data = {};
@@ -134,13 +152,17 @@ $(document).ready(function () {
         $("#configModal").modal("hide");
     });
 
-    $("#delete_callblock_btn").click(function (event) {
-        getBulkDeleteCallBlockList();
+    $("#delete_callblock_btn").click(function () {
+        $('#cbmsg').text('');
+        var count = getBulkDeleteCallBlockList();
+        if (count <= 0)
+          return;
         $('#confirm-bulk-delete').modal();
         $("#confirm-delete").modal("hide");
     });
 
     $("#bulk_delete_btn").click(function (event) {
+        $('#cbmsg').text('');
         event.preventDefault();
 
         let ids = "";
@@ -187,8 +209,10 @@ $(document).ready(function () {
     function getBulkDeleteCallBlockList() {
         let callBlockVrsNumbers = "";
         let data = table.rows().data();
+        var count = 0;
         data.each(function (value, index) {
             if (value.selected === 1) {
+                count++;
                 // console.log("Bulk delete: checked at index: ", index)
                 // console.log("agent id checked is: " + value[0] + " call block username is: " + value[3]);
                 callBlockVrsNumbers += "  " + formatVRS(value.vrs);
@@ -196,38 +220,24 @@ $(document).ready(function () {
         });
 
         document.getElementById("callblocklist").innerHTML = callBlockVrsNumbers;
+        return count;
     }
-
-    // var len = 0;
-    // var maxchar = 255;
-    // $('#inputReason').keyup(function(){
-    //     console.log('here');
-    //     len = this.value.length;
-    //     if (len > maxchar){
-    //         return false;
-    //     }
-    //     else if (len > 0){
-    //         $("#remainingC").html("Remaining characters: " + (maxchar - len));
-    //     }
-    //     else {
-    //         $("#remainingC").html("Remaining characters: " + (maxchar));
-    //     }
-    // });
 
     connect_socket();
 });
 
 function addCallBlockModal() {
+    $('#cbmsg').text('');
     $('#inputVRS').prop('disabled', false);
     $("#addCallBlockForm").trigger("reset");
     $('#btnUpdateCallBlock').hide();
-    //$(".glyphicon-eye-open").css("display", "");
     $('#btnDeleteCallBlock').hide();
     $('#btnAddCallBlock').show();
     $('#configModal').modal();
 }
 
 function deleteCallBlock() {
+    $('#cbmsg').text('');
     event.preventDefault();
 
     let data = {};
@@ -242,26 +252,8 @@ function deleteCallBlock() {
     $("#configModal").modal("hide");
 }
 
-$.validate({
-    modules: 'toggleDisabled',
-    disabledFormFilter: 'form.toggle-disabled',
-    showErrorDialogs: false
-});
-
-// $(".glyphicon-eye-open").on("mouseover mouseout", function (e) {
-//     $(this).toggleClass("glyphicon-eye-close");
-//     var field = $(this).parent().children('input');
-//     var type = $(field).attr("type");
-
-//     if (type == "text") {
-//         $(field).prop('type', 'password');
-//     }
-//     else {
-//         $(field).prop('type', 'text');
-//     }
-// });
-
 function connect_socket() {
+    $('#cbmsg').text('');
     $.ajax({
         url: './token',
         type: 'GET',
@@ -296,7 +288,7 @@ function connect_socket() {
                         socket.emit('get-callblocks', {});
                     }
                     else {
-                        alert(data.message);
+                        $('#cbmsg').text(data.message);
                     }
                 }).on('delete-callblock-rec', function (data) {
                     if (data.message == "Success") {
@@ -304,13 +296,13 @@ function connect_socket() {
                         socket.emit('get-callblocks', {});
                     }
                     else {
-                        alert(data.message);
+                        $('#cbmsg').text(data.message);
                     }
                 }).on('update-callblock-rec', function (data) {
                     if (data.message === "Success") {
                         socket.emit('get-callblocks', {});
                     } else {
-                        alert(data.message);
+                        $('#cbmsg').text(data.message);
                     }
                 });
 
@@ -321,7 +313,7 @@ function connect_socket() {
                 });
             }
         },
-        error: function (xhr, status, error) {
+        error: function () {
             console.log('Error');
             $('#message').text('An Error Occured.');
         }
