@@ -1,6 +1,7 @@
 var selectedCallBlock = 0;
 var selectedCallBlockVrs = 0;
 $(document).ready(function () {
+    $('#cbmsg').text('');
     $("#sidebarcallblocking").addClass("active");
     $('#admin_treeview').addClass('active');
     //$('#admin_users_treeview').addClass('active');
@@ -75,6 +76,7 @@ $(document).ready(function () {
     });
 
     $('#callblocktable tbody').on('click', 'td', function () {
+        $('#cbmsg').text('');
         let data = table.row($(this).parents('tr')).data();
         let col = table.cell(this).index().column;
 
@@ -95,31 +97,48 @@ $(document).ready(function () {
         }
     });
 
+    function addCallBlock(event) {
+      event.preventDefault();
+
+      $('#inputVRS').prop('disabled', false);
+
+      let data = {};
+      data.vrs = $('#inputVRS').val().replace(/-/g, "");
+      data.reason = $('#inputReason').val();
+
+      //TODO put in check to alert user if vrs number already in DB
+
+      socket.emit('add-callblock', {
+          "data": data
+      });
+
+      $("#configModal").modal("hide");
+    }
+
     $("#btnAddCallBlock").click(function (event) {
-        event.preventDefault();
-
-        $('#inputVRS').prop('disabled', false);
-
-        let data = {};
-        data.vrs = $('#inputVRS').val().replace(/-/g, "");
-        data.reason = $('#inputReason').val();
-
-        //TODO put in check to alert user if vrs number already in DB
-
-        socket.emit('add-callblock', {
-            "data": data
-        });
-
-        $("#configModal").modal("hide");
+        $('#cbmsg').text('');
+        addCallBlock(event);
+    });
+    $("#inputVRS").keyup(function(event) {
+      if (event.keyCode === 13) {
+        $("#btnAddCallBlock").click();
+      }
+    });
+    $("#inputReason").keyup(function(event) {
+      if (event.keyCode === 13) {
+        $("#btnAddCallBlock").click();
+      }
     });
 
     $("#btnDeleteCallBlock").click(function (event) {
+        $('#cbmsg').text('');
         event.preventDefault();
         console.log("CallBlockId selected to delete: " + selectedCallBlock);
         $('#confirm-delete').modal();
     });
 
     $("#btnUpdateCallBlock").click(function (event) {
+        $('#cbmsg').text('');
         event.preventDefault();
 
         let data = {};
@@ -134,12 +153,16 @@ $(document).ready(function () {
     });
 
     $("#delete_callblock_btn").click(function () {
-        getBulkDeleteCallBlockList();
+        $('#cbmsg').text('');
+        var count = getBulkDeleteCallBlockList();
+        if (count <= 0)
+          return;
         $('#confirm-bulk-delete').modal();
         $("#confirm-delete").modal("hide");
     });
 
     $("#bulk_delete_btn").click(function (event) {
+        $('#cbmsg').text('');
         event.preventDefault();
 
         let ids = "";
@@ -186,8 +209,10 @@ $(document).ready(function () {
     function getBulkDeleteCallBlockList() {
         let callBlockVrsNumbers = "";
         let data = table.rows().data();
+        var count = 0;
         data.each(function (value, index) {
             if (value.selected === 1) {
+                count++;
                 // console.log("Bulk delete: checked at index: ", index)
                 // console.log("agent id checked is: " + value[0] + " call block username is: " + value[3]);
                 callBlockVrsNumbers += "  " + formatVRS(value.vrs);
@@ -195,12 +220,14 @@ $(document).ready(function () {
         });
 
         document.getElementById("callblocklist").innerHTML = callBlockVrsNumbers;
+        return count;
     }
 
     connect_socket();
 });
 
 function addCallBlockModal() {
+    $('#cbmsg').text('');
     $('#inputVRS').prop('disabled', false);
     $("#addCallBlockForm").trigger("reset");
     $('#btnUpdateCallBlock').hide();
@@ -210,6 +237,7 @@ function addCallBlockModal() {
 }
 
 function deleteCallBlock() {
+    $('#cbmsg').text('');
     event.preventDefault();
 
     let data = {};
@@ -225,6 +253,7 @@ function deleteCallBlock() {
 }
 
 function connect_socket() {
+    $('#cbmsg').text('');
     $.ajax({
         url: './token',
         type: 'GET',
@@ -259,7 +288,7 @@ function connect_socket() {
                         socket.emit('get-callblocks', {});
                     }
                     else {
-                        alert(data.message);
+                        $('#cbmsg').text(data.message);
                     }
                 }).on('delete-callblock-rec', function (data) {
                     if (data.message == "Success") {
@@ -267,13 +296,13 @@ function connect_socket() {
                         socket.emit('get-callblocks', {});
                     }
                     else {
-                        alert(data.message);
+                        $('#cbmsg').text(data.message);
                     }
                 }).on('update-callblock-rec', function (data) {
                     if (data.message === "Success") {
                         socket.emit('get-callblocks', {});
                     } else {
-                        alert(data.message);
+                        $('#cbmsg').text(data.message);
                     }
                 });
 

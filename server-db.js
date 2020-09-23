@@ -1,6 +1,8 @@
 'use strict';
 
 // node modules
+var dbconn = null;
+var dbConnection = null;
 var AsteriskManager = require('asterisk-manager');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser'); // the session is stored in a cookie, so we use this to parse it
@@ -36,6 +38,38 @@ var QueueStats = [];	// last stored stats on queues
 
 var AgentMap = new Map(); //associate extension to agent database record;
 var Asterisk_queuenames = [];
+
+
+//CLEAN UP function; must be at the top!
+//for exits, abnormal ends, signals, uncaught exceptions
+var cleanup = require('./cleanup').Cleanup(myCleanup);
+function myCleanup() {
+  //clean up code on exit, exception, SIGINT, etc.
+  console.log('');
+  console.log('***Exiting***');
+
+  //backup MongoDB stats
+  if (dbconn) {
+    console.log('Backing up MongoDB stats...');
+    backupStatsinDB(); //need to synchronize?
+  }
+
+  //MySQL DB cleanup
+  if (dbConnection) {
+    console.log('Cleaning up MySQL DB connection...');
+    dbConnection.destroy();
+  }
+
+  //MongoDB cleanup
+  if (dbconn) {
+    console.log('Cleaning up MongoDB connection...');
+    dbconn.close();
+  }
+
+  console.log('byeee.');
+  console.log('');
+};
+
 
 //declare constants for various config values
 const COMMON_PRIVATE_IP = "common:private_ip";
@@ -192,7 +226,7 @@ var callBlockTable = "call_block";
 var callBlockVrsPrefix = "1";
 
 // Create MySQL connection and connect to the database
-var dbConnection = mysql.createConnection({
+dbConnection = mysql.createConnection({
 	host: dbHost,
 	user: dbUser,
 	password: dbPassword,
@@ -213,7 +247,6 @@ var logAMIEvents = nconf.get('database_servers:mongodb:logAMIevents');
 var logStats = nconf.get('database_servers:mongodb:logStats');
 var logStatsFreq = nconf.get('database_servers:mongodb:logStatsFreq');
 var mongodb;
-var dbconn = null;
 var colEvents = null;
 var colStats = null;
 
@@ -1953,29 +1986,3 @@ app.get('/getVideomail', function (req, res) {
 	});
 });
 
-process.on('exit', function () {
-	console.log('exit signal received');
-        console.log('DESTROYING MySQL DB CONNECTION');
-        dbConnection.destroy(); //destroy db connection
-        if ( typeof dbconn !== 'undefined' && dbconn ) {
-          console.log('DESTROYING MongoDB CONNECTION');
-          dbconn.close();
-        }
-	backupStatsinDB();
-        process.exit(0);
-});
-
-process.on('SIGINT', function () {
-	console.log('SIGINT signal received');
-	backupStatsinDB();
-});
-
-process.on('SIGTERM', function () {
-	console.log('SIGINT signal received');
-	backupStatsinDB();
-});
-
-process.on('uncaughtException', function () {
-	console.log('uncaughtException received');
-	backupStatsinDB();
-});
