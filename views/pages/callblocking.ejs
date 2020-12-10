@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <% include ../partials/head %>
+    <%- include("../partials/head") %>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -10,8 +10,8 @@
             var callblocks = '<%- callblocks %>';
         </script>
         <div class="wrapper">
-                <% include ../partials/header %>
-                <% include ../partials/sidebar %>
+                <%- include("../partials/header") %>
+                <%- include("../partials/sidebar") %>
                 <div class="content-wrapper">
                     <div class="content-header">
                         <div class="container-fluid">
@@ -85,7 +85,7 @@
                         </div>
                     </div>
                 </div>
-                <% include ../partials/footer %>
+                <%- include("../partials/footer") %>
             </div>
         <!-- ./wrapper -->
 

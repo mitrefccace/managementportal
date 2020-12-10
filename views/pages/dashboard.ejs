@@ -4,12 +4,12 @@
 	<head>
 		<!-- dashboard.css -->
 		<link href="/css/dashboard.css" rel="stylesheet">
-		<% include ../partials/head %>
+		<%- include("../partials/head") %>
 	</head>
 	<body class="hold-transition sidebar-mini layout-fixed" ng-app="acrcsr-dashboard">
 		<div class="wrapper">
-			<% include ../partials/header %>
-			<% include ../partials/sidebar %>
+			<%- include("../partials/header") %>
+			<%- include("../partials/sidebar") %>
 			<!-- Content Wrapper. Contains page content -->
 			<div class="content-wrapper" ng-controller="dashboardController">
 				<!-- Content Header (Page header) -->
@@ -219,7 +219,7 @@
 					</div> <!-- /. container-fluid-->
 				</div><!-- /.content -->
 			</div><!-- /.content-wrapper -->
-			<% include ../partials/footer %>
+			<% include("../partials/footer") %>
 		</div><!-- ./wrapper -->
 
 		<!-- REQUIRED JS SCRIPTS -->

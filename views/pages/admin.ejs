@@ -2,20 +2,18 @@
 <html lang="en">
 
 <head>
-    <% include ../partials/head %>
+    <% include("../partials/head") %>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="./css/admin.css">
     <link rel="stylesheet" href="./assets/css/angular-datatables.min.css">
     <link rel="stylesheet" href="./assets/css/iziToast.min.css">
     <link rel="stylesheet" href="./assets/css/adminlte.min.css">
-
-
 </head>
 
 <body class="hold-transition sidebar-mini" ng-app="admin">
     <div class="wrapper">
-        <% include ../partials/header %>
-        <% include ../partials/sidebar %>
+        <% include("../partials/header") %>
+        <% include("../partials/sidebar") %>
         <div class="content-wrapper" ng-controller="adminController">
             <div class="content-header">
                 <div class="container-fluid">
@@ -76,7 +74,7 @@
             <!-- /.content -->
         </div>
         <!-- /.content - wrapper -->
-        <% include ../partials/footer %>
+        <% include("../partials/footer") %>
     </div>
 
     <!-- Modal for confirming the forceful logout of selected agents -->

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<% include ../partials/head %>
+	<%- include("../partials/head") %>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 	<div class="wrapper">
 		<!-- Main Header -->
-		<% include ../partials/header %>
-		<% include ../partials/sidebar %>
+		<%- include("../partials/header") %>
+		<%- include("../partials/sidebar") %>
 			<!-- Content Wrapper. Contains page content -->
 			<div class="content-wrapper">
 				<!-- Content Header (Page header) -->
@@ -87,15 +87,12 @@
 				<!-- /.content -->
 			</div>
 			<!-- /.content - wrapper -->
-			<% include ../partials/footer %>
+			<%- include("../partials/footer") %>
 	</div>
 	<!-- ./wrapper -->
 
 	<!-- REQUIRED JS SCRIPTS -->
-	<!-- DataTables 1.10.12 -->
-	<script type="text/javascript" src="./assets/js/jquery.dataTables.min.js"></script>
-	<!-- Datatables-Bootstrap3 -->
-		<!-- DateRangePicker -->
+	<!-- DateRangePicker -->
 	<script type="text/javascript" src="./assets/js/daterangepicker.js"></script>
 
 	<script type="text/javascript" src="./js/controllers/cdr.js"></script>

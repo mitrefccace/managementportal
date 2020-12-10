@@ -30,7 +30,7 @@ exports.getConfigVal = function (param_name) {
     if (clearText) {
       decodedString = val;
     } else {
-      decodedString = new Buffer(val, 'base64');
+	  decodedString = Buffer.from(val, 'base64');
     }
   } else {
     //did not find value for param_name

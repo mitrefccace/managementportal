@@ -68,7 +68,7 @@ function myCleanup() {
 
   console.log('byeee.');
   console.log('');
-};
+}
 
 
 //declare constants for various config values
@@ -211,9 +211,12 @@ port = parseInt(getConfigVal('management_portal:https_listen_port'));
 var httpsServer = https.createServer(credentials, app);
 
 var io = require('socket.io')(httpsServer, {
-	cookie: false
+	cookie: false,
+	origins: fqdnUrl
 });
-io.set('origins', fqdnUrl);
+
+// io.set removed in socket.io 3.0. Origins now set in options during socket.io module inclusion.
+//io.set('origins', fqdnUrl);
 
 //Pull MySQL configuration from config.json file
 var dbHost = getConfigVal('database_servers:mysql:host');
@@ -254,7 +257,7 @@ var colStats = null;
 if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 	var mongodbUri = getConfigVal('database_servers:mongodb:connection_uri');
 	// Initialize connection once
-	MongoClient.connect(mongodbUri, { forceServerObjectId: true, useNewUrlParser: true }, function (err, database) {
+	MongoClient.connect(mongodbUri, { forceServerObjectId: true, useNewUrlParser: true, useUnifiedTopology: true }, function (err, database) {
 		if (err) {
 			logger.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
 			console.error('*** ERROR: Could not connect to MongoDB. Please make sure it is running.');
@@ -339,7 +342,7 @@ if (typeof mongodbUriEncoded !== 'undefined' && mongodbUriEncoded) {
 // Validates the token, if valid go to connection.
 // If token is not valid, no connection will be established.
 io.use(socketioJwt.authorize({
-	secret: new Buffer(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
+	secret: Buffer.from(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
 	timeout: parseInt(getConfigVal('web_security:json_web_token:timeout')), // seconds to send the authentication message
 	handshake: getConfigVal('web_security:json_web_token:handshake')
 }));
@@ -600,6 +603,31 @@ io.sockets.on('connection', function (socket) {
 			} else {
 				//returns JSON object of Report
 				io.to(socket.id).emit('reporttable-data', reportdata);
+			}
+		});
+	});
+
+	// Socket for Report table
+	socket.on('vrsreporttable-get-data', function (data) {
+		var format = data.format;
+
+		var reportStartDate = new Date(data.start);
+		var reportEndDate = new Date(data.end);
+		var timezone = data.timezone;
+		report.createVrsReport(mongodb, reportStartDate.getTime(), reportEndDate.getTime(), timezone, function (reportdata) {
+			if (format === 'csv') {
+				//csv field values
+
+				var csvFields = ['vrs', 'date', 'status',
+					'stateCode'];
+				// Converts JSON object to a CSV file.
+				let json2csvParser = new Json2csvParser({ csvFields });
+				let csv = json2csvParser.parse(reportdata.data);
+				//returns Report Data
+				io.to(socket.id).emit('vrsreporttable-csv', csv);
+			} else {
+				//returns JSON object of Report
+				io.to(socket.id).emit('vrsreporttable-data', reportdata);
 			}
 		});
 	});
@@ -1351,7 +1379,7 @@ function getTotalCallsTaken(m) {
 	m.forEach(function (call) {
 		num += call;
 	});
-	logger.debug("getTotalCallsTaken " + num);
+	//getTotalCallsTaken: num
 	return num;
 }
 
@@ -1422,7 +1450,8 @@ function handle_manager_event(evt) {
 						Agents.push(evt);
 
 					} else {
-						logger.debug("AMI event Agent not in AgentMap");
+						//AMI event Agent not in AgentMap
+						;
 					}
 				} else {
 					let mongoAgent = getAgentFromStats(a.agent);
@@ -1441,7 +1470,7 @@ function handle_manager_event(evt) {
 							a.avgtalktime = mongoAgent.avgtalktime;
 						}
 					}
-					logger.debug("Existing agent"); // status always set to AGENT_LOGGEDOFF. Do not use this field
+					//Existing agent: status always set to AGENT_LOGGEDOFF. Do not use this field
 
 				}
 				break;
@@ -1449,7 +1478,6 @@ function handle_manager_event(evt) {
 
 		case 'AgentComplete': // raised when a queue member has member finished servicing a caller in the queue
 			{ // update calls, talktime and holdtime for agent; update longestholdtime and currently active calls for queue
-				logger.debug(evt);
 				name = evt.membername.split("/");
 				a = findAgent(name[1]);
 
@@ -1496,7 +1524,6 @@ function handle_manager_event(evt) {
 			}
 		case 'QueueMember':
 			{ // update status and averageTalkTime
-				logger.debug(evt);
 				if (evt.name == null) {
 					logger.error("handle_manager_event(evt) QueueMember ERROR - evt.name is null or undefined");
 					break;
@@ -1504,7 +1531,7 @@ function handle_manager_event(evt) {
 				name = evt.name.split("/");
 				a = findAgent(name[1]); // use full name e.g. PSSIP/30001 which is the extension
 				if (a) {
-					logger.debug("QueueMember(): found existing Agent");
+					//QueueMember(): found existing Agent
 
 					if (((evt.status === "5") || (evt.status === "1")) && evt.paused === "1") // DEVICE_UNAVAILABLE
 						a.status = "Away";
@@ -1533,8 +1560,6 @@ function handle_manager_event(evt) {
 			}
 		case 'QueueParams':
 			{
-				// console.log("In queue params")
-				logger.debug(evt);
 
 				q = findQueue(evt.queue);
 				if (!q) {
@@ -1560,9 +1585,8 @@ function handle_manager_event(evt) {
 			}
 		case 'QueueSummary':
 			{
-				logger.debug(evt);
 				for (var j = 0; j < Asterisk_queuenames.length; j++) {
-					logger.debug("QueueSummary :" + evt.queue);
+					//QueueSummary: evt.queue
 					if (evt.queue === Asterisk_queuenames[j]) {
 						q = findQueue(evt.queue);
 						if (!q) {
@@ -1601,14 +1625,14 @@ function handle_manager_event(evt) {
 							q.avgHoldTime = Number((q.cumulativeHoldTime / q.completed) / 60).toFixed(2);
 							q.avgTalkTime = Number((q.cumulativeTalkTime / q.completed) / 60).toFixed(2);
 						}
-						logger.debug("QueueSummary(): q.talktime: " + q.talktime);
+						//QueueSummary(): q.talktime
 					}
 				}
 				break;
 			}
 		case 'QueueStatusComplete': // ready to send to the portal
 			{
-				logger.debug("QueueStatusComplete received");
+				//QueueStatusComplete received
 				sendEmit('queue-resp', {
 					'queues': Queues
 				});
@@ -1985,4 +2009,3 @@ app.get('/getVideomail', function (req, res) {
 		}
 	});
 });
-

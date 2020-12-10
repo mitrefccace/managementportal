@@ -24,10 +24,15 @@ $.ajax({
 				$('#ad-year').text(data.year);
 			});
 
-
 			socket.on('connect', function () {
 				// Emit for Report Data set to be called on page ready.
 				socket.emit('reporttable-get-data', {
+					"format": "json",
+					"start": start,
+					"end": end,
+					"timezone": timezone
+				});
+				socket.emit('vrsreporttable-get-data', {
 					"format": "json",
 					"start": start,
 					"end": end,
@@ -38,6 +43,11 @@ $.ajax({
 			// Receives the Report Table data.
 			socket.on('reporttable-data', function (data) {
 				if (data.message === "Success") {
+					$('#handled').text(data.handled);
+					$('#abandoned').text(data.abandoned);
+					$('#videomails').text(data.videomails);
+					$('#webcalls').text(data.webcalls);
+
 					$('#reporttable').dataTable().fnClearTable();
 					$('#reporttable').dataTable().fnAddData(data.data);
 					$('#reporttable').resize();
@@ -49,12 +59,55 @@ $.ajax({
 				updateCallStatusLineChart(data);
 			});
 
+			// Receives the Report Table data.
+			socket.on('vrsreporttable-data', function (data) {
+				if (data.message === "Success") {
+
+					var content = '<table style="width:100%"">';
+					for(i=0; i < data.topTenStates.length; i++){
+						content += '<tr><td>' + data.topTenStates[i][0] + '</td><td>' + data.topTenStates[i][1] +'</td></tr>';
+					}
+					content += "</table>";
+					$('#topTenStates').empty().append(content);
+
+					content = '<table style="width:100%"">';
+					for(i=0; i < data.topTenStates.length; i++){
+						content += '<tr><td>' + data.topTenAreaCodes[i][0] + '</td><td>' + data.topTenAreaCodes[i][1] +'</td></tr>';
+					}
+					content += "</table>";
+					$('#topTenAreaCodes').empty().append(content);
+
+					content = '<table style="width:100%"">';
+					for(i=0; i < data.topTenStates.length; i++){
+						content += '<tr><td>' + data.topTenVrsNumbers[i][0] + '</td><td>' + data.topTenVrsNumbers[i][1] +'</td></tr>';
+					}
+					content += "</table>";
+					$('#topTenVrsNumbers').empty().append(content);
+
+					$('#vrsreporttable').dataTable().fnClearTable();
+					$('#vrsreporttable').dataTable().fnAddData(data.data);
+					$('#vrsreporttable').resize();
+				} else {
+					$('#topTenStates').empty().append("Data does not exist");
+					$('#topTenAreaCodes').empty().append("Data does not exist");
+					$('#topTenVrsNumbers').empty().append("Data does not exist");
+
+					$('#vrsreporttable').dataTable().fnClearTable();
+					$('#vrsreporttable').resize();
+				}
+			});
+
 			// Receives the report data in CSV format
 			socket.on('reporttable-csv', function (data) {
 				downloadFile(data, 'report_info.csv');
 			});
 
-			// Handles Error conditions from Report REST calls.
+			// Receives the vrs report data in CSV format
+			socket.on('vrsreporttable-csv', function (data) {
+				downloadFile(data, 'vrs_report_info.csv');
+			});
+
+			// Handles Error conditions from Report calls.
 			socket.on('reporttable-error', function (data) {
 				$('#reporttable').dataTable().fnClearTable();
 				$(".dataTables_empty").css("color", "red").html(data.message);
@@ -174,6 +227,34 @@ var datatable = $('#reporttable').DataTable({
 	}
 });
 
+var vrsdatatable = $('#vrsreporttable').DataTable({
+	"columns": [{
+		"data": "vrs"
+		},
+		{
+			"data": "date",
+			"render": function (data, type, full, meta) {
+				if (type == "display") {
+					return moment(data).local().format('YYYY/MM/DD');
+				}
+				return data;
+			}
+		},
+		{
+			"data": "status"
+		},
+		{
+			"data": "stateCode"
+		},
+	],
+	// "order": [
+	// 	[0, "desc"]
+	// ],
+	"language": {
+		"emptyTable": "Data does not exist."
+	}
+});
+
 function DateRangePickerSetup() {
 	// Call back funtion for setting report range <div> value
 	function cb(start, end) {
@@ -209,6 +290,12 @@ function DateRangePickerSetup() {
 			"end": enddate,
 			"timezone": timezone
 		});
+		socket.emit('vrsreporttable-get-data', {
+			"format": "json",
+			"start": startdate,
+			"end": enddate,
+			"timezone": timezone
+		});
 	});
 }
 
@@ -222,6 +309,17 @@ $(document).ready(function () {
 		var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
 		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).endOf('day').format();
 		socket.emit('reporttable-get-data', {
+			"format": "csv",
+			"start": startdate,
+			"end": enddate,
+			"timezone": timezone
+		});
+	});
+	$('#vrsreportdownloadbtn').click(function () {
+		var picker = $('#reportrange').data('daterangepicker');
+		var startdate = moment(picker.startDate.format('YYYY-MM-DD')).format();
+		var enddate = moment(picker.endDate.format('YYYY-MM-DD')).endOf('day').format();
+		socket.emit('vrsreporttable-get-data', {
 			"format": "csv",
 			"start": startdate,
 			"end": enddate,

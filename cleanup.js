@@ -1,4 +1,4 @@
-function noOp() {};
+function noOp() {}
 exports.Cleanup = function Cleanup(callback) {
   callback = callback || noOp;
   process.on('cleanup',callback);
@@ -27,4 +27,3 @@ exports.Cleanup = function Cleanup(callback) {
     process.exit(99);
   });
 };
-

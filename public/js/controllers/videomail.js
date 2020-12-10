@@ -64,12 +64,17 @@ function connect_socket() {
 					stopVideomail();
 				})
 				.on('videomail-status', function (data) {
+					let showLabel = true;
+					if (data.length == 0) {
+						data = [{data:1, label:"No Messages"}];
+						showLabel = false;
+					}
 					$.plot("#videomailStatusPieChart", data, {
 						series: {
 							pie: {
 								show: true,
 								label: {
-									show: true,
+									show: showLabel,
 									formatter: function(label, series){
 										return(series.data[0][1]);
 									}

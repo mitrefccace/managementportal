@@ -3,13 +3,13 @@
 <html>
 
 <head>
-	<% include ../partials/head %>
+	<%- include("../partials/head") %>
 </head>
 
-<body class="hold-transition sidebar-mini" ng-app="acrcsr-dashboard">
+<body class="hold-transition sidebar-mini layout-fixed" ng-app="acrcsr-dashboard">
 	<div class="wrapper">
-		<% include ../partials/header %>
-			<% include ../partials/sidebar %>
+		<%- include("../partials/header") %>
+			<%- include("../partials/sidebar") %>
 				<!-- Content Wrapper. Contains page content -->
 				<div class="content-wrapper" ng-controller="dashboardController">
 					<!-- Content Header (Page header) -->
@@ -144,7 +144,7 @@
 					<!-- /.content -->
 				</div>
 				<!-- /.content-wrapper -->
-				<% include ../partials/footer %>
+				<%- include("../partials/footer") %>
 	</div>
 	<!-- ./wrapper -->
 

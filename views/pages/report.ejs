@@ -3,14 +3,14 @@
 <html>
 
 <head>
-	<% include ../partials/head %>
+	<%- include("../partials/head") %>
 </head>
 
-<body class="hold-transition skin-purple sidebar-mini">
+<body class="hold-transition skin-purple sidebar-mini layout-fixed">
 	<div class="wrapper">
 		<!-- Main Header -->
-		<% include ../partials/header %>
-		<% include ../partials/sidebar %>
+		<%- include("../partials/header") %>
+		<%- include("../partials/sidebar") %>
 		<!-- Content Wrapper. Contains page content -->
 		<div class="content-wrapper">
 			<!-- Content Header (Page header) -->
@@ -34,7 +34,41 @@
 			<!-- Main content -->
 			<div class="content">
 				<div class="container-fluid">
-					<!-- Report Table -->
+					<div class="row">
+						<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Calls Handled - Number of calls completed in all queues in the date range of this report.">
+								<div class="inner">
+									<h5 id="handled"></h5>
+									<h5>Calls Handled</h5>
+								</div>
+							</div>
+						</div><!-- ./col -->
+						<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Calls Abandoned – Number of calls not answered in all queues in the date range of this report.">
+								<div class="inner">
+									<h5 id="abandoned"></h5>
+									<h5>Calls Abandoned</h5>
+								</div>
+							</div>
+						</div><!-- ./col -->
+						<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Videomails - Number of videomails in the date range of this report.">
+								<div class="inner">
+									<h5 id="videomails"></h5>
+									<h5>Videomails</h5>
+								</div>
+							</div>
+						</div><!-- ./col -->
+						<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Web Calls - Number of web calls in the date range of this report.">
+								<div class="inner">
+									<h5 id="webcalls"></h5>
+									<h5>Web Calls</h5>
+								</div>
+							</div>
+						</div><!-- ./col -->
+					</div><!-- /.row -->
+					<!-- Call Summary Report Table -->
 					<div class="row">
 						<div class="col-lg-12">
 							<div class="card">
@@ -50,7 +84,7 @@
 											title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range."></i>
 									</div>
 								</div>
-								<!-- /.box-header -->
+
 								<div id="reporttablediv" class="card-body table-responsive" style="overflow-x: scroll">
 									<table id="reporttable" class="table table-bordered table-hover" cellspacing="0"
 										width="100%">
@@ -70,12 +104,11 @@
 										</thead>
 									</table>
 								</div>
-								<!-- /.box-body -->
+
 							</div>
-							<!-- /.box -->
 						</div>
 					</div>
-					<!-- ./Report Table -->
+					<!-- ./Call Summary Report Table -->
 					<div id="report"></div>
 					<div class="row" >
 						<div class="col-lg-12">
@@ -92,16 +125,79 @@
 									<div id="callSummaryLineChart" style="height:450px"></div>
         							<div id="legendContainer" class="legend"></div>
 								</div>
-								<!-- /.box-body -->
 							</div>
 						</div>
 					</div>
+					<!-- VRS Number Report Table -->
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="card">
+								<div class="card-header">
+									<h3 class="card-title">VRS Number Records</h3>
+									<div class="card-tools pull-right">
+										<button class="btn btn-tool" id="vrsreportdownloadbtn">
+											<i class="fa fa-download" style="font-size: 1.75em"></i>
+										</button>
+										<i style="padding-right: 15px" class="fa fa-question-circle"
+											data-toggle="tooltip" data-placement="bottom"
+											title="Download CSV File – This action downloads the table as a Comma Separated Values (CSV) file. The CSV file contains only data within the date range."></i>
+									</div>
+								</div>
+								<div id="vrsreporttablediv" class="card-body table-responsive" style="overflow-x: scroll">
+									<table id="vrsreporttable" class="table table-bordered table-hover" cellspacing="0"
+										width="100%">
+										<thead>
+											<tr>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="VRS Number">VRS Number</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Date">Date</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="Status">Status</th>
+												<th class="text-center" data-toggle="tooltip" data-container="body"
+													title="State">State</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- ./VRS Number Report Table -->
+					<div class="row">
+						<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Top 10 States in the date range of this report.">
+								<div class="inner">
+									<h5>Top 10 States</h5>
+									<div id="topTenStates"></div>
+								</div>
+							</div>
+						</div><!-- ./col -->
+						<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Top 10 Area Codes in the date range of this report.">
+								<div class="inner">
+									<h5>Top 10 Area Codes</h5>
+									<div id="topTenAreaCodes"></div>
+
+								</div>
+							</div>
+						</div><!-- ./col -->
+						<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+							<div class="small-box" data-toggle="tooltip" title="Top 10 VRS Numbers in the date range of this report.">
+								<div class="inner">
+									<h5>Top 10 VRS Numbers</h5>
+									<div id="topTenVrsNumbers"></div>
+
+								</div>
+							</div>
+						</div><!-- ./col -->
+					</div><!-- /.row -->
 				</div>
 			</div>
 			<!-- /.content -->
 		</div>
 		<!-- /.content - wrapper -->
-		<% include ../partials/footer %>
+		<%- include("../partials/footer") %>
 	</div>
 	<!-- ./wrapper -->
 <style>
@@ -136,9 +232,6 @@
 </style>
 
 	<!-- REQUIRED JS SCRIPTS -->
-	<!-- DataTables 1.10.12 -->
-	<script type="text/javascript" src="./assets/js/jquery.dataTables.min.js"></script>
-	<!-- Datatables-Bootstrap3 -->
 	<!-- flot -->
 	<script language="javascript" type="text/javascript" src="./assets/js/globalize.js"></script>
 	<script language="javascript" type="text/javascript" src="./assets/js/jquery.canvaswrapper.js"></script>

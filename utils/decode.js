@@ -26,7 +26,7 @@ module.exports = function(encodedString){
 	if (clearText) {
 		decodedString = encodedString;
 	} else {
-		decodedString = new Buffer(encodedString, 'base64');
+		decodedString = Buffer.from(encodedString, 'base64');
 	}
 	return (decodedString.toString());
 };

@@ -2,16 +2,16 @@
 
 <html>
 	<head>
-        <% include ../partials/head %>
+        <%- include("../partials/head") %>
         <!--bootstrap-select-->
         <link rel = "stylesheet" type="text/css" href="./assets/css/bootstrap-select.min.css">
         <link rel="stylesheet" href="./css/light.css">
 	</head>
-    <body class="hold-transition sidebar-mini">
+    <body class="hold-transition sidebar-mini layout-fixed">
         <div class="wrapper">
 			<!-- Main Header -->
-			<% include ../partials/header %>
-			<% include ../partials/sidebar %>
+			<%- include("../partials/header") %>
+			<%- include("../partials/sidebar") %>
             <!-- Content Wrapper. Contains page content -->
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
@@ -70,7 +70,7 @@
                     </div>
                 </div><!-- /.content -->
             </div><!-- /.content - wrapper -->
-			<% include ../partials/footer %>
+			<%- include("../partials/footer") %>
         </div><!-- ./wrapper -->
 
 		<!-- REQUIRED JS SCRIPTS -->

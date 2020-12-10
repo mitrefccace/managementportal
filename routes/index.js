@@ -241,7 +241,7 @@ router.get('/token', agent.shield(cookieShield), function (req, res) {
 	if (req.session.role === 'Manager' || req.session.role === 'Supervisor') {
 		var token = jwt.sign(
 			{ id: req.session.agent_id, username: req.session.username },
-			new Buffer(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
+			Buffer.from(getConfigVal('web_security:json_web_token:secret_key'), getConfigVal('web_security:json_web_token:encoding')),
 			{ expiresIn: parseInt(getConfigVal('web_security:json_web_token:timeout')) });
 		res.status(200).json({ message: "success", token: token });
 	} else {

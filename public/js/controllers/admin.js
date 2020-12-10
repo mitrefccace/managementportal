@@ -1,11 +1,10 @@
-'use strict'
+'use strict';
 
 // Angular setup
 
 // Much of the angular datatables logic was inspired by the following SO post
 // https://stackoverflow.com/questions/11872832/how-to-respond-to-clicks-on-a-checkbox-in-an-angularjs-directive
 var adminApp = angular.module('admin',['csrService','datatables']).controller('adminController', function($scope, socket,  DTOptionsBuilder){
-
 
     /**
      * Initial function fired when the DOM/window loads
@@ -21,13 +20,12 @@ var adminApp = angular.module('admin',['csrService','datatables']).controller('a
     angular.element(document).ready($scope.initData());
 
     // Set the default order to order by the extensions column in ascending order
-    $scope.options = DTOptionsBuilder.newOptions().withOption('order', [[1, 'asc']])
+    $scope.options = DTOptionsBuilder.newOptions().withOption('order', [[1, 'asc']]);
 
     // Initialize Agents scope to an empty array
     $scope.Agents = [];
     // Initialize the selected agents array
     $scope.selected = [];
-
 
     function findAgent(scopeagents, dataagent) {
         for (var i=0; i<scopeagents.length; i++) {
@@ -62,8 +60,8 @@ var adminApp = angular.module('admin',['csrService','datatables']).controller('a
     });
     // Show an error modal to the user if the force logout password is not present in the config
     socket.on('forceLogoutPasswordNotPresent', function(){
-        $('#invalidForceLogoutPasswordModal').modal('show')
-    })
+        $('#invalidForceLogoutPasswordModal').modal('show');
+    });
 
     /**
      * Updates the array of agents that have been selected by the user
@@ -113,7 +111,7 @@ var adminApp = angular.module('admin',['csrService','datatables']).controller('a
             }
         }
         return false;
-    }
+    };
     /**
      * Determines if the selected class should be added to the datatable row
      *
@@ -142,7 +140,7 @@ var adminApp = angular.module('admin',['csrService','datatables']).controller('a
                     "name": agent.name, // eg. - James Madison
                     "extension": agent.agent, // agent.agent refers to an agent extension (eg. 30001)
                     "status": agent.status // eg. - Ready
-                })
+                });
             }
         });
         return agents;
@@ -161,7 +159,7 @@ var adminApp = angular.module('admin',['csrService','datatables']).controller('a
             socket.emit('forceLogout', agentsToBeLoggedOut);
             console.log('Sent forceLogout event to server');
         }
-    })
+    });
 
     // Invoked when the Force Logout button on the main Administration page is clicked
     $("#forceLogoutButton").click(function(event){
@@ -180,6 +178,5 @@ var adminApp = angular.module('admin',['csrService','datatables']).controller('a
             // The user has selected agents to logout so show them the confirmation modal
             $('#logoutConfirmationModal').modal('show');
         }
-    })
-
+    });
 });
